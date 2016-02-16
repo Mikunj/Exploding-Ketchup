@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script>
+  		io = io.connect()
+		// Send the ready event.
+		io.emit('hi')
+		io.on('connected', function(data) {
+			console.log(data);
+		});
+		io.on('gameCreated', function(data) {
+			console.log(data);
+		});
+		io.on('gameRemoved', function(data) {
+			console.log(data);
+		});
+	</script>
+  </head>
+  <body>
+  	Poop
+  </body>
+</html>
