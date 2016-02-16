@@ -13,7 +13,6 @@ module.exports = function(io, EK) {
     
     io.on('connection', function(socket) {
         console.log('hi ' + socket.id);
-        console.log(JSON.stringify(EK.connectedUsers));
     
         /**
          * Disconnect from the server
@@ -21,7 +20,6 @@ module.exports = function(io, EK) {
          */
         socket.on('disconnect', function(data) {
             console.log('bye ' + socket.id);
-            console.log(EK.connectedUsers);
             
             if (socket.id in EK.connectedUsers) {
                 //Get the user id and fetch their details
@@ -34,6 +32,12 @@ module.exports = function(io, EK) {
 
                 //Leave all rooms
                 socket.leave(user.currentRoom);
+                
+                //Remove user from their current game if they were in it
+                if (user.currentRoom != $.LOBBY.ROOM) {
+                    var game = EK.gameList[user.currentRoom];
+                    removeUserFromGame(user, game, io, socket);
+                }
 
                 //Remove the user from connected users
                 EK.removeUser(user);
@@ -248,23 +252,13 @@ module.exports = function(io, EK) {
                 return;
             }
 
-            //Remove the user from the game
-            removeUserFromGame(user, game, socket);
-
             //Check if we have to stop the game (happens when players < min players)
             if (game.players.length < game.minPlayers) {
                 stopGame(io, data);
-
-                //Check if we have to remove game
-                if (game.players.length == 0) {
-                    io.emit($.GAME.REMOVED, {
-                        id: game.id
-                    });
-                    EK.removeGame(game);
-                    console.log('Removed game: ' + game.id);
-                    return;
-                }
             }
+            
+            //Remove the user from the game
+            removeUserFromGame(user, game, io, socket);
 
             //Notify players that user has left
             io.in(game.id).emit($.GAME.PLAYER.DISCONNECT, {
@@ -468,9 +462,10 @@ module.exports = function(io, EK) {
      * Remove user from a game
      * @param {Object}   user     The user
      * @param {Object}   game     The game
-     * @param {Object}   socket      The socket
+     * @param {Object}   io       The socket io
+     * @param {Object}   socket   The socket
      */
-    var removeUserFromGame = function (user, game, socket) {
+    var removeUserFromGame = function (user, game, io, socket) {
         var player = game.getPlayer(user);
         
         if (player) {
@@ -493,6 +488,16 @@ module.exports = function(io, EK) {
         //Join the lobby
         user.currentRoom = $.LOBBY.ROOM;
         socket.join($.LOBBY.ROOM);
+        
+        //Check if we have to remove game
+        if (game.players.length == 0) {
+            io.emit($.GAME.REMOVED, {
+                id: game.id
+            });
+            EK.removeGame(game);
+            console.log('Removed game: ' + game.id);
+            return;
+        }
     }
     
     /**
