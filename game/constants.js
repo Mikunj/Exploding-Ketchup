@@ -28,12 +28,14 @@ var $ = {
                 DEFUSED: 'defused',
                 EXPLODED: 'exploded',
                 SURVIVED: 'survived',
+                DISCONNECT: 'disconnected'
             },
             HAND: 'playerHand',
             DRAW: 'playerDraw',
             PLAY: 'playerPlayCard',
             DISCARDSELECT: 'playerDiscardSelect',
-            STEAL: 'playerSteal'
+            STEAL: 'playerSteal',
+            FAVOR: 'playerFavor'
         },
         REMOVED: 'gameRemoved'
     },

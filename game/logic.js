@@ -369,10 +369,19 @@ module.exports = function(io, EK) {
             if (game && game.status == $.GAME.STATUS.PLAYING) {
                 var user = EK.connectedUsers[socket.id];
 
-                //Only end turn if we are the current player
+                //Only end turn if we are the current player and the last played set effect was fulfilled
+                //E.g for favors you need to wait for the other player before you can end your turn
                 if (game.cUserIndex == game.playerIndexForUser(user)) {
                     var state = $.GAME.PLAYER.TURN.SURVIVED;
                     var player = game.getPlayer(user);
+                    
+                    //Check if effects have been played
+                    if (!effectsPlayed(game, player)) {
+                        socket.emit($.GAME.PLAYER.ENDTURN, {
+                            error: 'Waiting for card effect to take place'
+                        });
+                        return;
+                    }
 
                     //Make player draw a card and if it is an explode then remove a defuse
                     //If player has no defuse then player is out
@@ -421,12 +430,11 @@ module.exports = function(io, EK) {
                         //Stop the game
                         stopGame(io, data)
                     } else {
+                        
                         //Next players turn
-                        game.incrementIndex();
-
-                        //Go to the next alive player
-                        while(game.playerAliveCount() > 1 && !game.playerForCurrentIndex().alive) {
-                            game.incrementIndex();
+                        var nextAlive = game.getNextAliveIndex(game.cUserIndex);
+                        if (nextAlive != game.cUserIndex) {
+                            game.cUserIndex = nextAlive;
                         }
 
                         //Reset player draw amount (dead = 0, alive = 1)
@@ -463,6 +471,17 @@ module.exports = function(io, EK) {
                 var user = EK.connectedUsers[socket.id];
                 if (game.cUserIndex == game.playerIndexForUser(user) && data.cards.length > 0) {
                     var player = game.getPlayer(user);
+                    
+                    //Check if effects have been played
+                    if (!effectsPlayed(game, player)) {
+                        socket.emit($.GAME.PLAYER.PLAY, {
+                            error: 'Waiting for card effect to take place'
+                        });
+                        return;
+                    }
+                    
+                    //Keep track if we have to force user to end turn
+                    var endTurn = false;
                     
                     //Get cards from the players hand
                     var cards = player.getCardsWithId(data.cards);
@@ -503,6 +522,9 @@ module.exports = function(io, EK) {
                                     cardId: card.id,
                                     type: steal
                                 });
+                                
+                                //Set effect played
+                                playedSet.effectPlayed = true;
 
                                 break;
                             case $.CARDSET.STEAL.NAMED:
@@ -551,6 +573,9 @@ module.exports = function(io, EK) {
                                         type: steal
                                     });
                                 }
+                                
+                                //Set effect played
+                                playedSet.effectPlayed = true;
 
                                 break;
 
@@ -591,11 +616,14 @@ module.exports = function(io, EK) {
                                     });
                                 }
                                 
+                                //Set effect played
+                                playedSet.effectPlayed = true;
+                                
                                 //Remove the set from the discard pile if it's empty
                                 if (currentSet && currentSet.isEmpty()) {
                                     game.discardPile.splice(game.discardPile.indexOf(currentSet));
                                 }
-                                                                                 
+                                
                                 break;
 
                             default:
@@ -608,19 +636,163 @@ module.exports = function(io, EK) {
                     } else {
                         var card = playedSet.cards[0];
                         switch (card.type) {
+                            case $.CARD.ATTACK:
+                                //Attack the next person that is alive
+                                var nextPlayer = game.getNextAlive(game.cUserIndex);
+                                
+                                //Set the draw amount to 0 so that we just end our turn without drawing anything
+                                player.drawAmount = 0;
+                                nextPlayer.drawAmount = 2;
+                                
+                                //Tell next player that they have to draw 2
+                                io.in(game.id).emit($.GAME.PLAYER.DRAW, {
+                                    user: nextPlayer.user,
+                                    amount: nextPlayer.drawAmount
+                                });
+                                
+                                //Force player to end turn
+                                endTurn = true;
+                                
+                                //Set the sets effect to played
+                                playedSet.effectPlayed = true;
+                                
+                                break;
+                                
+                            case $.CARD.FAVOR:
+                                //Only favor if we have someone to get a favor from
+                                if (!otherPlayerExists(data)) {
+                                    socket.emit($.GAME.PLAYER.PLAY, {
+                                        error: 'Invalid user selected'
+                                    });
+                                    return;
+                                }
+                                
+                                var other = EK.connectedUsers[data.to];
+                                
+                                //Set the favor to false
+                                playedSet.effectPlayed = false;
+                                
+                                //Ask other player for favor
+                                io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
+                                    force: true,
+                                    from: user,
+                                    to: other
+                                });
+                                
+                                break;
                         }
                     }
                     
                     //Remove the cards played and put them in the discard pile
                     player.removeCards(cards);
                     game.discardPile.push(playedSet);
+                    
+                    //Notify players that cards were played
+                    io.in(game.id).emit($.GAME.PLAYER.PLAY, {
+                        user: user,
+                        cards: cards
+                    });
+                    
+                    //Send user info about ending turn
+                    if (endTurn) {
+                        //Tell player to force end turn
+                        socket.emit($.GAME.PLAYER.ENDTURN, {
+                            force: true,
+                            user: user
+                        });
+                    }
                 }
             }
         }); //End $.GAME.PLAYER.PLAY
         
+        /**
+         * Give a favor to a player
+         * 
+         * Request Data: {
+         *   gameId: "game id",
+         *   to: "The player to do favor to",
+         *   card: "The card id"
+         * }
+         * @param {Object} data The data
+         */
+        socket.on($.GAME.PLAYER.FAVOR, function(data){
+            //Get the game and check if it exists
+            var game = EK.gameList[data.gameId];
+
+            if (game && game.status == $.GAME.STATUS.PLAYING) {
+                var user = EK.connectedUsers[socket.id];
+                var player = game.getPlayer(user);
+                
+                //Check if we have right player
+                if (!data.hasOwnProperty('to') || !EK.connectedUsers[data.to] || !game.getPlayer(EK.connectedUsers[data.to])) {
+                    socket.emit($.GAME.PLAYER.FAVOR, {
+                        error: 'Invalid player'
+                    });
+                    return;
+                }
+                
+                //Check if current user has card
+                if (!data.hasOwnProperty('card') || !game.getPlayer(user).hasCardWithId(data.card)) {
+                    socket.emit($.GAME.PLAYER.FAVOR, {
+                        error: 'Invalid card'
+                    });
+                    return;
+                }
+                
+                //Check if the other person is currently the one doing their turn
+                var other = EK.connectedUsers[data.to];
+                var otherPlayer = game.getPlayer(other);
+                
+                if (otherPlayer === game.playerForCurrentIndex()) {
+                    
+                    //Check if the favor is still possible
+                    if (!effectsPlayed(game, otherPlayer)) {
+                        
+                        //Remove the card from player and give it to other player
+                        var card = player.removeCardWithId(data.card);
+                        otherPlayer.addCard(card);
+                        
+                        //Set the effect play
+                        game.discardPile[game.discardPile.length - 1].effectPlayed = true;
+                        
+                        //Notify players of the favor
+                        io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
+                            success: true,
+                            to: other,
+                            from: user,
+                            card: data.card
+                        });
+                        return;
+                    }
+                }
+                
+                //If we hit here then favor did not go through
+                socket.emit($.GAME.PLAYER.FAVOR, {
+                    error: 'Something went wrong'
+                });
+            }
+        });
     });
     
     //************ Socket methods ************//
+    
+    /**
+     * Whether the last card sets effects were played
+     * @param   {Object}   game   The game
+     * @param   {Object} player The player
+     * @returns {Boolean}  True if the last sets effects were played else false
+     */
+    var effectsPlayed = function(game, player) {
+        //Check for last set effect played
+        if (game.discardPile.length > 0) {
+            var lastSet = game.discardPile[game.discardPile.length - 1];
+            if (lastSet.owner == player) {
+                return lastSet.effectPlayed;
+            }
+        }
+        
+        return true;
+    }
     
     /**
      * Add user to a game
@@ -653,20 +825,61 @@ module.exports = function(io, EK) {
      */
     var removeUserFromGame = function (user, game, io, socket) {
         var player = game.getPlayer(user);
+        var currentPlayer = game.playerForCurrentIndex();
         
-        if (player) {
+        if (player) {  
+            
             //Remove the user from the game
             game.removePlayer(user);
             
             //If game was in progress then put players cards in the discard pile
             if (game.status === $.GAME.STATUS.PLAYING) {
+                
                 for (var card in player.hand) {
                     var set = new CardSet(player, [card]);
                     game.discardPile.push(set);
                 }
                 
                 player.hand = [];
+                
+                //Check if the player is the current one drawing, if so determine winner or force next turn
+                if (player === currentPlayer) {
+                    
+                    //Check for a winner
+                    if (game.playerAliveCount() < 2) {
+                        var winner = null;
+                        for (var player in game.players) {
+                            if (player.alive) winner = player;
+                        }
+
+                        //Tell everyone user won
+                        if (winner) {
+                            io.in(game.id).emit($.GAME.WIN, {
+                                user: winner
+                            });
+                        }
+
+                        //Stop the game
+                        stopGame(io, data)
+                    } else {
+                        
+                        //Next players turn
+                        var nextAlive = game.getNextAliveIndex(game.cUserIndex - 1);
+                        game.cUserIndex = nextAlive;
+
+                        //Send state information back
+                        io.in(game.id).emit($.GAME.PLAYER.ENDTURN, {
+                            user: player.user,
+                            alive: false,
+                            state: $.GAME.PLAYER.TURN.DISCONNECT,
+                            next: game.playerForCurrentIndex().user
+                        });
+                    }
+                    
+                } //END player === currentPlayer
+            
             }
+            
         }
         
         //Leave old room

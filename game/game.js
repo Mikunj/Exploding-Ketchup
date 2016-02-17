@@ -177,14 +177,41 @@ Game.prototype.playerAliveCount = function() {
 }
 
 /**
- * Increments the cUserIndex
+ * Increment a given index
+ * @param {Number} index The index to increment
  */
-Game.prototype.incrementIndex = function() {
-    if (this.cUserIndex + 1 >= this.players.length) {
-        this.cUserIndex = 0;
+Game.prototype.increment = function(index) {
+    if (index + 1 >= this.players.length) {
+        index = 0;
     } else {
-        this.cUserIndex += 1;
+        index += 1;
     }
+}
+
+/**
+ * Get the index of the next alive player
+ * @param   {Number} start The start index
+ * @returns {Number} The index of the next player
+ */
+Game.prototype.getNextAliveIndex = function(start) {
+    var next = start;
+    this.increment(next);
+    
+    //Go to the next alive player
+    while(this.playerAliveCount() > 1 && !this.players[next].alive) {
+        this.increment(next);
+    }
+    
+    return next;
+}
+
+/**
+ * Get the next alive player
+ * @param   {Number} start The start index
+ * @returns {Object} The next alive player
+ */
+Game.prototype.getNextAlive = function(start) {
+    return this.players[this.getNextAliveIndex(start)];
 }
 
 /**
