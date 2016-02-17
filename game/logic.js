@@ -13,14 +13,11 @@ module.exports = function(io, EK) {
     //************ Socket routes ************// 
     
     io.on('connection', function(socket) {
-        console.log('hi ' + socket.id);
-    
         /**
          * Disconnect from the server
          * @param {Object} data The data
          */
         socket.on('disconnect', function(data) {
-            console.log('bye ' + socket.id);
             
             if (socket.id in EK.connectedUsers) {
                 //Get the user id and fetch their details
