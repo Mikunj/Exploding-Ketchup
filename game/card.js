@@ -2,9 +2,9 @@
  * A playing card
  * @param {String} name The name
  * @param {String} type The card type
- * @param {String} icon The icon
+ * @param {String} image The image
  */
-var Card = function(name, type, icon) {
+var Card = function(name, type, image) {
     
     //Card name to display
     this.name = name;
@@ -13,10 +13,8 @@ var Card = function(name, type, icon) {
     this.type = type;
     
     //Card icon
-    this.icon = icon;
+    this.image = image;
     
-    //Card effect has been played
-    this.effectPlayed = false;
 }
 
 module.exports = Card;

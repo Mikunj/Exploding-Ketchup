@@ -1,3 +1,7 @@
+/**
+ * A player instance for a given user for a specific game
+ * @param {Object} user The user
+ */
 var Player = function(user) {
     
     //The user associated with the player

@@ -2,6 +2,10 @@ var User = require('./user');
 var Game = require('./game');
 var $ = require('./constants');
 
+/**
+ * Main game manager
+ * @param {Object} io Socket.io object
+ */
 var EK = function(io) {
     
     //List of all the current users

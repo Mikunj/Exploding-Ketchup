@@ -12,6 +12,7 @@ var $ = {
         CREATED: 'gameCreated',
         START: 'startGame',
         STOP: 'stopGame',
+        STARTED: 'gameStarted',
         WIN: 'winGame',
         STATUS: {
             WAITING: 'gameWaiting',
@@ -49,6 +50,15 @@ var $ = {
         FAVOR: 'favor',
         SHUFFLE: 'shuffle',
         REGULAR: 'regular'
+    },
+    
+    CARDSET: {
+        STEAL: {
+            BLIND: 'blindSteal',
+            NAMED: 'namedSteal',
+            DISCARD: 'discardSteal',
+            INVALID: 'invalidSteal'
+        }
     },
     
     ROUND: {

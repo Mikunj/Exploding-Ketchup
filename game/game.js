@@ -2,6 +2,11 @@ var Player = require('./player');
 var $ = require('./constants');
 var Card = require('./card');
 
+/**
+ * A game on the server
+ * @param {Object} id  The game id
+ * @param {String} title The game title
+ */
 var Game = function(id, title) {
 
     //Game id
@@ -253,17 +258,17 @@ Game.prototype.resetDeck = function() {
     for (var i = 0; i < 10; i++) {
         if (i < 8) {
             this.drawPile.push(new Card('att_' + i, $.CARD.ATTACK, 0));
-            this.drawPile.push(new Card('skp_' + i, $.CARD.SKIP, 0));
-            this.drawPile.push(new Card('fav_' + i, $.CARD.FAVOR, 0));
-            this.drawPile.push(new Card('sfl_' + i, $.CARD.SHUFFLE, 0));
+            this.drawPile.push(new Card('skp_' + i, $.CARD.SKIP, 1));
+            this.drawPile.push(new Card('fav_' + i, $.CARD.FAVOR, 2));
+            this.drawPile.push(new Card('sfl_' + i, $.CARD.SHUFFLE, 3));
             
             //5 regular cards
             for (var j = 0; j < 5; j++) {
-                this.drawPile.push(new Card('r' + j + '_' + i, $.CARD.REGULAR, 0));
+                this.drawPile.push(new Card('r' + j + '_' + i, $.CARD.REGULAR, j));
             }
         }
         
-        this.drawPile.push(new Card('ftr_' + i, $.CARD.FUTURE, 0));
+        this.drawPile.push(new Card('ftr_' + i, $.CARD.FUTURE, 4));
     }
     
 }

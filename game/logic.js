@@ -287,6 +287,7 @@ module.exports = function(io, EK) {
                     if (game.start()) {
                         //Tell everyone game has started, from there they individually send a request for their hand
                         io.in(game.id).emit($.GAME.START);
+                        io.emit($.GAME.STARTED, { id: game.id });
                         console.log('Started game: ' + game.id);
                     }
                 }
@@ -403,9 +404,11 @@ module.exports = function(io, EK) {
                         }
 
                         //Tell everyone user won
-                        io.in(game.id).emit($.GAME.WIN, {
-                            user: winner
-                        });
+                        if (winner) {
+                            io.in(game.id).emit($.GAME.WIN, {
+                                user: winner
+                            });
+                        }
 
                         //Stop the game
                         stopGame(io, data)
