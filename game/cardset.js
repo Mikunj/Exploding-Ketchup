@@ -16,6 +16,62 @@ var CardSet = function(player, cards) {
 }
 
 /**
+ * Whether the set is has no cards
+ * @returns {Boolean} True if set has no cards else false
+ */
+CardSet.prototype.isEmpty = function() {
+    return (this.cards.length < 1);
+}
+
+/**
+ * Whether the card set has a card with given id
+ * @param   {String} id The card id
+ * @returns {Boolean}  True if the set has the card else false
+ */
+CardSet.prototype.hasCardWithId = function(id) {
+    for (var card in this.cards) {
+        if (card.id === id) return true;
+    }
+    return false;
+}
+
+/**
+ * Whether the card set has a card of a certain type
+ * @param   {String}  type The card type
+ * @returns {Boolean} True if the set has the card else false
+ */
+CardSet.prototype.hasCardType = function(type) {
+    for (var card in this.cards) {
+        if (card.type === type) return true;
+    }
+    return false;
+}
+
+/**
+ * Remove a card type from the set
+ * @param   {String}   type The card type
+ * @returns {Object} The card or null
+ */
+CardSet.prototype.removeCardType = function(type) {
+    if (this.hasCardType(type)) {
+        var chosenCard = null;
+        for (var card in this.cards) {
+            if (card.type === type) {
+                chosenCard = card;
+                break;
+            }
+        }
+        
+        if (chosenCard) {
+            this.cards.splice(this.cards.indexOf(chosenCard), 1);
+        }
+        
+        return chosenCard;
+    }
+    return null;
+}
+
+/**
  * Whether the current card set can be used to steal.
  * E.g Blind steal, Named steal or Discard steal.
  * 

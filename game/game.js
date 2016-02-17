@@ -111,6 +111,14 @@ Game.prototype.isPlayerConnected = function (user) {
 }
 
 /**
+ * Generate a random id
+ * @returns {String}   A random id
+ */
+Game.prototype.generateRandomID = function() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
+
+/**
  * Start the game.
  *
  * @returns {Boolean} If game started
@@ -126,13 +134,13 @@ Game.prototype.start = function () {
     
     //Give each player a diffuse and 4 random card from the pile
     for (var player in this.players) {
-        player.addCard(new Card('a', $.CARD.DEFUSE, 'a'));
+        player.addCard(new Card(this.generateRandomID(), 'd', $.CARD.DEFUSE, 'a'));
         this.drawCards(player, 4);
     }
     
     //Add in bombs
     for (var i = 0; i < this.players.length - 1; i ++) {
-        this.drawPile.push(new Card('d_' + i, $.CARD.EXPLODE, 0));
+        this.drawPile.push(new Card(this.generateRandomID(), 'e_' + i, $.CARD.EXPLODE, 0));
     }
     
     this.shuffleDeck();
@@ -188,7 +196,7 @@ Game.prototype.playerForCurrentIndex = function() {
 }
 
 /**
- * Draw cards from the pile
+ * Draw cards from the pile and adds it to the players hand
  * @param   {Object} player The player
  * @param   {Number} amount Amount of cards to draw
  * @returns {Array}  An array of cards drawn
@@ -213,7 +221,8 @@ Game.prototype.explodePlayer = function(player) {
     
     //Add the hand to the discard pile
     for (var card in player.hand) {
-        this.discardPile.push(card);
+        var set = new CardSet(player, [card]);
+        this.discardPile.push(set);
     }
     player.hand = [];
 }
@@ -257,18 +266,18 @@ Game.prototype.resetDeck = function() {
     //Generate cards
     for (var i = 0; i < 10; i++) {
         if (i < 8) {
-            this.drawPile.push(new Card('att_' + i, $.CARD.ATTACK, 0));
-            this.drawPile.push(new Card('skp_' + i, $.CARD.SKIP, 1));
-            this.drawPile.push(new Card('fav_' + i, $.CARD.FAVOR, 2));
-            this.drawPile.push(new Card('sfl_' + i, $.CARD.SHUFFLE, 3));
+            this.drawPile.push(new Card(this.generateRandomID(), 'att_' + i, $.CARD.ATTACK, 0));
+            this.drawPile.push(new Card(this.generateRandomID(), 'skp_' + i, $.CARD.SKIP, 1));
+            this.drawPile.push(new Card(this.generateRandomID(), 'fav_' + i, $.CARD.FAVOR, 2));
+            this.drawPile.push(new Card(this.generateRandomID(), 'sfl_' + i, $.CARD.SHUFFLE, 3));
             
             //5 regular cards
             for (var j = 0; j < 5; j++) {
-                this.drawPile.push(new Card('r' + j + '_' + i, $.CARD.REGULAR, j));
+                this.drawPile.push(new Card(this.generateRandomID(), 'r' + j + '_' + i, $.CARD.REGULAR, j));
             }
         }
         
-        this.drawPile.push(new Card('ftr_' + i, $.CARD.FUTURE, 4));
+        this.drawPile.push(new Card(this.generateRandomID(), 'ftr_' + i, $.CARD.FUTURE, 4));
     }
     
 }

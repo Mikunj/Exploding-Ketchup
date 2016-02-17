@@ -30,7 +30,10 @@ var $ = {
                 SURVIVED: 'survived',
             },
             HAND: 'playerHand',
-            DRAW: 'playerDraw'
+            DRAW: 'playerDraw',
+            PLAY: 'playerPlayCard',
+            DISCARDSELECT: 'playerDiscardSelect',
+            STEAL: 'playerSteal'
         },
         REMOVED: 'gameRemoved'
     },

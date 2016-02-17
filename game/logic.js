@@ -1,6 +1,7 @@
 var User = require('./user');
 var Game = require('./game');
 var $ = require('./constants');
+var CardSet = require('./cardset');
 
 /**
  * This class handles all the game logic
@@ -387,7 +388,14 @@ module.exports = function(io, EK) {
                         if (player.hasCardType($.CARD.DEFUSE)) {
                             //Remove deufse and add it to the discard pile
                             var defuse = player.removeCardType($.CARD.DEFUSE);
-                            game.discardPile.push(defuse);
+                            var set = new CardSet(player, [defuse]);
+                            game.discardPile.push(set);
+                            
+                            //Add the bomb back into the draw pile at a random position
+                            var explode = player.removeCardType($.CARD.EXPLODE);
+                            var index = Math.floor(Math.random() * (game.drawPile.length - 1));
+                            game.drawPile.splice(index, 0, explode);
+                            
                             state = $.GAME.PLAYER.TURN.DEFUSED;
                         } else {
                             //Player exploded
@@ -435,6 +443,181 @@ module.exports = function(io, EK) {
                 }
             }
         });
+        
+        /**
+         * Play cards.
+         * 
+         * Request Data: {
+         *   gameId: "gameId",
+         *   cards: [] //An array of card ids to play
+         *   to: "User id" //Optional: The user to do the action against
+         *   cardType: "Card type" //Optional: Type of card to steal
+         * }
+         * 
+         * @param {Object} data The data
+         */
+        socket.on($.GAME.PLAYER.PLAY, function(data) {
+            var game = EK.gameList[data.gameId];
+            if (game && game.status == $.GAME.STATUS.PLAYING) {
+                //Check if it is the current users turn
+                var user = EK.connectedUsers[socket.id];
+                if (game.cUserIndex == game.playerIndexForUser(user) && data.cards.length > 0) {
+                    var player = game.getPlayer(user);
+                    
+                    //Get cards from the players hand
+                    var cards = player.getCardsWithId(data.cards);
+                    
+                    //Add the cards to a set
+                    var playedSet = new CardSet(player, cards);
+                    
+                    //Whether the other specified player exists
+                    var otherPlayerExists = function(data) {
+                        return data.hasOwnProperty('to') && EK.connectedUsers[data.to] && game.getPlayer(EK.connectedUsers[data.to]);
+                    }
+                    
+                    //Check for combos
+                    if (playedSet.cards.length > 1) {
+                        var steal = playedSet.canSteal();
+                        switch(steal) {
+                            case $.CARDSET.STEAL.BLIND:
+                                //Only steal if we have someone to steal from
+                                if (!otherPlayerExists(data)) {
+                                    socket.emit($.GAME.PLAYER.PLAY, {
+                                        error: 'Invalid user selected'
+                                    });
+                                    return;
+                                }
+
+                                var other = EK.connectedUsers[data.to];
+                                var otherPlayer = game.getPlayer(other);
+
+                                //Remove a random card from the other players hand and add it to the current player
+                                var card = otherPlayer.getRandomCard();
+                                otherPlayer.removeCard(card);
+                                player.addCard(card);
+                                
+                                //Tell players that a steal occurred
+                                io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                                    to: other.id,
+                                    from: socket.id,
+                                    cardId: card.id,
+                                    type: steal
+                                });
+
+                                break;
+                            case $.CARDSET.STEAL.NAMED:
+                                //Only steal if we have someone to steal from
+                                if (!otherPlayerExists(data)) {
+                                    socket.emit($.GAME.PLAYER.PLAY, {
+                                        error: 'Invalid user selected'
+                                    });
+                                    return;
+                                }
+
+                                //Make sure we have a specified card selected
+                                if (!data.hasOwnProperty('cardType')) {
+                                    socket.emit($.GAME.PLAYER.PLAY, {
+                                        error: 'Invalid card type selected'
+                                    });
+                                    return;
+                                }
+
+                                var other = EK.connectedUsers[data.to];
+                                var otherPlayer = game.getPlayer(other);
+                                var type = data.cardType;
+
+                                //Remove the specified card from the other players hand and add it to the current player
+                                var card = other.removeCardType(type);
+                                if (card) {
+                                    player.addCard(card);
+                                    
+                                    //Tell players that a steal occurred
+                                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                                        success: true,
+                                        to: other.id,
+                                        from: socket.id,
+                                        cardType: type,
+                                        cardId: card.id,
+                                        type: steal
+                                        
+                                    });
+                                } else {
+                                    //Tell players that stealing was unsuccessful
+                                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                                        success: false,
+                                        to: other.id,
+                                        from: socket.id,
+                                        cardType: type,
+                                        type: steal
+                                    });
+                                }
+
+                                break;
+
+                            case $.CARDSET.STEAL.DISCARD:
+                                //Make sure we have a specified card selected
+                                if (!data.hasOwnProperty('cardType')) {
+                                    socket.emit($.GAME.PLAYER.PLAY, {
+                                        error: 'Invalid card type selected'
+                                    });
+                                    return;
+                                }
+                                var type = data.cardType;
+                                
+                                var card = null;
+                                var currentSet = null;
+                                //Go through the discard pile and remove given card and add it to user
+                                for (var set in game.discardPile) {
+                                    if (set.hasCardType(type)) {
+                                        //Get the card and remove the set if it's empty
+                                        card = set.removeCardType(type);
+                                        if (card) {
+                                            currentSet = set; 
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                //If card existed then give it to the user
+                                if (card) {
+                                    player.addCard(card);
+                                    
+                                    //Notify players of the steal
+                                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                                        success: true,
+                                        card: card.id,
+                                        type: steal,
+                                        user: user.id
+                                    });
+                                }
+                                
+                                //Remove the set from the discard pile if it's empty
+                                if (currentSet && currentSet.isEmpty()) {
+                                    game.discardPile.splice(game.discardPile.indexOf(currentSet));
+                                }
+                                                                                 
+                                break;
+
+                            default:
+                                //Make sure to let the player know to only play 1 card at a time if not playing a combo
+                                socket.emit($.GAME.PLAYER.PLAY, {
+                                    error: 'Invalid combo'
+                                });
+                                return;
+                        }
+                    } else {
+                        var card = playedSet.cards[0];
+                        switch (card.type) {
+                        }
+                    }
+                    
+                    //Remove the cards played and put them in the discard pile
+                    player.removeCards(cards);
+                    game.discardPile.push(playedSet);
+                }
+            }
+        }); //End $.GAME.PLAYER.PLAY
+        
     });
     
     //************ Socket methods ************//
@@ -478,7 +661,8 @@ module.exports = function(io, EK) {
             //If game was in progress then put players cards in the discard pile
             if (game.status === $.GAME.STATUS.PLAYING) {
                 for (var card in player.hand) {
-                    game.discardPile.push(card);
+                    var set = new CardSet(player, [card]);
+                    game.discardPile.push(set);
                 }
                 
                 player.hand = [];
