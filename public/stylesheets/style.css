@@ -103,7 +103,9 @@ html, body {
 .content {
     padding: 5px;
     display: block;
-    overflow: scroll;
+    overflow-y: scroll;
+    height: 100%;
+    width: 100%;
 }
 
 .user {
@@ -116,4 +118,19 @@ html, body {
 
 .user:last-child {
     border: none;
+    margin-bottom: 37px;
+}
+
+.game {
+    background: #2E2E69;
+    display: inline-block;
+    padding: 20px;
+    min-width: 200px;
+    text-align: center;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.game:last-child {
+    margin-bottom: 40px;
 }
