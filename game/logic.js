@@ -136,6 +136,14 @@ module.exports = function(io, EK) {
             }
 
             var user = EK.connectedUsers[socket.id];
+            
+            //Make sure user is in lobby
+            if (user.currentRoom != $.LOBBY.ROOM) {
+                socket.emit($.GAME.CREATE, {
+                    error: "User is in another lobby"
+                });
+                return;
+            }
 
             //Generate a unique id
             var gameId = null;
