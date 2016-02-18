@@ -11,7 +11,7 @@ html, body {
     height: 100%;
     top: 0;
     left: 0;
-    padding: 20px;
+    overflow: none;
 }
 
 .center {
@@ -108,17 +108,37 @@ html, body {
     width: 100%;
 }
 
+.message {
+    margin-bottom: 5px; 
+}
+
 .user {
     min-width: 100%;
     width: 100%;
     border-bottom: 1px #46469F solid;
     padding: 5px;
     margin-bottom: 5px;
+    padding-bottom: 10px;
 }
 
 .user:last-child {
     border: none;
     margin-bottom: 37px;
+}
+
+.user .status {
+    display: inline-block;
+    float: right;
+    padding: 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 24px;
+    transform: translateY(-2px);
+    border-radius: 4px;
+}
+
+.user .status-red {
+    background: #FFAEB9;
 }
 
 .game {
@@ -133,4 +153,33 @@ html, body {
 
 .game:last-child {
     margin-bottom: 40px;
+}
+
+#game {
+    z-index: 7;
+}
+
+#game #container {
+    height: calc(100% - 250px);
+}
+
+#chat {
+    height: 250px;
+    background: #2E2E69;
+    -webkit-box-shadow: 0px -2px 15px 0px rgba(0,0,0,0.75);
+-moz-box-shadow: 0px -2px 15px 0px rgba(0,0,0,0.75);
+box-shadow: 0px -2px 15px 0px rgba(0,0,0,0.75);
+}
+
+#playerList {
+    float: left;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+#chatBox {
+    background: #0A0A33;
+    float: right;
+    height: 100%;
 }

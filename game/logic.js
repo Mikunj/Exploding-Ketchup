@@ -103,7 +103,7 @@ module.exports = function(io, EK) {
                     id: game.id,
                     title: game.title,
                     status: game.status,
-                    players: game.players
+                    players: game.getPlayers()
                 });
             }
 
@@ -111,6 +111,7 @@ module.exports = function(io, EK) {
             EK.addUser(user);
             socket.emit($.LOBBY.CONNECT, {
                 success: 'Successfully connected',
+                user: user,
                 connectedUsers: EK.connectedUsers,
                 gameList: gameList
             });
@@ -134,10 +135,20 @@ module.exports = function(io, EK) {
                 });
                 return;
             }
-
-            var user = EK.connectedUsers[socket.id];
+            
+            //Make sure title is unique
+            for (var key in EK.gameList) {
+                var game = EK.gameList[key];
+                if (game.title === title) {
+                    socket.emit($.GAME.CREATE, {
+                        error: "Game with title already exists!"
+                    });
+                    return;
+                }
+            }
             
             //Make sure user is in lobby
+            var user = EK.connectedUsers[socket.id];
             if (user.currentRoom != $.LOBBY.ROOM) {
                 socket.emit($.GAME.CREATE, {
                     error: "User is in another lobby"
@@ -168,7 +179,7 @@ module.exports = function(io, EK) {
             var gameData = {
                 id: game.id,
                 title: game.title,
-                players: game.players,
+                players: game.getPlayers(),
                 status: game.status
             };
 
@@ -213,27 +224,19 @@ module.exports = function(io, EK) {
             }
 
             var currentPlayer = game.getPlayer(user);
-
-            //Create player data
-            var players = []
-            for (var player in game.players) {
-                players.push({
-                    user: player.user
-                });
-            }
-
+            
             //Notify the players in the game that user has joined
             socket.broadcast.in(game.id).emit($.GAME.PLAYER.CONNECT, {
                 game: game,
-                user: currentPlayer.user
+                player: currentPlayer
             });
 
             //Send data to player
             socket.emit($.GAME.JOIN, {
                 success: 'Successfully joined game!',
-                players: players,
+                players: game.getPlayers(),
                 game: game,
-                user: currentPlayer.user
+                player: currentPlayer
             });
         });
 
@@ -263,12 +266,15 @@ module.exports = function(io, EK) {
                 stopGame(io, data);
             }
             
+            //Get the player
+            var player = game.getPlayer(user);
+            
             //Remove the user from the game
             removeUserFromGame(user, game, io, socket);
 
             //Notify players that user has left
             io.in(game.id).emit($.GAME.PLAYER.DISCONNECT, {
-                user: user
+                player: player
             });
         });
 
@@ -421,7 +427,8 @@ module.exports = function(io, EK) {
                     //Check for a winner
                     if (game.playerAliveCount() < 2) {
                         var winner = null;
-                        for (var player in game.players) {
+                        for (var key in game.players) {
+                            var player = game.players[key];
                             if (player.alive) winner = player;
                         }
 
@@ -597,7 +604,8 @@ module.exports = function(io, EK) {
                                 var card = null;
                                 var currentSet = null;
                                 //Go through the discard pile and remove given card and add it to user
-                                for (var set in game.discardPile) {
+                                for (var key in game.discardPile) {
+                                    var set = game.discardPile[key];
                                     if (set.hasCardType(type)) {
                                         //Get the card and remove the set if it's empty
                                         card = set.removeCardType(type);
@@ -840,7 +848,8 @@ module.exports = function(io, EK) {
             //If game was in progress then put players cards in the discard pile
             if (game.status === $.GAME.STATUS.PLAYING) {
                 
-                for (var card in player.hand) {
+                for (var key in player.hand) {
+                    var card = player.hand[key];
                     var set = new CardSet(player, [card]);
                     game.discardPile.push(set);
                 }
@@ -853,7 +862,8 @@ module.exports = function(io, EK) {
                     //Check for a winner
                     if (game.playerAliveCount() < 2) {
                         var winner = null;
-                        for (var player in game.players) {
+                        for (var key in game.players) {
+                            var player = game.players[key];
                             if (player.alive) winner = player;
                         }
 

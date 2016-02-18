@@ -102,7 +102,8 @@ Player.prototype.hasCardType = function(type) {
  */
 Player.prototype.getCardsWithId = function(ids) {
     var cards = [];
-    for (var id in ids) {
+    for (var key in ids) {
+        var id = ids[key];
         var cardIndex = this.cardIndexById(id);
         if (cardIndex > 0) {
             cards.push(this.hand[cardIndex]);
@@ -147,7 +148,8 @@ Player.prototype.addCard = function(card) {
  * @param {Array} cards An array of cards
  */
 Player.prototype.addCards = function(cards) {
-    for (var card in cards) {
+    for (var key in cards) {
+        var card = cards[key];
         this.addCard(card);
     }
 }
@@ -189,7 +191,8 @@ Player.prototype.removeCardWithId = function(id) {
  */
 Player.prototype.removeCardsWithId = function(ids) {
     var cards = [];
-    for (var id in ids) {
+    for (var key in ids) {
+        var id = ids[key];
         cards.push(this.removeCardWithId(id));
     }
     return cards;

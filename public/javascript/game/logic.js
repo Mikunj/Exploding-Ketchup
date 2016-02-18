@@ -1,9 +1,8 @@
 jQuery(document).ready(function($) {
+    //Main game instance
+    var main = new EK();
     
-    //TODO Move this to another class
-    var users = {};
-    var games = {};
-    
+    //Connect to socket
     io = io.connect();
     
     //******** Click Events ********//
@@ -11,10 +10,9 @@ jQuery(document).ready(function($) {
     $("#loginButton").click(function() {
         var nickname = $('#nameInput').val();
         if (nickname.length < 1) {
-            $('#login .error').text('Invalid name');
-            $('#login .error').fadeIn("slow");
+           Login.showError('Name is too short!');
         } else {
-            joinLobby(nickname);
+            io.emit($C.LOBBY.CONNECT, { nickname: nickname });
         }
     });
     
@@ -28,133 +26,87 @@ jQuery(document).ready(function($) {
     io.on($C.LOBBY.CONNECT, function(data) {
         if (data.hasOwnProperty('success')) {
             
+            var connectedUsers = data.connectedUsers;
+            var gameList = data.gameList;
+            
             //Add the connected users to the user list
-            for (var key in data.connectedUsers) {
-                var user = data.connectedUsers[key];  
-                users[user.id] = user;
-            }
+            $.each(connectedUsers, function(key, user) {
+                main.addUser(new User(user.id, user.name));
+            });
             
             //Add the games to the list
-            for (var key in data.gameList) {
-                var game = data.gameList[key];
-                games[game.id] = game;
-            }
+            $.each(gameList, function(key, game) {
+                main.addGame(gameFromData(game));
+            });
             
-            populateUserList();
-            populateGameList();
+            //Set the current user
+            var user = main.users[data.user.id];
+            main.currentUser = user;
             
-            $('#login').hide();
+            //Update displays
+            Lobby.updateUserList(main);
+            Lobby.updateGameList(main);
             
-            /*socket.emit($.LOBBY.CONNECT, {
-                success: 'Successfully connected',
-                connectedUsers: EK.connectedUsers,
-                gameList: gameList
-            });*/
-            
+            //Hide login
+            Login.hide(); 
         }
         
         if (data.hasOwnProperty('error')) {
-            $('#login .error').text(data.error);
-            $('#login .error').fadeIn("slow");
+            Login.showError(data.error);
         }
     });
     
     io.on($C.USER.CONNECT, function(data) {
-        users[data.id] = data;
-        populateUserList();
+        main.addUser(new User(data.id, data.name));
+        Lobby.updateUserList(main);
     });
     
     io.on($C.USER.DISCONNECT, function(data) {
-        if (users[data.id]) {
-            delete users[data.id];
-        }
-        populateUserList();
+        main.removeUser(data.id);
+        Lobby.updateUserList(main);
     });
     
     io.on($C.GAME.CREATE, function(data) {
         if (!data.hasOwnProperty('error')) {
-            console.log('Created game');
+            //Hide lobby
+            Lobby.hide();
+            
+            //Set the current game
+            main.currentUser.currentGame = main.games[data.game.id];
+            
+            //Update
+            GameRoom.updatePlayerList(main);
         }
     });
     
     io.on($C.GAME.CREATED, function(data) {
-        games[data.id] = data;
-        populateGameList();
+        console.log(data);
+        main.addGame(gameFromData(data));
+        Lobby.updateGameList(main);
     });
           
     io.on($C.GAME.REMOVED, function(data) {
-        if (games[data.id]) {
-            delete games[data.id];
-        }
-        populateGameList();
+        main.removeGame(data.id);
+        Lobby.updateGameList(main);
     });
     
-    
-    //******** Methods ********//
-
-    var joinLobby = function(nickname) {
-        io.emit($C.LOBBY.CONNECT, { nickname: nickname });
-    }
-    
-    var populateUserList = function() {
-        $('#userList .content').empty();
+    /**
+     * Create a game from data
+     * @param   {Object}   data The data
+     * @returns {Object} A game object
+     */
+    var gameFromData = function(data) {
+        var players = [];
         
-        //Add user to the list
-        $.each(users, function(id, user) {
-            var html = "<div class='user' data-id='" + user.id + "'>" + user.name + "</div>";
-
-            //Check that we don't double up on adding users
-            if ($(".user[data-id='" + user.id + "']").length < 1) {
-                $('#userList .content').append(html);
+        //Add players
+        $.each(data.players, function(index, player) {
+            var user = main.users[player.user.id];
+            if (user) {
+                players.push(new Player(user, player.alive, player.ready));
             }
         });
         
-        for (var i = 0; i < 50; i++) {
-            var html = "<div class='user' data-id='" + i + "'>" + i + "</div>";
+        return new Game(data.id, data.title, data.status, players);
+    }
 
-            //Check that we don't double up on adding users
-            if ($(".user[data-id='" + i + "']").length < 1) {
-                $('#userList .content').append(html);
-            }
-        }
-        
-        //Set the user count
-        $('#userList .top-bar').text('Connected Users ( ' + Object.keys(users).length + ' )');
-    }
-    
-    var removeUserFromLobby = function(id) {
-        $(".user[data-id='" + id + "']").remove();
-    }
-    
-    var populateGameList = function() {
-        $('#gameList .content').empty();
-        
-        //Add games to the list
-        $.each(games, function(id, game) {
-            var html = "<div class='game' data-id='" + game.id + "'>" +
-                        "<div id='title'>" + game.title + "</div>" +
-                        "<div id='status'>" + game.status + "</div>" +
-                        "<div id='players'>Players: " + game.players.length + "</div>" +
-                        "</div>"
-            
-            //Check that we don't double up on adding games
-            if ($(".game[data-id='" + game.id + "']").length < 1) {
-                $('#gameList .content').append(html);
-            }
-            
-        });
-        
-        for (var i = 0; i < 50; i++) {
-            var html = "<div class='game' data-id='" + i + "'>" +
-                        "<div id='title'>" + i + "</div>" +
-                        "<div id='status'>" + i + "</div>" +
-                        "<div id='players'>Players: " + i + "</div>" +
-                        "</div>"
-            
-            //Check that we don't double up on adding games
-            if ($(".game[data-id='" + i + "']").length < 1) {
-                $('#gameList .content').append(html);
-            }
-        }
-    }
 });

@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html land="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>EK</title>
-    <script src="javascript/jquery/jquery-1.12.0.min.js"></script>
-    <script src="javascript/socket.io/socket.io-1.4.5.js"></script>
-    
-    <link href="stylesheets/style.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <title>EK</title>
       
-    <!-- Game -->
-    <script src="javascript/game/constants.js"></script>
-    <script src="javascript/game/logic.js"></script>
+      <!-- Dependencies -->
+      <script src="javascript/jquery/jquery-1.12.0.min.js"></script>
+      <script src="javascript/socket.io/socket.io-1.4.5.js"></script>
+
+      <!-- Bootstrap -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+      <!-- Game -->
+      <link href="stylesheets/style.css" rel="stylesheet" type="text/css">
+      <script src="javascript/game/constants.js"></script>
+      <script src="javascript/game/EK.js"></script>
+      <script src="javascript/game/rooms.js"></script>
+      <script src="javascript/game/logic.js"></script>
   </head>
   <body>
   	<div class="container-fluid">
@@ -42,15 +47,48 @@
                 </div>
                 <div class="content">
                     <div class="game" data-id='#'>
-                        <div id="title"> GAME </div>
-                        <div id="status"> STATUS </div>
-                        <div id="players"> PLAYERS </div>
+                        <div id="title">GAME</div>
+                        <div id="status">STATUS</div>
+                        <div id="players">PLAYERS</div>
                     </div>
                 </div>
             </div>
             <div id="userList" class="col-md-2">
                 <div class="top-bar text-center">Connected Users (0)</div>
                 <div class="content"></div>
+            </div>
+        </div>
+    
+        <div id="game" class="room">
+            <div id="container">
+            </div>
+            <div id="chat">
+                <div id="playerList" class="col-md-2">
+                    <div class="top-bar text-center">
+                        Players ( 0 )
+                    </div>
+                    <div class="content">
+                        <div class="user">
+                            Bob
+                            <div class="status status-red">
+                                Not Ready
+                            </div>
+                        </div>
+                        <div class="user">
+                            Bobs
+                            <div class="status status-red">
+                                Not Ready
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="chatBox" class="col-md-10">
+                    <div class="content">
+                        <div class="message">
+                            ABC
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

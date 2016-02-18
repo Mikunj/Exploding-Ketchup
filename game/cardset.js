@@ -29,7 +29,8 @@ CardSet.prototype.isEmpty = function() {
  * @returns {Boolean}  True if the set has the card else false
  */
 CardSet.prototype.hasCardWithId = function(id) {
-    for (var card in this.cards) {
+    for (var key in this.cards) {
+        var card = this.cards[key];
         if (card.id === id) return true;
     }
     return false;
@@ -41,7 +42,8 @@ CardSet.prototype.hasCardWithId = function(id) {
  * @returns {Boolean} True if the set has the card else false
  */
 CardSet.prototype.hasCardType = function(type) {
-    for (var card in this.cards) {
+    for (var key in this.cards) {
+        var card = this.cards[key];
         if (card.type === type) return true;
     }
     return false;
@@ -55,7 +57,8 @@ CardSet.prototype.hasCardType = function(type) {
 CardSet.prototype.removeCardType = function(type) {
     if (this.hasCardType(type)) {
         var chosenCard = null;
-        for (var card in this.cards) {
+        for (var key in this.cards) {
+            var card = this.cards[key];
             if (card.type === type) {
                 chosenCard = card;
                 break;

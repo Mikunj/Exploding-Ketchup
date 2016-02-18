@@ -68,6 +68,25 @@ Game.prototype.removePlayer = function (user) {
 }
 
 /**
+ * Get a sanitized version of game players.
+ * This makes sure you don't send hand data to the others
+ * @returns {Array} An array of players
+ */
+Game.prototype.getPlayers = function() {
+    var players = [];
+    for (var key in this.players) {
+        var player = this.players[key];
+        players.push({
+            user: player.user,
+            ready: player.ready,
+            alive: player.alive,
+        });
+    }
+    
+    return players;
+}
+
+/**
  * Get a player for the associated user
  * @param   {Object} user The user
  * @returns {Object} Returns player or null
@@ -133,7 +152,8 @@ Game.prototype.start = function () {
     this.status = $.GAME.STATUS.PLAYING;
     
     //Give each player a diffuse and 4 random card from the pile
-    for (var player in this.players) {
+    for (var key in this.players) {
+        var player = this.players[key];
         player.addCard(new Card(this.generateRandomID(), 'd', $.CARD.DEFUSE, 'a'));
         this.drawCards(player, 4);
     }
@@ -167,7 +187,8 @@ Game.prototype.stop = function() {
  */
 Game.prototype.playerAliveCount = function() {
     var count = 0;
-    for (var player in this.players) {
+    for (var key in this.players) {
+        var player = this.players[key];
         if (player.alive) {
             count += 1;
         }
@@ -247,7 +268,8 @@ Game.prototype.explodePlayer = function(player) {
     player.alive = false;
     
     //Add the hand to the discard pile
-    for (var card in player.hand) {
+    for (var key in player.hand) {
+        var card = player.hand[key];
         var set = new CardSet(player, [card]);
         this.discardPile.push(set);
     }
@@ -264,7 +286,8 @@ Game.prototype.reset = function (){
     this.cUserIndex = 0;
 
     //Reset players
-    for (var player in this.players) {
+    for (var key in this.players) {
+        var player = this.players[key];
         player.reset();
     }
     
@@ -345,7 +368,8 @@ Game.prototype.toggleReady = function(user) {
 Game.prototype.canStart = function() {
     if (this.players.length >= this.minPlayers) {
         //Make sure everyone is ready
-        for (var player in this.players) {
+        for (var key in this.players) {
+            var player = this.players[key];
             if (!player.ready) return false;
         }
         

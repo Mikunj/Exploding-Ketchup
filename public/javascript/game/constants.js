@@ -22,6 +22,12 @@ var $C = {
             READY: 'playerReady',
             CONNECT: 'playerConnected',
             DISCONNECT: 'playerDisconnected',
+            STATUS: {
+                NOTREADY: 'Not Ready',
+                READY: 'Ready',
+                WAITING: 'Waiting',
+                PLAYING: 'Playing'
+            },
             ENDTURN: 'playerEndTurn',
             TURN: {
                 INVALID: 'invalid',
