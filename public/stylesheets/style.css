@@ -1,8 +1,119 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+html, body {
+    width:100%;
+    height: 100%;
 }
 
-a {
-  color: #00B7FF;
+.room {
+    background-color: #19194C !important;
+    color: white;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    padding: 20px;
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#login {
+    color: white;
+    z-index: 10;
+}
+
+#lobby {
+    z-index: 9;
+}
+
+#loginInput {
+    width: 50%;
+    height: 100%;
+    min-width: 50%;
+    min-height: 100%;
+}
+
+#loginInput div {
+    width: 100%;
+    min-width: 100%;
+    padding: 10px;
+}
+
+#loginInput div #title {
+    font-size: 4em;
+    margin-bottom: 10px;
+}
+
+#loginButton {
+    width: 50%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.error {
+    background: #FFAEB9;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+#gameList {
+    height: 100%;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    background: #0A0A33;
+    padding: 0;
+    overflow: hidden;
+}
+
+#userList {
+    background: #2E2E69;
+    height: 100%;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    padding: 0;
+    overflow: hidden;
+    border-left: 1px #46469F solid;
+}
+
+.top-bar {
+    height: 35px;
+    line-height: 35px;
+    background: #23234F;
+    width: 100%;
+}
+
+#gameList .top-bar {
+    background: #26264C;
+}
+
+#newGameButton {
+    float: right;
+    border-radius: 0px;
+
+}
+
+#userList .top-bar {
+    background: #26264C;
+}
+
+.content {
+    padding: 5px;
+    display: block;
+    overflow: scroll;
+}
+
+.user {
+    min-width: 100%;
+    width: 100%;
+    border-bottom: 1px #46469F solid;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.user:last-child {
+    border: none;
 }

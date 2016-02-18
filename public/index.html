@@ -19,22 +19,32 @@
   </head>
   <body>
   	<div class="container-fluid">
-        <div id="login">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Type a name">
-                <span class="input-group-btn">
-                    <button id="loginButton" class="btn btn-default" type="button">Go!</button>
-                </span>
-                <br/>
-                <span class="error"></span>
+        <div id="login" class="room">
+            <div class="center text-center" id="loginInput">
+                <div class="center">
+                    <div id="title">EXPLOSIVE KITTEN</div>
+                    <label for="inputdefault">Name</label>
+                    <input class="form-control" id="nameInput" type="text" placeholder="Type a name">
+                    <button id="loginButton" class="btn btn-success" type="button">Join</button>
+                    </br>
+                    <div class="error" style="display: none;"></div>
+                </div>
+            </div>
             </div>
         </div>
-        <div id="lobby">
-            <div id="gameList">
-                
+        <div id="lobby" class="room">
+            <div id="gameList" class="col-md-10">
+                <div class="top-bar text-center">
+                    Games
+                    <span>
+                        <button id="newGameButton" class="btn btn-success" type="button">New Game</button>
+                    </span>
+                </div>
+                <div class="content"></div>
             </div>
-            <div id="userList">
-                
+            <div id="userList" class="col-md-2">
+                <div class="top-bar text-center">Connected Users (0)</div>
+                <div class="content"></div>
             </div>
         </div>
     </div>

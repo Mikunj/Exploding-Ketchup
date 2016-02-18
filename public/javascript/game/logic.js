@@ -8,9 +8,10 @@ jQuery(document).ready(function($) {
     
     $("#loginButton").click(function() {
         console.log('bob');
-        var nickname = $('#login div input').val();
+        var nickname = $('#nameInput').val();
         if (nickname.length < 1) {
             $('#login .error').text('Invalid name');
+            $('#login .error').fadeIn("slow");
         } else {
             joinLobby(nickname);
         }
@@ -20,8 +21,6 @@ jQuery(document).ready(function($) {
     
     io.on($C.LOBBY.CONNECT, function(data) {
         if (data.hasOwnProperty('success')) {
-            //Clear players
-            $('#lobby #userList').empty();
             
             //Add the connected users to the user list
             for (var key in data.connectedUsers) {
@@ -43,6 +42,7 @@ jQuery(document).ready(function($) {
         
         if (data.hasOwnProperty('error')) {
             $('#login .error').text(data.error);
+            $('#login .error').fadeIn("slow");
         }
     });
     
@@ -74,15 +74,20 @@ jQuery(document).ready(function($) {
     }
     
     var populateUserList = function() {
-        $('#lobby #userList').empty();
+        $('#userList .content').empty();
+        
+        //Add user to the list
         $.each(users, function(key, user) {
             var html = "<div class='user' data-id='" + user.id + "'>" + user.name + "</div>";
 
             //Check that we don't double up on adding users
             if ($(".user[data-id='" + user.id + "']").length < 1) {
-                $('#lobby #userList').append(html);
+                $('#userList .content').append(html);
             }
         });
+        
+        //Set the user count
+        $('#userList .top-bar').text('Connected Users ( ' + Object.keys(users).length + ' )');
     }
     
     var removeUserFromLobby = function(id) {
