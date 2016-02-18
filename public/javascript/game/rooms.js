@@ -106,8 +106,8 @@ var GameRoom = {
      * Update the player display
      */
     updatePlayerList: function(EK) {
-        if (EK.currentUser && EK.currentUser.currentGame) {
-            var game = EK.games[EK.currentUser.currentGame];
+        if (EK.getCurrentUser() && EK.getCurrentUserGame()) {
+            var game = EK.getCurrentUserGame();
             
             //Clear players
             $('#playerList .content').empty();
@@ -116,7 +116,7 @@ var GameRoom = {
             $.each(game.players, function(index, player) {
                 var user = player.user;
                 var html = "<div class='user data-id='" + user.id + "'>" + user.name +
-                                "<div class='status status-" + player.statusColor() +"'>" + player.status + "</div>" +
+                                "<div class='status status-" + player.statusColor() +"'>" + player.status() + "</div>" +
                             "</div>";
 
                 //Check that we don't double up on adding users

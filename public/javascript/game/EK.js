@@ -7,7 +7,7 @@ var EK = function() {
     //List of games
     this.games = {};
 
-    //Current user
+    //Current user id
     this.currentUser = null;
 
     this.addUser = function(user) {
@@ -29,7 +29,25 @@ var EK = function() {
             delete this.games[id];
         }
     }
-
+    
+    //Get the current user
+    this.getCurrentUser = function() {
+        if (this.currentUser) {
+            return this.users[this.currentUser];
+        }
+        return null;
+    }
+    
+    //Get the current game user is in
+    this.getCurrentUserGame = function() {
+        if (this.currentUser) {
+            var user = this.getCurrentUser();
+            if (user.currentGame) {
+                return this.games[user.currentGame];
+            }
+        }
+        return null;
+    }
 };
 
 //class for local user
@@ -41,7 +59,7 @@ var User = function(id, nickname) {
     //The name of the user
     this.name = nickname;
     
-    //Current game user is in
+    //Current game id user is in
     this.currentGame = null;
     
 };
@@ -88,10 +106,20 @@ var Player = function(user, alive, ready) {
     this.ready = ready;
     
     //Set the status
-    this.status = (ready) ? $C.GAME.PLAYER.STATUS.READY : $C.GAME.PLAYER.STATUS.NOTREADY;
+    this.status = function() {
+        return (this.ready) ? $C.GAME.PLAYER.STATUS.READY : $C.GAME.PLAYER.STATUS.NOTREADY;
+    }
     
     //The color corresponding to the status
     this.statusColor = function() {
-        return "red";
+        var status = this.status();
+        switch (status) {
+            case $C.GAME.PLAYER.STATUS.NOTREADY:
+                return "red";
+            case $C.GAME.PLAYER.STATUS.READY:
+                return "green";
+            default:
+                return "red";
+        }
     }
 }

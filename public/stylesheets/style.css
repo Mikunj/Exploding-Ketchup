@@ -137,8 +137,12 @@ html, body {
     border-radius: 4px;
 }
 
-.user .status-red {
+.status-red {
     background: #FFAEB9;
+}
+
+.status-green {
+    background: #5cb85c;
 }
 
 .game {

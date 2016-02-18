@@ -41,7 +41,7 @@ jQuery(document).ready(function($) {
             
             //Set the current user
             var user = main.users[data.user.id];
-            main.currentUser = user;
+            main.currentUser = data.user.id;
             
             //Update displays
             Lobby.updateUserList(main);
@@ -72,15 +72,17 @@ jQuery(document).ready(function($) {
             Lobby.hide();
             
             //Set the current game
-            main.currentUser.currentGame = data.game.id;
+            main.getCurrentUser().currentGame = data.game.id;
             
             //Update
             GameRoom.updatePlayerList(main);
+            
+            //Ready up
+            io.emit($C.GAME.PLAYER.READY, { gameId: data.game.id});
         }
     });
     
     io.on($C.GAME.CREATED, function(data) {
-        console.log(data);
         main.addGame(gameFromData(data));
         Lobby.updateGameList(main);
     });
@@ -89,8 +91,8 @@ jQuery(document).ready(function($) {
         main.removeGame(data.id);
         
         //Replace the current game room for user
-        if (main.currentUser && main.currentUser.currentGame == data.id) {
-            main.currentUser.currentGame = null;
+        if (main.getCurrentUserGame() && main.getCurrentUserGame().id == data.id) {
+            main.getCurrentUser().currentGame = null;
         }
         
         Lobby.updateGameList(main);
@@ -106,11 +108,26 @@ jQuery(document).ready(function($) {
             main.addGame(gameFromData(data.game));
             
             //Set the current game
-            main.currentUser.currentGame = data.game.id;
+            main.getCurrentUser().currentGame = data.game.id;
             
             //Update
             GameRoom.updatePlayerList(main);
         }
+    });
+    
+    //Update player ready state
+    io.on($C.GAME.PLAYER.READY, function(data) {
+        var user = main.users[data.user.id];
+        var ready = data.ready;
+        var game = main.getCurrentUserGame();
+        
+        if (game && user) {
+            var player = game.getPlayer(user);
+            player.ready = ready;
+        }
+        
+        //Update
+        GameRoom.updatePlayerList(main);
     });
     
     io.on($C.GAME.PLAYER.CONNECT, function(data) {
@@ -120,7 +137,6 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.GAME.PLAYER.DISCONNECT, function(data) {
-        console.log(data);
         //Update game data
         main.addGame(gameFromData(data.game));
         GameRoom.updatePlayerList(main);
@@ -132,7 +148,6 @@ jQuery(document).ready(function($) {
      * @returns {Object} A game object
      */
     var gameFromData = function(data) {
-
         var players = [];
         
         //Add players
