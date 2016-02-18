@@ -72,7 +72,7 @@ jQuery(document).ready(function($) {
             Lobby.hide();
             
             //Set the current game
-            main.currentUser.currentGame = main.games[data.game.id];
+            main.currentUser.currentGame = data.game.id;
             
             //Update
             GameRoom.updatePlayerList(main);
@@ -87,7 +87,43 @@ jQuery(document).ready(function($) {
           
     io.on($C.GAME.REMOVED, function(data) {
         main.removeGame(data.id);
+        
+        //Replace the current game room for user
+        if (main.currentUser && main.currentUser.currentGame == data.id) {
+            main.currentUser.currentGame = null;
+        }
+        
         Lobby.updateGameList(main);
+    });
+    
+    io.on($C.GAME.JOIN, function(data) {
+        console.log(data);
+        if (data.hasOwnProperty('success')) {
+            //Hide lobby
+            Lobby.hide();
+            
+            //Update data we have
+            main.addGame(gameFromData(data.game));
+            
+            //Set the current game
+            main.currentUser.currentGame = data.game.id;
+            
+            //Update
+            GameRoom.updatePlayerList(main);
+        }
+    });
+    
+    io.on($C.GAME.PLAYER.CONNECT, function(data) {
+        //Update game data
+        main.addGame(gameFromData(data.game));
+        GameRoom.updatePlayerList(main);
+    });
+    
+    io.on($C.GAME.PLAYER.DISCONNECT, function(data) {
+        console.log(data);
+        //Update game data
+        main.addGame(gameFromData(data.game));
+        GameRoom.updatePlayerList(main);
     });
     
     /**
@@ -96,6 +132,7 @@ jQuery(document).ready(function($) {
      * @returns {Object} A game object
      */
     var gameFromData = function(data) {
+
         var players = [];
         
         //Add players

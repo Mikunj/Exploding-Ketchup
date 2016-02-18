@@ -107,7 +107,7 @@ var GameRoom = {
      */
     updatePlayerList: function(EK) {
         if (EK.currentUser && EK.currentUser.currentGame) {
-            var game = EK.currentUser.currentGame;
+            var game = EK.games[EK.currentUser.currentGame];
             
             //Clear players
             $('#playerList .content').empty();

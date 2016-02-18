@@ -26,7 +26,16 @@ module.exports = function(io, EK) {
 
                 //Tell everyone the user disconnected
                 io.emit($.USER.DISCONNECT, user);
-                io.in(user.currentRoom).emit($.GAME.PLAYER.DISCONNECT, user);
+                
+                if (user.currentRoom != $.LOBBY.ROOM) {
+                    var game = EK.gameList[user.currentRoom];
+                    if (game) {
+                        io.in(user.currentRoom).emit($.GAME.PLAYER.DISCONNECT, {
+                            player: game.getPlayer(user),
+                            game: game
+                        });
+                    }
+                }
 
                 //Leave all rooms
                 socket.leave(user.currentRoom);
@@ -129,7 +138,7 @@ module.exports = function(io, EK) {
          */
         socket.on($.GAME.CREATE, function(data) {
             var title = data.title;
-            if (title.length <= 0 || title.length >= 30) {
+            if (!title || title.length <= 0 || title.length >= 30) {
                 socket.emit($.GAME.CREATE, {
                     error: "Bad Title"
                 });
@@ -274,7 +283,8 @@ module.exports = function(io, EK) {
 
             //Notify players that user has left
             io.in(game.id).emit($.GAME.PLAYER.DISCONNECT, {
-                player: player
+                player: player,
+                game: game
             });
         });
 
