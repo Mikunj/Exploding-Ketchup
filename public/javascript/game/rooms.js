@@ -129,5 +129,16 @@ var GameRoom = {
             $('#playerList .top-bar').text('Connected Players ( ' + game.players.length + ' )');
             
         }
+    },
+    
+    /**
+     * Log a message into the chat
+     * @param {String} message The message
+     */
+    logMessage: function(message) {
+        var dt = new Date();
+        var utcDate = dt.toUTCString();
+        var html = "<div class='message'>[" + utcDate + "] " + message + "</div>";
+        $('#chatBox .content').append(html);
     }
 };

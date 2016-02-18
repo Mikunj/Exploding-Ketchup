@@ -1,4 +1,11 @@
 jQuery(document).ready(function($) {
+    
+    /**
+    TODO: Make the host auto ready
+    If the host leaves then the next host should auto ready
+    Or make it that once everyone readies up then the game starts
+    */
+    
     //Main game instance
     var main = new EK();
     
@@ -134,12 +141,14 @@ jQuery(document).ready(function($) {
         //Update game data
         main.addGame(gameFromData(data.game));
         GameRoom.updatePlayerList(main);
+        GameRoom.logMessage(data.player.user.name + ' joined the game.');
     });
     
     io.on($C.GAME.PLAYER.DISCONNECT, function(data) {
         //Update game data
         main.addGame(gameFromData(data.game));
         GameRoom.updatePlayerList(main);
+        GameRoom.logMessage(data.player.user.name + ' left the game.');
     });
     
     /**
