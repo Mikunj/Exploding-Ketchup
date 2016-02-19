@@ -161,6 +161,12 @@ Game.prototype.start = function () {
     //Check if we can start/have already started
     if (this.players.length < this.minPlayers || this.status === $.GAME.STATUS.PLAYING)
         return false;
+    
+    //Only start if all the players are ready
+    for (var key in this.players) {
+        var player = this.players[key];
+        if (!player.ready) return false;
+    }
 
     //We call a reset incase
     this.reset();

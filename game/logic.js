@@ -308,6 +308,10 @@ module.exports = function(io, EK) {
                         });
                         
                         console.log('Started game: ' + game.id);
+                    } else {
+                        socket.emit($.GAME.START, {
+                            error: 'Could not start game'
+                        });
                     }
                 }
             }
@@ -925,7 +929,7 @@ module.exports = function(io, EK) {
                         }
 
                         //Stop the game
-                        stopGame(io, data)
+                        stopGame(io, { gameId: game.id })
                     } else {
                         
                         //Next players turn

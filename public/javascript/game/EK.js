@@ -153,6 +153,21 @@ var Game = function(id, title, status, players, index) {
         
         return null;
     }
+    
+    /**
+     * Check if game can be started
+     * @returns {Boolean} Whether game can be started
+     */
+    this.canStart = function() {
+        if (this.status === $C.GAME.STATUS.WAITING) {
+            for (var key in this.players) {
+                var player = this.players[key];
+                if (!player.ready) return false;
+            }
+            return true;
+        }
+        return false;
+    }
 }
 
 var Player = function(userId, alive, ready, drawAmount) {

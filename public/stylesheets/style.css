@@ -5,13 +5,12 @@ html, body {
 
 .room {
     background-color: #19194C !important;
-    color: white;
+    color: white !important;
     position: absolute;
     width: 100%;
     height: 100%;
     top: 0;
     left: 0;
-    overflow: none;
 }
 
 .center {
@@ -86,7 +85,7 @@ html, body {
     width: 100%;
 }
 
-#gameList .top-bar {
+#gameList .top-bar, #chatBox .top-bar {
     background: #26264C;
 }
 
@@ -104,12 +103,13 @@ html, body {
     padding: 5px;
     display: block;
     overflow-y: scroll;
-    height: 100%;
+    height: calc(100% - 35px);
     width: 100%;
 }
 
 .message {
     margin-bottom: 5px; 
+    word-wrap: break-word;
 }
 
 .user {
@@ -124,7 +124,6 @@ html, body {
 
 .user:last-child {
     border: none;
-    margin-bottom: 37px;
 }
 
 .user .status {
@@ -190,16 +189,26 @@ html, body {
     border-top-right-radius: 0px;
 }
 
-.game:last-child {
-    margin-bottom: 40px;
-}
-
+/* The game room */
 #game {
     z-index: 7;
 }
 
 #game #container {
     height: calc(100% - 250px);
+    position: relative;
+}
+
+#game #container #input {
+    display: inline-block;
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+#input button {
+    width: 25%;
 }
 
 #chat {
@@ -214,11 +223,15 @@ html, body {
     float: left;
     height: 100%;
     padding: 0;
-    overflow: hidden;
 }
 
 #chatBox {
     background: #0A0A33;
     float: right;
+    padding: 0;
     height: 100%;
+}
+
+#chatBox .content{
+    padding: 10px;
 }

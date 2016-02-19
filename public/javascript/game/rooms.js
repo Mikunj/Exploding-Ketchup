@@ -111,8 +111,59 @@ var Lobby = {
 };
 
 var GameRoom = {
+    
+    /**
+     * Update the room
+     * @param {Object} EK The main game instance
+     */
+    update: function(EK) {
+        this.updateInputDisplay(EK);
+        this.updatePlayerList(EK);
+    },
+    
+    /**
+     * Update the start, ready,play and end turn buttons
+     * @param {Object} EK The main game instance
+     */
+    updateInputDisplay: function(EK) {
+        var user = EK.getCurrentUser();
+        var game = EK.getCurrentUserGame();
+        if (user && game) {
+            var waitingInput = $('waitingInput');
+            var playingInput = $('playingInput');
+            var startGameButton = $('#startGameButton');
+            var readyGameButton = $('#readyGameButton');
+            if (game.status === $C.GAME.STATUS.WAITING) {
+                waitingInput.show();
+                playingInput.hide();
+                
+                //Show and hide the buttons
+                if (game.isGameHost(user)) {
+                    startGameButton.show();
+                    readyGameButton.hide();
+                } else {
+                    startGameButton.hide();
+                    readyGameButton.show();
+                    
+                    //Toggle the display of the ready game button
+                    var player = game.getPlayer(user);
+                    var text = (player.ready) ? "Un-Ready" : "Ready";
+                    readyGameButton.text(text);
+                }
+                
+            } else if (game.status == $C.GAME.STATUS.PLAYING) {
+                playingInput.show();
+                waitingInput.hide();
+                
+                //TODO: Toggle play when cards are selected
+                //TODO: Add end turn button here
+            }
+        }
+    },
+    
     /**
      * Update the player display
+     * @param {Object} EK The main game instance
      */
     updatePlayerList: function(EK) {
         if (EK.getCurrentUser() && EK.getCurrentUserGame()) {
@@ -150,6 +201,11 @@ var GameRoom = {
         var dt = new Date();
         var utcDate = dt.toUTCString();
         var html = "<div class='message'>[" + utcDate + "] " + message + "</div>";
-        $('#chatBox .content').append(html);
+        $('#messages').append(html);
+        
+        
+        $('#messages').animate({
+            scrollTop: $('#messages')[0].scrollHeight
+        }, 500);
     }
 };
