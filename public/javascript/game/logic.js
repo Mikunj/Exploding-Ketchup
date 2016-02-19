@@ -94,6 +94,9 @@ jQuery(document).ready(function($) {
             //Update
             GameRoom.updatePlayerList(main);
             
+            //Bob
+            GameRoom.logMessage(main.getCurrentUser().name + ' joined the game.');
+            
             //Ready up
             io.emit($C.GAME.PLAYER.READY, { gameId: data.game.id});
         }
@@ -128,6 +131,8 @@ jQuery(document).ready(function($) {
             
             //Update
             GameRoom.updatePlayerList(main);
+            
+            GameRoom.logMessage(main.getCurrentUser().name + ' joined the game.');
         }
     });
     
