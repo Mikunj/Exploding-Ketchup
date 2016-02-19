@@ -170,6 +170,26 @@ jQuery(document).ready(function($) {
         GameRoom.updatePlayerList(main);    
         GameRoom.logMessage(data.player.user.name + ' left the game.');
         
+        //We need to check if current user was getting a favor or giving a favor to the disconnected player
+        var player = data.player;
+        if (player) {
+            var user = player.user;
+            
+            if (user.id === main.gameData.favor.to) {
+                //We asked this player for a favor
+                //TODO: Enable end turn button
+                main.gameData.favor.to = null;
+                GameRoom.logMessage("The coward feld!");
+            }
+            
+            if (user.id === main.gameData.favor.from) {
+                //We got asked for a favor from this user
+                //TODO: Hide the favor screen
+                main.gameData.favor.from = null;
+                GameRoom.logMessage("You did the man a favor and kicked his butt!");
+            }
+        }
+        
         //We may have a new game host, so force them to be ready
         forceGameHostReady(main.games[data.game.id]);
     });
@@ -204,13 +224,13 @@ jQuery(document).ready(function($) {
             var user = data.player.user;
             var message = null;
             switch (data.state) {
-                case $C.PLAYER.TURN.DEFUSED:
+                case $C.GAME.PLAYER.TURN.DEFUSED:
                     message = user.name + " defused the bomb!";
                     break;
-                case $C.PLAYER.TURN.EXPLODED:
+                case $C.GAME.PLAYER.TURN.EXPLODED:
                     message = user.name + " exploded!";
                     break;
-                case $C.PLAYER.TURN.SURVIVED:
+                case $C.GAME.PLAYER.TURN.SURVIVED:
                     message = user.name + " survived their turn.";
                     break;
             }
@@ -221,7 +241,7 @@ jQuery(document).ready(function($) {
             }
             
             //Send messages to users
-            if (data.state == $C.PLAYER.TURN.SURVIVED) {
+            if (data.state == $C.GAME.PLAYER.TURN.SURVIVED) {
                 var nextPlayer = game.getCurrentPlayer();
                 var nextUser = main.users[nextPlayer.user];
                 var currentUser = main.getCurrentUser();
@@ -298,7 +318,7 @@ jQuery(document).ready(function($) {
         
         //Update hand
         if (currentUser.id === from.id || currentUser.id === to.id) {
-            io.emit($C.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
+            io.emit($C.GAME.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
         }
     });
     
@@ -316,12 +336,15 @@ jQuery(document).ready(function($) {
             if (currentUser.id === from.id) {
                 //Current user asked the favor. Disable end turn button
                 //TODO: If the player you asked for a favor from leaves then enable end turn button
+                main.gameData.favor.to = to.id;
             }
             
             if (currentUser.id === to.id) {
                 //From user asked current user for a favor
                 //Show the favor screen
                 //TODO: If the player who asked your for a favor leaves then hide the favor screen and continue
+                main.gameData.favor.from = from.id;
+                
             }
         } else if (data.hasOwnProperty('success')) {
             var fromString = (currentUser.id === from.id) ? "You" : from.name;
@@ -329,14 +352,16 @@ jQuery(document).ready(function($) {
             
             GameRoom.logMessage(fromString + " gave " + toString + " a " + data.card.type + ".");
             
+            if (currentUser.id === to.id) {
+                //From user did current user a favor
+                //TODO: Enable end turn button
+                main.gameData.favor.to = null;
+            }
+            
             if (currentUser.id === from.id) {
                 //Current user did the favor. 
                 //TODO: Hide the favor screen
-            }
-            
-            if (currentUser.id === to.id) {
-                //From user did current user for a favor
-                //TODO: Enable end turn button
+                main.gameData.favor.from = null;
             }
         
         } else if (data.hasOwnProperty('error')) {

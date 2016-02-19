@@ -59,6 +59,12 @@ var GameData = function() {
     
     //The discard pile
     this.discardPile = [];
+    
+    //Whether we are in a favor or not
+    this.favor = {
+        from: null, //The player who asked us
+        to: null //The player we asked
+    };
 }
 
 //class for local user
