@@ -15,6 +15,7 @@ var $ = {
         STARTED: 'gameStarted',
         STOPPED: 'gameStopped',
         WIN: 'winGame',
+        DISCARDPILE: 'discardPile',
         STATUS: {
             WAITING: 'gameWaiting',
             PLAYING: 'gamePlaying'

@@ -9,6 +9,9 @@ var EK = function() {
 
     //Current user id
     this.currentUser = null;
+    
+    //Current hand
+    this.gameData = new GameData();
 
     this.addUser = function(user) {
         this.users[user.id] = user;
@@ -49,6 +52,14 @@ var EK = function() {
         return null;
     }
 };
+
+var GameData = function() {
+    //The hand
+    this.hand = [];
+    
+    //The discard pile
+    this.discardPile = [];
+}
 
 //class for local user
 var User = function(id, nickname) {

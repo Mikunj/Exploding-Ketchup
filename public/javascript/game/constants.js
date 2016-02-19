@@ -15,6 +15,7 @@ var $C = {
         STARTED: 'gameStarted',
         STOPPED: 'gameStopped',
         WIN: 'winGame',
+        DISCARDPILE: 'discardPile',
         STATUS: {
             WAITING: 'gameWaiting',
             PLAYING: 'gamePlaying'
@@ -40,7 +41,6 @@ var $C = {
             HAND: 'playerHand',
             DRAW: 'playerDraw',
             PLAY: 'playerPlayCard',
-            DISCARDSELECT: 'playerDiscardSelect',
             STEAL: 'playerSteal',
             FAVOR: 'playerFavor'
         },

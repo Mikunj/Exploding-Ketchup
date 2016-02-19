@@ -394,4 +394,19 @@ Game.prototype.canStart = function() {
     return false;
 }
 
+/**
+ * Get the discard pile of cards
+ * @returns {Array} An array of cards in the discard pile
+ */
+Game.prototype.getDiscardPile = function() {
+    var pile = [];
+    //We have to iterate backwards from the pile so that the recently played cards are at the top
+    for(var i = this.discardPile.length - 1; i >= 0; i--) {
+        var cards = this.discardPile[i].cards;
+        pile = pile.concat(cards);
+    }
+    
+    return pile;
+}
+
 module.exports = Game;

@@ -90,6 +90,7 @@ jQuery(document).ready(function($) {
             
             //Set the current game
             main.getCurrentUser().currentGame = data.game.id;
+            main.gameData = new GameData();
             
             //Update
             GameRoom.updatePlayerList(main);
@@ -128,11 +129,22 @@ jQuery(document).ready(function($) {
             
             //Set the current game
             main.getCurrentUser().currentGame = data.game.id;
+            main.gameData = new GameData();
             
             //Update
             GameRoom.updatePlayerList(main);
-            
             GameRoom.logMessage(main.getCurrentUser().name + ' joined the game.');
+        }
+    });
+    
+    io.on($C.GAME.LEAVE, function(data) {
+        if (data.hasOwnProperty('success')) {
+            //Show lobby
+            Lobby.show();
+            
+            //Reset stats
+            main.gameData = new GameData();
+            main.getCurrentUser().currentGame = null;
         }
     });
     

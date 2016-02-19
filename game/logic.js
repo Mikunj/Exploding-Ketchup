@@ -271,6 +271,10 @@ module.exports = function(io, EK) {
                 player: player,
                 game: game
             });
+            
+            socket.emit($.GAME.LEAVE, {
+                success: 'Left game'
+            });
         });
 
 
@@ -368,6 +372,30 @@ module.exports = function(io, EK) {
                     hand: game.getPlayer(user).hand
                 });
             }
+        });
+        
+        /**
+         * Get the game discard pile
+         * 
+         * Request Data: {
+         *   gameId: "game id"
+         * }
+         * 
+         * @param {Object} data The data
+         */
+        socket.on($.GAME.DISCARDPILE, function(data) {
+            var game = EK.gameList[data.gameId];
+
+            //We can only get discard pile if game is playing
+            if (game && game.status == $.GAME.STATUS.PLAYING) {
+                //Make sure user is in the game
+                var user = EK.connectedUsers[socket.id];
+                if (!game.getPlayer(user)) return;
+                
+                socket.emit($.GAME.DISCARDPILE, {
+                    cards: game.getDiscardPile()
+                });
+            });
         });
 
         /**
