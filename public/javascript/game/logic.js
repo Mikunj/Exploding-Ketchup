@@ -25,7 +25,17 @@ jQuery(document).ready(function($) {
     
     $("#newGameButton").click(function() {
         var name = prompt("Type in a title:", "bob");
-        io.emit($C.GAME.CREATE, { title: name });
+        if (name) {
+            io.emit($C.GAME.CREATE, { title: name });
+        }
+    });
+    
+    //Since we dynamically create the button, we have to call the clikc function this way
+    $(document).on('click', '#joinGameButton', function() {
+        var id = $(this).data("id");
+        if (id) {
+            io.emit($C.GAME.JOIN, { gameId: id });
+        }
     });
     
     //******** IO Events ********//
@@ -106,7 +116,6 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.GAME.JOIN, function(data) {
-        console.log(data);
         if (data.hasOwnProperty('success')) {
             //Hide lobby
             Lobby.hide();
@@ -163,7 +172,7 @@ jQuery(document).ready(function($) {
         var user = main.getCurrentUser();
         if (user && game && game.isGameHost(user)) {
             var player = game.getPlayer(user);
-            if (!player.ready) {
+            if (player && !player.ready) {
                 io.emit($C.GAME.PLAYER.READY, { gameId: game.id});
             }
         }
@@ -181,11 +190,11 @@ jQuery(document).ready(function($) {
         $.each(data.players, function(index, player) {
             var user = main.users[player.user.id];
             if (user) {
-                players.push(new Player(user, player.alive, player.ready, player.drawAmount));
+                players.push(new Player(user.id, player.alive, player.ready, player.drawAmount));
             }
         });
         
-        return new Game(data.id, data.title, data.status, players, data.currentIndex);
+        return new Game(data.id, data.title, data.status, players, data.currentPlayerIndex);
     }
 
 });

@@ -78,9 +78,10 @@ var Lobby = {
                                 "<div id='players'>Players: " + game.players.length + "</div>" +
                             "</div>" +
                             "<div id='bottom'>" +
-                                "<button id='joinGameButton' class='btn btn-success btn-block" + disabledString + "' type='button'>Join</button>" +
+                                "<button id='joinGameButton' data-id='" + game.id + "' class='btn btn-success btn-block" + disabledString + 
+                                "' type='button'>Join</button>" +
                             "</div>" +
-                        "</div>"
+                        "</div>";
             
             
             //Check that we don't double up on adding games
@@ -122,8 +123,10 @@ var GameRoom = {
             
             //Add players to the list
             $.each(game.players, function(index, player) {
-                var user = player.user;
-                var html = "<div class='user data-id='" + user.id + "'>" + user.name +
+                var user = EK.users[player.user];
+                var classString = (game.isGameHost(user)) ? "status-blue" : "";
+                var html = "<div class='user data-id='" + user.id + "'>" + 
+                                "<div id='name' class='" + classString + "'>" + user.name + "</div>" +
                                 "<div class='status status-" + player.statusColor() +"'>" + player.status() + "</div>" +
                             "</div>";
 

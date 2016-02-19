@@ -85,7 +85,7 @@ var Game = function(id, title, status, players, index) {
     this.getPlayer = function(user) {
         for (var i = 0; i < this.players.length; i++) {
             var player = this.players[i];
-            if (player.user === user) return player;
+            if (player.user === user.id) return player;
         }
 
         return null;
@@ -97,14 +97,14 @@ var Game = function(id, title, status, players, index) {
         if (data) {
             for (var i = 0; i < this.players.length; i++) {
                 var player = this.players[i];
-                if (player.user.id === data.user.id) {
+                if (player.user === data.user.id) {
                     cPlayer = player;
                     break;
                 };
             }
 
             if (cPlayer) {
-                cPlayer.user = data.user;
+                cPlayer.user = data.user.id;
                 cPlayer.alive = data.alive;
                 cPlayer.ready = data.ready;
                 cPlayer.drawAmount = data.drawAmount
@@ -114,19 +114,19 @@ var Game = function(id, title, status, players, index) {
     
     //Get the current host
     this.getHost = function() {
-        return (this.players.length > 0) ? this.players[0].user : null;
+        return (this.players.length > 0) ? this.players[0] : null;
     }
     
     //Check whether user is the host
     this.isGameHost = function(user) {
         var host = this.getHost();
-        return (host && host.id === user.id);
+        return (host && host.user === user.id);
     }
 }
 
-var Player = function(user, alive, ready, drawAmount) {
+var Player = function(userId, alive, ready, drawAmount) {
     //The user associated with the player
-    this.user = user;
+    this.user = userId;
     
     //The current score
     this.alive = alive;
