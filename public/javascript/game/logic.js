@@ -124,14 +124,14 @@ jQuery(document).ready(function($) {
     
     //Update player ready state
     io.on($C.GAME.PLAYER.READY, function(data) {
-        var user = main.users[data.user.id];
-        var ready = data.ready;
         var game = main.getCurrentUserGame();
         
-        if (game && user) {
-            var player = game.getPlayer(user);
-            player.ready = ready;
+        if (game) {
+            game.updatePlayer(data.player)
         }
+        
+        //Force the game host to be ready
+        forceGameHostReady(game);
         
         //Update
         GameRoom.updatePlayerList(main);
@@ -147,9 +147,27 @@ jQuery(document).ready(function($) {
     io.on($C.GAME.PLAYER.DISCONNECT, function(data) {
         //Update game data
         main.addGame(gameFromData(data.game));
-        GameRoom.updatePlayerList(main);
+        GameRoom.updatePlayerList(main);    
         GameRoom.logMessage(data.player.user.name + ' left the game.');
+        
+        //We may have a new game host, so force them to be ready
+        forceGameHostReady(main.games[data.game.id]);
     });
+    
+    /**
+     * Force the game host to be ready
+     * @param {Object} game The game
+     */
+    var forceGameHostReady = function(game) {
+        //Check if the current user is host, if they are then don't allow them to be not ready
+        var user = main.getCurrentUser();
+        if (user && game && game.isGameHost(user)) {
+            var player = game.getPlayer(user);
+            if (!player.ready) {
+                io.emit($C.GAME.PLAYER.READY, { gameId: game.id});
+            }
+        }
+    }
     
     /**
      * Create a game from data

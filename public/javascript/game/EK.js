@@ -90,6 +90,38 @@ var Game = function(id, title, status, players, index) {
 
         return null;
     }
+    
+    //Update a player in the game if they exist
+    this.updatePlayer = function(data) {
+        var cPlayer = null;
+        if (data) {
+            for (var i = 0; i < this.players.length; i++) {
+                var player = this.players[i];
+                if (player.user.id === data.user.id) {
+                    cPlayer = player;
+                    break;
+                };
+            }
+
+            if (cPlayer) {
+                cPlayer.user = data.user;
+                cPlayer.alive = data.alive;
+                cPlayer.ready = data.ready;
+                cPlayer.drawAmount = data.drawAmount
+            }
+        }
+    }
+    
+    //Get the current host
+    this.getHost = function() {
+        return (this.players.length > 0) ? this.players[0].user : null;
+    }
+    
+    //Check whether user is the host
+    this.isGameHost = function(user) {
+        var host = this.getHost();
+        return (host && host.id === user.id);
+    }
 }
 
 var Player = function(user, alive, ready, drawAmount) {
