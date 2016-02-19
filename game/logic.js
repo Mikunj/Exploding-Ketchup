@@ -32,19 +32,14 @@ module.exports = function(io, EK) {
                     if (game) {
                         io.in(user.currentRoom).emit($.GAME.PLAYER.DISCONNECT, {
                             player: game.getPlayer(user),
-                            game: game
+                            game: game.sanitize()
                         });
+                        removeUserFromGame(user, game, io, socket);
                     }
                 }
 
                 //Leave all rooms
                 socket.leave(user.currentRoom);
-                
-                //Remove user from their current game if they were in it
-                if (user.currentRoom != $.LOBBY.ROOM) {
-                    var game = EK.gameList[user.currentRoom];
-                    removeUserFromGame(user, game, io, socket);
-                }
 
                 //Remove the user from connected users
                 EK.removeUser(user);
@@ -108,12 +103,7 @@ module.exports = function(io, EK) {
             var gameList = [];
             for (var key in EK.gameList) {
                 var game = EK.gameList[key];
-                gameList.push({
-                    id: game.id,
-                    title: game.title,
-                    status: game.status,
-                    players: game.getPlayers()
-                });
+                gameList.push(game.sanitize());
             }
 
             //Add the user and send them the data
@@ -173,9 +163,6 @@ module.exports = function(io, EK) {
 
             //Create the game
             var game = new Game(gameId, title);
-            EK.addGame(game);
-            
-            console.log('Game created: ' + gameId + ' ' + title);
 
             //Add the user
             if (!addUserToGame(user, game, socket)) {
@@ -184,21 +171,20 @@ module.exports = function(io, EK) {
                 });
                 return;
             }
-
-            var gameData = {
-                id: game.id,
-                title: game.title,
-                players: game.getPlayers(),
-                status: game.status
-            };
+            
+            console.log('Game created: ' + gameId + ' ' + title);
+            
+            EK.addGame(game);
 
             //Tell everyone a game was created
-            io.emit($.GAME.CREATED, gameData);
+            io.emit($.GAME.CREATED, {
+                game: game.sanitize()
+            });
 
             //Return the game data to the user
             socket.emit($.GAME.CREATE, {
                 success: 'Game created',
-                game: gameData
+                game: game.sanitize()
             });
         });
 
@@ -236,16 +222,14 @@ module.exports = function(io, EK) {
             
             //Notify the players in the game that user has joined
             socket.broadcast.in(game.id).emit($.GAME.PLAYER.CONNECT, {
-                game: game,
+                game: game.sanitize(),
                 player: currentPlayer
             });
 
             //Send data to player
             socket.emit($.GAME.JOIN, {
                 success: 'Successfully joined game!',
-                players: game.getPlayers(),
-                game: game,
-                player: currentPlayer
+                game: game.sanitize()
             });
         });
 
@@ -308,8 +292,15 @@ module.exports = function(io, EK) {
                 if (user === game.gameHost()) {
                     if (game.start()) {
                         //Tell everyone game has started, from there they individually send a request for their hand
-                        io.in(game.id).emit($.GAME.START);
-                        io.emit($.GAME.STARTED, { id: game.id });
+                        io.in(game.id).emit($.GAME.START, {
+                            game: game.sanitize();
+                        });
+                        
+                        //Message lobby
+                        io.emit($.GAME.STARTED, { 
+                            game: game.sanitize() 
+                        });
+                        
                         console.log('Started game: ' + game.id);
                     }
                 }
@@ -349,8 +340,7 @@ module.exports = function(io, EK) {
 
                 //Tell everyone in room the ready state of the player
                 io.in(game.id).emit($.GAME.PLAYER.READY, {
-                    user: user,
-                    ready: ready
+                    player: game.getPlayer(user)
                 });
             }
         });
@@ -373,7 +363,7 @@ module.exports = function(io, EK) {
 
                 //Return the player hand
                 socket.emit($.GAME.PLAYER.HAND, {
-                    user: user,
+                    player: game.getPlayer(user),
                     hand: game.getPlayer(user).hand
                 });
             }
@@ -408,9 +398,9 @@ module.exports = function(io, EK) {
                     //If player has no defuse then player is out
                     var drawn = game.drawCards(player, player.drawAmount);
                     socket.emit($.GAME.PLAYER.DRAW, {
-                        user: player.user,
-                        drawn: drawn,
-                        cards: player.hand
+                        player: player,
+                        cards: drawn,
+                        hand: player.hand
                     });
 
                     //Use while loop incase player picks up 2 explodes
@@ -445,7 +435,7 @@ module.exports = function(io, EK) {
                         //Tell everyone user won
                         if (winner) {
                             io.in(game.id).emit($.GAME.WIN, {
-                                user: winner
+                                user: winner.user
                             });
                         }
 
@@ -464,10 +454,9 @@ module.exports = function(io, EK) {
 
                         //Send state information back
                         io.in(game.id).emit($.GAME.PLAYER.ENDTURN, {
-                            user: player.user,
-                            alive: player.alive,
+                            player: player,
                             state: state,
-                            next: game.playerForCurrentIndex().user
+                            game: game.sanitize() //Send updated game info back
                         });
                     }
                 }
@@ -494,10 +483,26 @@ module.exports = function(io, EK) {
                 if (game.cUserIndex == game.playerIndexForUser(user) && data.cards.length > 0) {
                     var player = game.getPlayer(user);
                     
+                    //Check if player is alive
+                    if (!player.alive) {
+                        socket.emit($.GAME.PLAYER.PLAY, {
+                            error: 'Cannot play card'
+                        });
+                        return;
+                    }
+                    
                     //Check if effects have been played
                     if (!effectsPlayed(game, player)) {
                         socket.emit($.GAME.PLAYER.PLAY, {
                             error: 'Waiting for card effect to take place'
+                        });
+                        return;
+                    }
+                    
+                    //Check if the player has the cards
+                    if (!player.hasCardsWithId(data.cards)) {
+                        socket.emit($.GAME.PLAYER.PLAY, {
+                            error: 'Player does not have cards'
                         });
                         return;
                     }
@@ -581,7 +586,7 @@ module.exports = function(io, EK) {
                                         to: other.id,
                                         from: socket.id,
                                         cardType: type,
-                                        cardId: card.id,
+                                        card: card.id,
                                         type: steal
                                         
                                     });
@@ -635,7 +640,7 @@ module.exports = function(io, EK) {
                                         success: true,
                                         card: card.id,
                                         type: steal,
-                                        user: user.id
+                                        player: player
                                     });
                                 }
                                 
@@ -712,7 +717,7 @@ module.exports = function(io, EK) {
                     
                     //Notify players that cards were played
                     io.in(game.id).emit($.GAME.PLAYER.PLAY, {
-                        user: user,
+                        player: player,
                         cards: cards
                     });
                     
@@ -721,7 +726,7 @@ module.exports = function(io, EK) {
                         //Tell player to force end turn
                         socket.emit($.GAME.PLAYER.ENDTURN, {
                             force: true,
-                            user: user
+                            player: player
                         });
                     }
                 }
@@ -781,8 +786,8 @@ module.exports = function(io, EK) {
                         //Notify players of the favor
                         io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
                             success: true,
-                            to: other,
-                            from: user,
+                            to: other.id,
+                            from: user.id,
                             card: data.card
                         });
                         return;
@@ -880,7 +885,7 @@ module.exports = function(io, EK) {
                         //Tell everyone user won
                         if (winner) {
                             io.in(game.id).emit($.GAME.WIN, {
-                                user: winner
+                                user: winner.user
                             });
                         }
 
@@ -894,10 +899,9 @@ module.exports = function(io, EK) {
 
                         //Send state information back
                         io.in(game.id).emit($.GAME.PLAYER.ENDTURN, {
-                            user: player.user,
-                            alive: false,
+                            player: player,
                             state: $.GAME.PLAYER.TURN.DISCONNECT,
-                            next: game.playerForCurrentIndex().user
+                            game: game.sanitize()
                         });
                     }
                     
@@ -934,7 +938,17 @@ module.exports = function(io, EK) {
         var game = EK.gameList[data.gameId];
         
         if (game && game.stop()) {
-            io.in(game.id).emit($.GAME.STOP);
+            
+            //Tell players
+            io.in(game.id).emit($.GAME.STOP, {
+                game: game.sanitize()
+            });
+            
+            //Tell lobby
+            io.emit($.GAME.STOPPED, {
+                game: game.sanitize()
+            });
+            
             console.log('Stopped game: ' + game.id);
         }
     }

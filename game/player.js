@@ -87,6 +87,20 @@ Player.prototype.hasCardWithId = function(id) {
 }
 
 /**
+ * Check if a player has cards with given ids
+ * @param   {Array} ids An array of card ids
+ * @returns {Boolean}  Whether the player has the cards
+ */
+Player.prototype.hasCardsWithId = function(ids) {
+    for (var key in ids) {
+        var id = ids[key];
+        if (!this.hasCardWithId(id)) return false;
+    }
+    
+    return true;
+}
+
+/**
  * Check if a player has a certain card type
  * @param   {String}   type The card type
  * @returns {Boolean} Whether the player has the card

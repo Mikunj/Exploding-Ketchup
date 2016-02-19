@@ -13,6 +13,7 @@ var $ = {
         START: 'startGame',
         STOP: 'stopGame',
         STARTED: 'gameStarted',
+        STOPPED: 'gameStopped',
         WIN: 'winGame',
         STATUS: {
             WAITING: 'gameWaiting',

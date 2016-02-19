@@ -41,6 +41,20 @@ var Game = function(id, title) {
 };
 
 /**
+ * Return a sanitized version of the game
+ * @returns {Object} A sanitized version of the game
+ */
+Game.prototype.sanitize = function() {
+    return {
+        id: this.id,
+        title: this.title,
+        status: this.status,
+        players: this.getPlayers(),
+        currentPlayerIndex: this.cUserIndex
+    }
+}
+
+/**
  * Add a player to the game
  * @param   {Object} user A user
  * @returns {Boolean}  Whether adding a player is successful
@@ -80,6 +94,7 @@ Game.prototype.getPlayers = function() {
             user: player.user,
             ready: player.ready,
             alive: player.alive,
+            drawAmount: player.drawAmount
         });
     }
     
