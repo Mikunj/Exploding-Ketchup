@@ -90,7 +90,7 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.GAME.CREATED, function(data) {
-        main.addGame(gameFromData(data));
+        main.addGame(gameFromData(data.game));
         Lobby.updateGameList(main);
     });
           

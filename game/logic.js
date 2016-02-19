@@ -294,7 +294,7 @@ module.exports = function(io, EK) {
                     if (game.start()) {
                         //Tell everyone game has started, from there they individually send a request for their hand
                         io.in(game.id).emit($.GAME.START, {
-                            game: game.sanitize();
+                            game: game.sanitize()
                         });
                         
                         //Message lobby

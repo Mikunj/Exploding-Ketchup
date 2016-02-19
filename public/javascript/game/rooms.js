@@ -70,15 +70,23 @@ var Lobby = {
         
         //Add games to the list
         $.each(EK.games, function(id, game) {
+            var disabledString = (game.status == $C.GAME.STATUS.PLAYING) ? 'disabled' : '';
             var html = "<div class='game' data-id='" + game.id + "'>" +
-                        "<div id='title'>" + game.title + "</div>" +
-                        "<div id='status'>" + game.status + "</div>" +
-                        "<div id='players'>Players: " + game.players.length + "</div>" +
+                            "<div id='top'>" +
+                                "<div id='title'>" + game.title + "</div>" +
+                                "<div id='status'>" + game.status + "</div>" +
+                                "<div id='players'>Players: " + game.players.length + "</div>" +
+                            "</div>" +
+                            "<div id='bottom'>" +
+                                "<button id='joinGameButton' class='btn btn-success btn-block" + disabledString + "' type='button'>Join</button>" +
+                            "</div>" +
                         "</div>"
+            
             
             //Check that we don't double up on adding games
             if ($(".game[data-id='" + game.id + "']").length < 1) {
                 $('#gameList .content').append(html);
+                
             }
             
         });
@@ -86,9 +94,9 @@ var Lobby = {
         //Add test games
         for (var i = 0; i < 50; i++) {
             var html = "<div class='game' data-id='" + i + "'>" +
-                        "<div id='title'>" + i + "</div>" +
-                        "<div id='status'>" + i + "</div>" +
-                        "<div id='players'>Players: " + i + "</div>" +
+                            "<div id='title'>" + i + "</div>" +
+                            "<div id='status'>" + i + "</div>" +
+                            "<div id='players'>Players: " + i + "</div>" +
                         "</div>"
             
             //Check that we don't double up on adding games
