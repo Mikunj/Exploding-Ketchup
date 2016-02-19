@@ -519,7 +519,9 @@ module.exports = function(io, EK) {
                     
                     //Whether the other specified player exists
                     var otherPlayerExists = function(data) {
-                        return data.hasOwnProperty('to') && EK.connectedUsers[data.to] && game.getPlayer(EK.connectedUsers[data.to]);
+                        var user = EK.connectedUsers[data.to];
+                        var player = game.getPlayer(user);
+                        return data.hasOwnProperty('to') && user && player && player.alive;
                     }
                     
                     //Check for combos
