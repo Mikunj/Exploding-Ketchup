@@ -133,6 +133,20 @@ var Game = function(id, title, status, players, index) {
         var host = this.getHost();
         return (host && host.user === user.id);
     }
+    
+    /**
+     * Get the current player who's turn it is
+     * @returns {Object} The current player or null
+     */
+    this.getCurrentPlayer = function() {
+        if (this.players.length > 0) {
+            if (this.players[this.currentIndex]) {
+                return this.players[this.currentIndex];
+            }
+        }
+        
+        return null;
+    }
 }
 
 var Player = function(userId, alive, ready, drawAmount) {

@@ -169,13 +169,13 @@ Game.prototype.start = function () {
     //Give each player a diffuse and 4 random card from the pile
     for (var key in this.players) {
         var player = this.players[key];
-        player.addCard(new Card(this.generateRandomID(), 'd', $.CARD.DEFUSE, 'a'));
+        player.addCard(new Card(this.generateRandomID(), 'Defuse', $.CARD.DEFUSE, 'a'));
         this.drawCards(player, 4);
     }
     
     //Add in bombs
     for (var i = 0; i < this.players.length - 1; i ++) {
-        this.drawPile.push(new Card(this.generateRandomID(), 'e_' + i, $.CARD.EXPLODE, 0));
+        this.drawPile.push(new Card(this.generateRandomID(), 'Explode', $.CARD.EXPLODE, 0));
     }
     
     this.shuffleDeck();
@@ -331,18 +331,18 @@ Game.prototype.resetDeck = function() {
     //Generate cards
     for (var i = 0; i < 10; i++) {
         if (i < 8) {
-            this.drawPile.push(new Card(this.generateRandomID(), 'att_' + i, $.CARD.ATTACK, 0));
-            this.drawPile.push(new Card(this.generateRandomID(), 'skp_' + i, $.CARD.SKIP, 1));
-            this.drawPile.push(new Card(this.generateRandomID(), 'fav_' + i, $.CARD.FAVOR, 2));
-            this.drawPile.push(new Card(this.generateRandomID(), 'sfl_' + i, $.CARD.SHUFFLE, 3));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Attack', $.CARD.ATTACK, 0));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Skip', $.CARD.SKIP, 1));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Favor', $.CARD.FAVOR, 2));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Shuffle', $.CARD.SHUFFLE, 3));
             
             //5 regular cards
             for (var j = 0; j < 5; j++) {
-                this.drawPile.push(new Card(this.generateRandomID(), 'r' + j + '_' + i, $.CARD.REGULAR, j));
+                this.drawPile.push(new Card(this.generateRandomID(), 'Regular_' + i, $.CARD.REGULAR, j));
             }
         }
         
-        this.drawPile.push(new Card(this.generateRandomID(), 'ftr_' + i, $.CARD.FUTURE, 4));
+        this.drawPile.push(new Card(this.generateRandomID(), 'Future', $.CARD.FUTURE, 4));
     }
     
 }

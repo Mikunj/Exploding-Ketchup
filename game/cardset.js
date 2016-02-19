@@ -111,7 +111,7 @@ CardSet.prototype.cardsMatching = function() {
         var card = this.cards[0];
         for (var i = 1; i < this.cards.length; i++) {
             var compareCard = this.cards[i];
-            var match = card.type === compareCard.type && card.image === compareCard.image;
+            var match = card.name === compareCard.name && card.type === compareCard.type;
             if (!match) return false;
         }
                 
@@ -131,7 +131,7 @@ CardSet.prototype.cardsDifferent = function() {
             var card = this.cards[i];
             for (var j = i + 1; j < this.cards.length; j++) {
                 var compareCard = this.cards[j];
-                var match = card.type === compareCard.type && card.image === compareCard.image;
+                var match = card.name === compareCard.name && card.type === compareCard.type;
                 if (match) return false;
             }
         }

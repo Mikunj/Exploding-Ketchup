@@ -29,6 +29,7 @@ module.exports = function(io, EK) {
                     user: user
                 });
                 
+                //Notify room
                 if (user.currentRoom != $.LOBBY.ROOM) {
                     var game = EK.gameList[user.currentRoom];
                     if (game) {
@@ -395,7 +396,7 @@ module.exports = function(io, EK) {
                 socket.emit($.GAME.DISCARDPILE, {
                     cards: game.getDiscardPile()
                 });
-            });
+            };
         });
 
         /**
@@ -549,7 +550,9 @@ module.exports = function(io, EK) {
                     var otherPlayerExists = function(data) {
                         var user = EK.connectedUsers[data.to];
                         var player = game.getPlayer(user);
-                        return data.hasOwnProperty('to') && user && player && player.alive;
+                        
+                        //Make sure we have a person 'to' do action on and that we're not doing the action to ourself and that the player is alive
+                        return data.hasOwnProperty('to') && user && EK.connectedUsers[socket.id] != user && player && player.alive;
                     }
                     
                     //Check for combos
@@ -618,8 +621,7 @@ module.exports = function(io, EK) {
                                         from: socket.id,
                                         cardType: type,
                                         card: card.id,
-                                        type: steal
-                                        
+                                        type: steal  
                                     });
                                 } else {
                                     //Tell players that stealing was unsuccessful
@@ -673,6 +675,14 @@ module.exports = function(io, EK) {
                                         type: steal,
                                         player: player
                                     });
+                                } else {
+                                    //Tell them of the failure
+                                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                                        success: false,
+                                        type: steal,
+                                        player: player
+                                    });
+                                    return;
                                 }
                                 
                                 //Set effect played
@@ -702,12 +712,6 @@ module.exports = function(io, EK) {
                                 //Set the draw amount to 0 so that we just end our turn without drawing anything
                                 player.drawAmount = 0;
                                 nextPlayer.drawAmount = 2;
-                                
-                                //Tell next player that they have to draw 2
-                                io.in(game.id).emit($.GAME.PLAYER.DRAW, {
-                                    user: nextPlayer.user,
-                                    amount: nextPlayer.drawAmount
-                                });
                                 
                                 //Force player to end turn
                                 endTurn = true;

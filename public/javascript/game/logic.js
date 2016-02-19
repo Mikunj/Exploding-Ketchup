@@ -1,11 +1,5 @@
 jQuery(document).ready(function($) {
     
-    /**
-    TODO: Make the host auto ready
-    If the host leaves then the next host should auto ready
-    Or make it that once everyone readies up then the game starts
-    */
-    
     //Main game instance
     var main = new EK();
     
@@ -178,6 +172,176 @@ jQuery(document).ready(function($) {
         
         //We may have a new game host, so force them to be ready
         forceGameHostReady(main.games[data.game.id]);
+    });
+    
+    io.on($C.GAME.PLAYER.HAND, function(data) {
+        var game = main.getCurrentUserGame();
+        if (game) {
+            main.gameData.hand = data.hand;
+            //TODO: Update UI here
+        }
+    });
+    
+    io.on($C.GAME.DISCARDPILE, function(data) {
+        var game = main.getCurrentUserGame();
+        if (game) {
+            main.gameData.discardPile = data.cards;
+            //TODO: Update UI here
+        }
+    });
+    
+    io.on($C.GAME.PLAYER.ENDTURN, function(data) {
+        if (data.hasOwnProperty('error')) {
+            GameRoom.logMessage('Error: ' + data.error);
+        } else if (data.hasOwnProperty('force')) {
+            //Force end turn
+            io.emit($C.GAME.PLAYER.ENDTURN, { gameId: main.getCurrentUserGame().id });
+        } else {
+            //Update game data
+            main.addGame(gameFromData(data.game));
+            
+            var game = main.getCurrentUserGame();
+            var user = data.player.user;
+            var message = null;
+            switch (data.state) {
+                case $C.PLAYER.TURN.DEFUSED:
+                    message = user.name + " defused the bomb!";
+                    break;
+                case $C.PLAYER.TURN.EXPLODED:
+                    message = user.name + " exploded!";
+                    break;
+                case $C.PLAYER.TURN.SURVIVED:
+                    message = user.name + " survived their turn.";
+                    break;
+            }
+            
+            //Send the state message to user
+            if (message) {
+                GameRoom.logMessage(message);
+            }
+            
+            //Send messages to users
+            if (data.state == $C.PLAYER.TURN.SURVIVED) {
+                var nextPlayer = game.getCurrentPlayer();
+                var nextUser = main.users[nextPlayer.user];
+                var currentUser = main.getCurrentUser();
+                
+                //The turn message
+                var turnMessage = (currentUser.id === nextUser.id) ? "It is your turn!" : "It is " + nextUser.name "'s turn!";
+                GameRoom.logMessage(turnMessage);
+                
+                //Tell the player how much they have to draw
+                if (currentUser.id === nextUser.id) {
+                    GameRoom.logMessage("Draw " + nextPlayer.drawAmount " cards!");
+                }
+                
+            }
+        }
+    
+    });
+    
+    io.on($C.GAME.PLAYER.DRAW, function(data) {
+        //Update data
+        game.updatePlayer(data.player);
+        main.gameData.hand = data.hand;
+        
+        //Tell the user what cards they drew
+        if (data.cards) {
+            var type = "";
+            $.each(data.cards, function(index, card)) {
+                GameRoom.logMessage("You drew a " + card.type);
+            });
+        }
+    });
+    
+    io.on($C.GAME.PLAYER.PLAY, function(data) {
+        if (data.hasOwnProperty('error')) {
+            GameRoom.logMessage("Error: " + data.error);
+        } else {
+            //Tell users that a player played cards
+            var user = data.player.user;
+            var cards = data.cards;
+            if (cards) {
+                $.each(cards, function(index, card) {
+                    GameRoom.logMessage(user.name + "played a " + card.type + "card.");
+                });
+            }
+        }
+    });
+    
+    io.on($C.GAME.PLAYER.STEAL, function(data) {
+        var from = main.users[data.from];
+        var to = main.users[data.to];
+        var currentUser = main.getCurrentUser();
+        var fromString = (currentUser.id === from.id) ? "You" : from.name;
+        var toString = (currentUser.id === to.id) ? "You" : to.name;
+        
+        switch(data.type) {
+            case $C.CARDSET.STEAL.BLIND:
+                GameRoom.logMessage(fromString + " took a card from " + toString);
+                break;
+            case $C.CARDSET.STEAL.NAMED:
+                if (data.success) {
+                    GameRoom.logMessage(fromString + " took a " + data.cardType + " from " + toString);
+                } else {
+                    GameRoom.logMessage(fromString + " failed to take a " + data.cardType + " from " + toString);
+                }
+                break;
+            case $C.CARDSET.STEAL.DISCARD:
+                if (data.success) {
+                    GameRoom.logMessage(fromString + " took a " + data.cardType + " from the discard pile.");
+                } else {
+                    GameRoom.logMessage(fromString + " failed to take a " + data.cardType + " from  the discard pile.");
+                }
+                break;
+        }
+        
+        //Update hand
+        if (currentUser.id === from.id || currentUser.id === to.id) {
+            io.emit($C.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
+        }
+    });
+    
+    io.on($C.GAME.PLAYER.FAVOR, function(data) {
+        var from = main.users[data.from.id];
+        var to = main.users[data.to.id];
+        var currentUser = main.getCurrentUser();
+        
+        if (data.hasOwnProperty('force')) {
+            var fromString = (currentUser.id === from.id) ? "You" : from.name;
+            var toString = (currentUser.id === to.id) ? "You" : to.name;
+            
+            GameRoom.logMessage(fromString + " asked " + toString " for a favor.");
+            
+            if (currentUser.id === from.id) {
+                //Current user asked the favor. Disable end turn button
+                //TODO: If the player you asked for a favor from leaves then enable end turn button
+            }
+            
+            if (currentUser.id === to.id) {
+                //From user asked current user for a favor
+                //Show the favor screen
+                //TODO: If the player who asked your for a favor leaves then hide the favor screen and continue
+            }
+        } else if (data.hasOwnProperty('success')) {
+            var fromString = (currentUser.id === from.id) ? "You" : from.name;
+            var toString = (currentUser.id === to.id) ? "You" : to.name;
+            
+            GameRoom.logMessage(fromString + " gave " + toString + " a " + data.card.type + ".");
+            
+            if (currentUser.id === from.id) {
+                //Current user did the favor. 
+                //TODO: Hide the favor screen
+            }
+            
+            if (currentUser.id === to.id) {
+                //From user did current user for a favor
+                //TODO: Enable end turn button
+            }
+        
+        } else if (data.hasOwnProperty('error')) {
+            GameRoom.logMessage('Error: ' + data.error);
+        }
     });
     
     /**
