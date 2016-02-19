@@ -25,7 +25,9 @@ module.exports = function(io, EK) {
                 if (!user) return;
 
                 //Tell everyone the user disconnected
-                io.emit($.USER.DISCONNECT, user);
+                io.emit($.USER.DISCONNECT, {
+                    user: user
+                });
                 
                 if (user.currentRoom != $.LOBBY.ROOM) {
                     var game = EK.gameList[user.currentRoom];
@@ -95,8 +97,7 @@ module.exports = function(io, EK) {
             //Tell everyone user has connected
             user.currentRoom = $.LOBBY.ROOM;
             socket.broadcast.emit($.USER.CONNECT, {
-                id: user.id,
-                name: user.name
+                user: user
             });
 
             //Get the game list data

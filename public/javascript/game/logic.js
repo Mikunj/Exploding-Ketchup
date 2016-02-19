@@ -64,12 +64,12 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.USER.CONNECT, function(data) {
-        main.addUser(new User(data.id, data.name));
+        main.addUser(new User(data.user.id, data.user.name));
         Lobby.updateUserList(main);
     });
     
     io.on($C.USER.DISCONNECT, function(data) {
-        main.removeUser(data.id);
+        main.removeUser(data.user.id);
         Lobby.updateUserList(main);
     });
     
@@ -163,11 +163,11 @@ jQuery(document).ready(function($) {
         $.each(data.players, function(index, player) {
             var user = main.users[player.user.id];
             if (user) {
-                players.push(new Player(user, player.alive, player.ready));
+                players.push(new Player(user, player.alive, player.ready, player.drawAmount));
             }
         });
         
-        return new Game(data.id, data.title, data.status, players);
+        return new Game(data.id, data.title, data.status, players, data.currentIndex);
     }
 
 });

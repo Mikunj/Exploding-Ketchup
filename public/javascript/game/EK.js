@@ -65,7 +65,7 @@ var User = function(id, nickname) {
 };
 
 //class for current game
-var Game = function(id, title, status, players) {
+var Game = function(id, title, status, players, index) {
     //Game id
     this.id = id;
 
@@ -78,6 +78,9 @@ var Game = function(id, title, status, players) {
     //Array of connected players
     this.players = players;
     
+    //Current player index
+    this.currentIndex = index;
+    
     //Get a player in the game
     this.getPlayer = function(user) {
         for (var i = 0; i < this.players.length; i++) {
@@ -89,18 +92,15 @@ var Game = function(id, title, status, players) {
     }
 }
 
-var Player = function(user, alive, ready) {
+var Player = function(user, alive, ready, drawAmount) {
     //The user associated with the player
     this.user = user;
     
     //The current score
     this.alive = alive;
     
-    //Players hand
-    this.hand = [];
-    
     //The amount of cards player has to draw
-    this.drawAmount = 1;
+    this.drawAmount = drawAmount;
     
     //Set the player to ready
     this.ready = ready;
