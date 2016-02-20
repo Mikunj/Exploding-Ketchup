@@ -28,7 +28,8 @@ var $C = {
                 NOTREADY: 'Not Ready',
                 READY: 'Ready',
                 WAITING: 'Waiting',
-                PLAYING: 'Playing'
+                PLAYING: 'Playing',
+                DEAD: 'Dead'
             },
             ENDTURN: 'playerEndTurn',
             TURN: {

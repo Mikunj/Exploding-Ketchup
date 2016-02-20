@@ -184,18 +184,32 @@ var Player = function(userId, alive, ready, drawAmount) {
     this.ready = ready;
     
     //Set the status
-    this.status = function() {
-        return (this.ready) ? $C.GAME.PLAYER.STATUS.READY : $C.GAME.PLAYER.STATUS.NOTREADY;
+    this.status = function(game) {
+        var status = $C.GAME.PLAYER.STATUS;
+        if (!this.alive) return status.DEAD;
+        
+        if (game.status === $C.GAME.STATUS.WAITING) {            
+            return (this.ready) ? status.READY : status.NOTREADY;
+        } else if (game.status === $C.GAME.STATUS.PLAYING) {
+            //Check if we are the current player
+            return (game.getCurrentPlayer().user === this.user) ? status.PLAYING : status.WAITING;
+        }
+        
+        return status.NOTREADY;
     }
     
     //The color corresponding to the status
-    this.statusColor = function() {
-        var status = this.status();
+    this.statusColor = function(game) {
+        var status = this.status(game);
         switch (status) {
             case $C.GAME.PLAYER.STATUS.NOTREADY:
                 return "red";
             case $C.GAME.PLAYER.STATUS.READY:
+            case $C.GAME.PLAYER.STATUS.PLAYING:
                 return "green";
+            case $C.GAME.PLAYER.STATUS.WAITING:
+                return "blue";
+            
             default:
                 return "red";
         }

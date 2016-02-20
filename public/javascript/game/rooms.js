@@ -177,7 +177,7 @@ var GameRoom = {
                 var classString = (game.isGameHost(user)) ? "status-blue" : "";
                 var html = "<div class='user data-id='" + user.id + "'>" + 
                                 "<div id='name' class='" + classString + "'>" + user.name + "</div>" +
-                                "<div class='status status-" + player.statusColor() +"'>" + player.status() + "</div>" +
+                                "<div class='status status-" + player.statusColor(game) +"'>" + player.status(game) + "</div>" +
                             "</div>";
 
                 //Check that we don't double up on adding users
