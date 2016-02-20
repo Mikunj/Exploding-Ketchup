@@ -203,12 +203,15 @@ html, body {
     display: inline-block;
     position: absolute;
     bottom: 0;
-    margin-bottom: 20px;
     width: 100%;
 }
 
 #input button {
     width: 25%;
+}
+
+#waitingInput {
+    margin-bottom: 20px;
 }
 
 #chat {
@@ -232,6 +235,53 @@ html, body {
     height: 100%;
 }
 
-#chatBox .content{
+#chatBox .content {
+    padding: 10px;
+}
+
+#cardInput {
+    margin-top: 20px;
+    background: #111133;
+    height: 150px;
+    position: relative;
+    -webkit-box-shadow: inset 0px 0px 26px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: inset 0px 0px 26px 0px rgba(0,0,0,0.75);
+    box-shadow: inset 0px 0px 26px 0px rgba(0,0,0,0.75);
+}
+
+#cardDisplay {
+    overflow-x: scroll;
+    width: 100%;
+    white-space: nowrap;
+}
+
+
+.card {
+    height: 125px;
+    line-height: 125px;
+    width: 110px;
+    background: white;
+    color: black;
+    border-radius: 4px;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.card:first-child {
+    margin-left: 10px; 
+}
+
+.card-selected {
+    background: #5bc0de;
+    color: white;
+}
+
+.card span {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+    word-wrap: break-word;
+    word-break: break-all;
+    white-space: normal;
     padding: 10px;
 }
