@@ -10,11 +10,7 @@ jQuery(document).ready(function($) {
     
     $("#loginButton").click(function() {
         var nickname = $('#nameInput').val();
-        if (nickname.length < 1) {
-           Login.showError('Name is too short!');
-        } else {
-            io.emit($C.LOBBY.CONNECT, { nickname: nickname });
-        }
+        io.emit($C.LOBBY.CONNECT, { nickname: nickname });
     });
     
     $("#newGameButton").click(function() {
@@ -55,6 +51,20 @@ jQuery(document).ready(function($) {
         if (game) {
             io.emit($C.GAME.PLAYER.READY, { gameId: game.id });
         };
+    });
+    
+    //Card click
+    $(document).on('click', '.card', function() {
+        //Get select and invert
+        var selected = $(this).data("selected"); 
+        selected = !selected;
+        //TODO: Update selected data
+        $(this).data("selecteded", selected);
+        if (selected) {
+            $(this).removeClass('card-selected');
+        } else {
+            $(this).addClass('card-selected');
+        }
     });
     
     //******** IO Events ********//
@@ -133,10 +143,13 @@ jQuery(document).ready(function($) {
         } else {
             //Update game data
             main.addGame(gameFromData(data.game));
-            GameRoom.update(main);
-
+            
             //Reset local game data
             main.gameData = new GameData();
+            GameRoom.update(main);
+            
+            //Get hand
+            io.emit($C.GAME.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
 
             GameRoom.logMessage('Started Game!');
         }
@@ -154,6 +167,7 @@ jQuery(document).ready(function($) {
         
         //Reset local game data
         main.gameData = new GameData();
+        GameRoom.updateCardDisplay(main);
     });
     
     io.on($C.GAME.STOPPED, function(data) {
@@ -201,6 +215,8 @@ jQuery(document).ready(function($) {
             
             //Reset stats
             main.gameData = new GameData();
+            GameRoom.updateCardDisplay(main);
+            
             main.getCurrentUser().currentGame = null;
         }
     });
@@ -261,7 +277,9 @@ jQuery(document).ready(function($) {
         var game = main.getCurrentUserGame();
         if (game) {
             main.gameData.hand = data.hand;
-            //TODO: Update UI here
+            
+            //Update card display for the user
+            GameRoom.updateCardDisplay(main);
         }
     });
     
@@ -328,6 +346,7 @@ jQuery(document).ready(function($) {
         //Update data
         game.updatePlayer(data.player);
         main.gameData.hand = data.hand;
+        GameRoom.updateCardDisplay(main);
         
         //Tell the user what cards they drew
         if (data.cards) {

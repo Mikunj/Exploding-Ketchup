@@ -87,6 +87,14 @@ module.exports = function(io, EK) {
                 });
                 return;
             }
+            
+            //Check if nickname is between 3 and 10 characters
+            if (nickname.length < 3 || nickname.length > 10) {
+                socket.emit($.LOBBY.CONNECT, {
+                    error: 'Name has to be between 3 and 10 characters!'
+                });
+                return;
+            }
 
             //Join the lobby
             socket.join($.LOBBY.ROOM);
@@ -910,27 +918,27 @@ module.exports = function(io, EK) {
                 
                 player.hand = [];
                 
-                //Check if the player is the current one drawing, if so determine winner or force next turn
-                if (player === currentPlayer) {
+                //Check for a winner
+                if (game.playerAliveCount() < 2) {
+                    var winner = null;
+                    for (var key in game.players) {
+                        var player = game.players[key];
+                        if (player.alive) winner = player;
+                    }
+
+                    //Tell everyone user won
+                    if (winner) {
+                        io.in(game.id).emit($.GAME.WIN, {
+                            user: winner.user
+                        });
+                    }
+
+                    //Stop the game
+                    stopGame(io, { gameId: game.id })
+                } else {
                     
-                    //Check for a winner
-                    if (game.playerAliveCount() < 2) {
-                        var winner = null;
-                        for (var key in game.players) {
-                            var player = game.players[key];
-                            if (player.alive) winner = player;
-                        }
-
-                        //Tell everyone user won
-                        if (winner) {
-                            io.in(game.id).emit($.GAME.WIN, {
-                                user: winner.user
-                            });
-                        }
-
-                        //Stop the game
-                        stopGame(io, { gameId: game.id })
-                    } else {
+                    //Check if the player is the current one drawing, if so determine winner or force next turn
+                    if (player === currentPlayer) {
                         
                         //Next players turn
                         var nextAlive = game.getNextAliveIndex(game.cUserIndex - 1);
@@ -944,7 +952,7 @@ module.exports = function(io, EK) {
                         });
                     }
                     
-                } //END player === currentPlayer
+                }
             
             }
             

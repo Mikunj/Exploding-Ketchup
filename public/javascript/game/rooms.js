@@ -47,17 +47,6 @@ var Lobby = {
         
         //Set the user count
         $('#userList .top-bar').text('Connected Users ( ' + Object.keys(EK.users).length + ' )');
-        
-        
-        //Add test users
-        for (var i = 0; i < 50; i++) {
-            var html = "<div class='user' data-id='" + i + "'>" + i + "</div>";
-
-            //Check that we don't double up on adding users
-            if ($(".user[data-id='" + i + "']").length < 1) {
-                $('#userList .content').append(html);
-            }
-        }
     
     },
     
@@ -92,20 +81,6 @@ var Lobby = {
             
         });
         
-        //Add test games
-        for (var i = 0; i < 50; i++) {
-            var html = "<div class='game' data-id='" + i + "'>" +
-                            "<div id='title'>" + i + "</div>" +
-                            "<div id='status'>" + i + "</div>" +
-                            "<div id='players'>Players: " + i + "</div>" +
-                        "</div>"
-            
-            //Check that we don't double up on adding games
-            if ($(".game[data-id='" + i + "']").length < 1) {
-                $('#gameList .content').append(html);
-            }
-        }
-        
     }
     
 };
@@ -118,6 +93,7 @@ var GameRoom = {
      */
     update: function(EK) {
         this.updateInputDisplay(EK);
+        this.updateCardDisplay(EK);
         this.updatePlayerList(EK);
     },
     
@@ -129,8 +105,8 @@ var GameRoom = {
         var user = EK.getCurrentUser();
         var game = EK.getCurrentUserGame();
         if (user && game) {
-            var waitingInput = $('waitingInput');
-            var playingInput = $('playingInput');
+            var waitingInput = $('#waitingInput');
+            var playingInput = $('#playingInput');
             var startGameButton = $('#startGameButton');
             var readyGameButton = $('#readyGameButton');
             if (game.status === $C.GAME.STATUS.WAITING) {
@@ -159,6 +135,29 @@ var GameRoom = {
                 //TODO: Add end turn button here
             }
         }
+    },
+    
+    /**
+     * Display cards in current users hand.
+     * All cards get auto deselected.
+     * @param {Object} EK The main game instance
+     */
+    updateCardDisplay: function(EK) {
+       /*<div data-selected="true" class="card">
+            <span>DEFUSE</span>
+        </div>*/
+        
+        //Clear cards
+        $('#cardDisplay').empty();
+        
+        $.each(EK.gameData.hand, function(index, card) {
+            var html = "<div data-selected='false' data-id='" + card.id +"' class='card noselect'>" +
+                            "<span>" + card.name + "</span>" +
+                        "</div>";
+            
+            $('#cardDisplay').append(html);
+            
+        });
     },
     
     /**

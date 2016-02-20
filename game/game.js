@@ -337,20 +337,22 @@ Game.prototype.resetDeck = function() {
     //Generate cards
     for (var i = 0; i < 10; i++) {
         if (i < 8) {
+            //Special
             this.drawPile.push(new Card(this.generateRandomID(), 'Attack', $.CARD.ATTACK, 0));
             this.drawPile.push(new Card(this.generateRandomID(), 'Skip', $.CARD.SKIP, 1));
             this.drawPile.push(new Card(this.generateRandomID(), 'Favor', $.CARD.FAVOR, 2));
             this.drawPile.push(new Card(this.generateRandomID(), 'Shuffle', $.CARD.SHUFFLE, 3));
             
-            //5 regular cards
-            for (var j = 0; j < 5; j++) {
-                this.drawPile.push(new Card(this.generateRandomID(), 'Regular_' + i, $.CARD.REGULAR, j));
-            }
+            //Regular
+            this.drawPile.push(new Card(this.generateRandomID(), 'PYRO', $.CARD.REGULAR, 4));
+            this.drawPile.push(new Card(this.generateRandomID(), 'ENGINEER', $.CARD.REGULAR, 5));
+            this.drawPile.push(new Card(this.generateRandomID(), 'SOLDIER', $.CARD.REGULAR, 6));
+            this.drawPile.push(new Card(this.generateRandomID(), 'HEAVY', $.CARD.REGULAR, 7));
+            this.drawPile.push(new Card(this.generateRandomID(), 'SPY', $.CARD.REGULAR, 8));
         }
         
-        this.drawPile.push(new Card(this.generateRandomID(), 'Future', $.CARD.FUTURE, 4));
+        this.drawPile.push(new Card(this.generateRandomID(), 'Future', $.CARD.FUTURE, 9));
     }
-    
 }
 
 /**
