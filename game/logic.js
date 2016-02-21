@@ -439,15 +439,17 @@ module.exports = function(io, EK) {
                         });
                         return;
                     }
-
-                    //Make player draw a card and if it is an explode then remove a defuse
-                    //If player has no defuse then player is out
-                    var drawn = game.drawCards(player, 1);
-                    socket.emit($.GAME.PLAYER.DRAW, {
-                        player: player,
-                        cards: drawn,
-                        hand: player.hand
-                    });
+                    
+                    if (player.drawAmount >= 1) {
+                        //Make player draw a card and if it is an explode then remove a defuse
+                        //If player has no defuse then player is out
+                        var drawn = game.drawCards(player, 1);
+                        socket.emit($.GAME.PLAYER.DRAW, {
+                            player: player,
+                            cards: drawn,
+                            hand: player.hand
+                        });
+                    }
 
                     //Use while loop incase player picks up 2 explodes
                     while (player.hasCardType($.CARD.EXPLODE)) {
@@ -788,11 +790,11 @@ module.exports = function(io, EK) {
                             case $.CARD.FUTURE:
                                 
                                 //Get the first 3 cards on the top of the draw pile
-                                var cards = [];
+                                var futureCards = [];
                                 for (var i = 0; i < 3; i++)
                                 {
                                     if (game.drawPile[i]) {
-                                        cards.push(game.drawPile[i]);
+                                        futureCards.push(game.drawPile[i]);
                                     }
                                 }
                                 
@@ -801,7 +803,7 @@ module.exports = function(io, EK) {
                                 
                                 //Send the cards to the player
                                 socket.emit($.GAME.PLAYER.FUTURE, {
-                                    cards: cards
+                                    cards: futureCards
                                 });
                                 
                                 break;

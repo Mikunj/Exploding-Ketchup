@@ -219,8 +219,9 @@ Game.prototype.playerAliveCount = function() {
 }
 
 /**
- * Increment a given index
+ * Increment a given index and return the new value
  * @param {Number} index The index to increment
+ * @returns {Number} The next index
  */
 Game.prototype.increment = function(index) {
     if (index + 1 >= this.players.length) {
@@ -228,6 +229,8 @@ Game.prototype.increment = function(index) {
     } else {
         index += 1;
     }
+    
+    return index;
 }
 
 /**
@@ -236,8 +239,10 @@ Game.prototype.increment = function(index) {
  * @returns {Number} The index of the next player
  */
 Game.prototype.getNextAliveIndex = function(start) {
-    var next = start;
-    this.increment(next);
+    var next = this.increment(start);
+    
+    console.log(next);
+    console.log(this.players[next]);
     
     //Go to the next alive player
     while(this.playerAliveCount() > 1 && !this.players[next].alive) {
@@ -344,11 +349,11 @@ Game.prototype.resetDeck = function() {
             this.drawPile.push(new Card(this.generateRandomID(), 'Shuffle', $.CARD.SHUFFLE, 3));
             
             //Regular
-            this.drawPile.push(new Card(this.generateRandomID(), 'PYRO', $.CARD.REGULAR, 4));
-            this.drawPile.push(new Card(this.generateRandomID(), 'ENGINEER', $.CARD.REGULAR, 5));
-            this.drawPile.push(new Card(this.generateRandomID(), 'SOLDIER', $.CARD.REGULAR, 6));
-            this.drawPile.push(new Card(this.generateRandomID(), 'HEAVY', $.CARD.REGULAR, 7));
-            this.drawPile.push(new Card(this.generateRandomID(), 'SPY', $.CARD.REGULAR, 8));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Pyro', $.CARD.REGULAR, 4));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Engineer', $.CARD.REGULAR, 5));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Soldier', $.CARD.REGULAR, 6));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Heavy', $.CARD.REGULAR, 7));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Spy', $.CARD.REGULAR, 8));
         }
         
         this.drawPile.push(new Card(this.generateRandomID(), 'Future', $.CARD.FUTURE, 9));

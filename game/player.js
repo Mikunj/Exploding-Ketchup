@@ -33,15 +33,6 @@ Player.prototype.reset = function() {
 
 /**
  * Get the index of the given card in players hand
- * @param   {Object} card The card
- * @returns {Number} The position of the card in players hand
- */
-Player.prototype.cardIndex = function(card) {
-    return this.hand.indexOf(card);
-}
-
-/**
- * Get the index of the given card in players hand
  * @param   {Object} id The card id
  * @returns {Number} The position of the card in players hand
  */
@@ -61,7 +52,7 @@ Player.prototype.cardIndexById = function(id) {
  */
 Player.prototype.cardTypeIndex = function(type) {
     for (var i = 0; i < this.hand.length; i++) {
-        if (type === this.hand[i].type)
+        if (this.hand[i].type === type)
             return i;
     }
     
@@ -174,8 +165,7 @@ Player.prototype.addCards = function(cards) {
  * @returns {Object} The removed card or null.
  */
 Player.prototype.removeCard = function(card) {
-    var index = this.cardIndex(card);
-    return (index > 0) ? this.hand.splice(index, 1)[0] : null;
+    return this.removeCardWithId(card.id);
 }
 
 /**
@@ -183,8 +173,8 @@ Player.prototype.removeCard = function(card) {
  * @param {Array} cards An array of cards to remove
  */
 Player.prototype.removeCards = function(cards) {
-    for (card in cards) {
-        this.removeCard(card);
+    for (var key in cards) {
+        this.removeCard(cards[key]);
     }
 }
 

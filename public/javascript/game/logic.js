@@ -58,13 +58,12 @@ jQuery(document).ready(function($) {
     
         switch (cards.length) {
             case 1:
-                console.log(cards.data('id'));
                 var card = main.gameData.getCardFromHand(cards.data('id'));
                 if (card.type === $C.CARD.FAVOR) {
                     GameRoom.showFavorSelectOverlay(main);
                 } else {
                     io.emit($C.GAME.PLAYER.PLAY, { 
-                        gameId: main.getCurrentUserGame(),
+                        gameId: main.getCurrentUserGame().id,
                         cards: cardIdsFromDOMData(cards)
                     });
                 }
@@ -316,8 +315,8 @@ jQuery(document).ready(function($) {
         if (game) {
             main.gameData.hand = data.hand;
             
-            //Update card display for the user
-            GameRoom.updateCardDisplay(main);
+            //Update display for the user
+            GameRoom.update(main);
         }
     });
     
@@ -398,7 +397,10 @@ jQuery(document).ready(function($) {
     
     io.on($C.GAME.PLAYER.DRAW, function(data) {
         //Update data
-        game.updatePlayer(data.player);
+        var game = EK.getCurrentUserGame();
+        if (game) {
+            game.updatePlayer(data.player);
+        }
         main.gameData.hand = data.hand;
         GameRoom.updateCardDisplay(main);
         
@@ -420,8 +422,14 @@ jQuery(document).ready(function($) {
             var cards = data.cards;
             if (cards) {
                 $.each(cards, function(index, card) {
-                    GameRoom.logMessage(user.name + "played a " + card.type + "card.");
+                    GameRoom.logMessage(user.name + " played a " + card.type + " card.");
                 });
+            }
+            
+            //Get hand again once playing
+            var cUser = main.getCurrentUser();
+            if (cUser && cUser.id === user.id) {
+                io.emit($C.GAME.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
             }
         }
     });
