@@ -143,7 +143,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div id="namedStealPopup" class="popup center text-center">
                     <div class="container">
                         <div id="content" >
@@ -173,6 +172,28 @@
                     </div>
                     <div class="buttonGroup">
                         <button id="blindStealButton" class="btn btn-success" type="button">Take</button>
+                        <button id="cancelPopupButton" class="btn btn-danger" type="button" onclick="GameRoom.hideOverlay();">Cancel</button>
+                    </div>
+                </div>
+                <div id="favorSelectPopup" class="popup center text-center">
+                    <div class="container">
+                        <div id="content" >
+                            <div id="text">
+                                Select a player to give do you a favor.
+                            </div>
+                            <div class="form-group">
+                                <label for="player-select">Select player:</label>
+                                <select class="form-control" id="player-select">
+                                    <option value="1">1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttonGroup">
+                        <button id="favorSelectButton" class="btn btn-success" type="button">Ask</button>
                         <button id="cancelPopupButton" class="btn btn-danger" type="button" onclick="GameRoom.hideOverlay();">Cancel</button>
                     </div>
                 </div>

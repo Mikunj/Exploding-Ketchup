@@ -54,8 +54,31 @@ jQuery(document).ready(function($) {
     });
     
     $('#playGameButton').click(function() {
-        var count = $("#playingInput .card[data-selected='true']").length;
+        var cards = $("#playingInput .card[data-selected='true']");
     
+        switch (cards.length) {
+            case 1:
+                console.log(cards.data('id'));
+                var card = main.gameData.getCardFromHand(cards.data('id'));
+                if (card.type === $C.CARD.FAVOR) {
+                    GameRoom.showFavorSelectOverlay(main);
+                } else {
+                    io.emit($C.GAME.PLAYER.PLAY, { 
+                        gameId: main.getCurrentUserGame(),
+                        cards: cardIdsFromDOMData(cards)
+                    });
+                }
+                break;
+            case 2:
+                GameRoom.showBlindStealOverlay(main);
+                break;
+            case 3:
+                GameRoom.showNamedStealOverlay(main);
+                break;
+            case 5:
+                GameRoom.showDiscardStealOverlay(main);
+                break;
+        }
     });
     
     //Card click
@@ -298,6 +321,21 @@ jQuery(document).ready(function($) {
         }
     });
     
+    io.on($C.GAME.PLAYER.FUTURE, function(data) {
+        var cards = data.cards;
+        if (cards.length > 0) {
+            //Tell player of the cards they see
+            var string = "You see a ";
+            $.each(cards, function(index, card) {
+                string += card.name + ', ';
+            });
+            string = string.slice(0, -2); //Remove ', '
+            GameRoom.logMessage(string);
+        } else {
+            GameRoom.logMessage('There is nothing to see!');
+        }
+    });
+    
     io.on($C.GAME.DISCARDPILE, function(data) {
         var game = main.getCurrentUserGame();
         if (game) {
@@ -463,6 +501,19 @@ jQuery(document).ready(function($) {
             GameRoom.logMessage('Error: ' + data.error);
         }
     });
+    
+    /**
+     * Get the card ids from the dom data of cards
+     * @param   {Object} data The card DOM data
+     * @returns {Array}  An array of card ids
+     */
+    var cardIdsFromDOMData = function(data) {
+        var cards = [];
+        data.each(function(index, element) {
+            cards.push($(this).data('id'));
+        });
+        return cards;
+    };
     
     /**
      * Toggle the selected attribute on cards

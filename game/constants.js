@@ -37,7 +37,8 @@ var $ = {
             PLAY: 'playerPlayCard',
             DISCARDSELECT: 'playerDiscardSelect',
             STEAL: 'playerSteal',
-            FAVOR: 'playerFavor'
+            FAVOR: 'playerFavor',
+            FUTURE: 'playerFuture'
         },
         REMOVED: 'gameRemoved'
     },

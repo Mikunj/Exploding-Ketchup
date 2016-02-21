@@ -43,7 +43,8 @@ var $C = {
             DRAW: 'playerDraw',
             PLAY: 'playerPlayCard',
             STEAL: 'playerSteal',
-            FAVOR: 'playerFavor'
+            FAVOR: 'playerFavor',
+            FUTURE: 'playerFuture'
         },
         REMOVED: 'gameRemoved'
     },

@@ -239,7 +239,7 @@ var GameRoom = {
      */
     updateGameOverlay: function(EK) {
         this.updateGiveOverlay(EK);
-        this.updateStealOverlay(EK);
+        this.updatePlayerSelectOverlays(EK);
         this.updateFavorWaitOverlay(EK);
     },
     
@@ -256,24 +256,26 @@ var GameRoom = {
     },
     
     /**
-     * Update steal overlay
+     * Update overlays which require a player select
      * @param {Object} EK The main game instance
      */
-    updateStealOverlay: function(EK) {
+    updatePlayerSelectOverlays: function(EK) {
         //Clear the options
-        $('#blindStealPopup #player-select').empty();
-        $('#namedStealPopup #player-select').empty();
+        $('.popup #player-select').empty();
         
         //Add all players except us
         var user = EK.getCurrentUser();
         var game = EK.getCurrentUserGame();
         if (game) {
             $.each(game.players, function(index, player) {
-                if (!player.user === user.id) {
-                    var current = game.users[player.user];
+                if (!(player.user === user.id)) {
+                    var current = EK.users[player.user];
                     var html = '<option value="' + current.id + '">' + current.name + '</option>';
-                    $('#blindStealPopup #player-select').append(html);
-                    $('#namedStealPopup #player-select').append(html);
+                    
+                    //Add to all player selects
+                    $('.popup #player-select').each(function(index, element) {
+                        $(this).append(html);
+                    });
                 }
             });
         }
@@ -331,6 +333,14 @@ var GameRoom = {
         $('#playingInput button').addClass('disabled');
     },
     
+    showFavorSelectOverlay: function(EK) {
+        this.updateGameOverlay(EK);
+        $('#overlay').show();
+        $('#overlay .popup').hide();
+        $('#favorSelectPopup').show();
+        $('#playingInput button').addClass('disabled');
+    },
+    
     hideOverlay: function() {
         $('#overlay').hide();
         $('#playingInput button').removeClass('disabled');
@@ -354,8 +364,8 @@ var GameRoom = {
         });
         
         switch (cards.length) {
-            case 1: //Don't allow playing defuse or explode (if it somehow got into players hand)
-                return !(cards[0].type === $C.CARD.DEFUSE || cards[0].type === $C.CARD.EXPLODE); 
+            case 1: //Don't allow playing defuse, regular or explode (if it somehow got into players hand)
+                return !(cards[0].type === $C.CARD.DEFUSE || cards[0].type === $C.CARD.EXPLODE || cards[0].type == $C.CARD.REGULAR); 
             case 2: //Blind pick
             case 3: //Named pick
                 return EK.gameData.cardsMatching(cards);

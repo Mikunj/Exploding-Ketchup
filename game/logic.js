@@ -3,6 +3,10 @@ var Game = require('./game');
 var $ = require('./constants');
 var CardSet = require('./cardset');
 
+/*
+TODO: Make it so player can draw 1 card at a time even when they have more than 1 draw amount
+*/
+
 /**
  * This class handles all the game logic
  * @param {Object} io The socket io
@@ -438,7 +442,7 @@ module.exports = function(io, EK) {
 
                     //Make player draw a card and if it is an explode then remove a defuse
                     //If player has no defuse then player is out
-                    var drawn = game.drawCards(player, player.drawAmount);
+                    var drawn = game.drawCards(player, 1);
                     socket.emit($.GAME.PLAYER.DRAW, {
                         player: player,
                         cards: drawn,
@@ -485,21 +489,29 @@ module.exports = function(io, EK) {
                         stopGame(io, data)
                     } else {
                         
-                        //Next players turn
-                        var nextAlive = game.getNextAliveIndex(game.cUserIndex);
-                        if (nextAlive != game.cUserIndex) {
-                            game.cUserIndex = nextAlive;
+                        //Check if player defused or exploded, if so then they have to end their turn no matter the amount of draws remaining
+                        //TODO: Just double check this D:
+                        if (!(state === $.GAME.PLAYER.TURN.SURVIVED)) player.drawAmount = 1; 
+                        
+                        player.drawAmount -= 1;
+                        
+                        if (player.drawAmount < 1) {
+                            //Next players turn
+                            var nextAlive = game.getNextAliveIndex(game.cUserIndex);
+                            if (nextAlive != game.cUserIndex) {
+                                game.cUserIndex = nextAlive;
+                            }
+                            
+                            //Reset player draw amount (dead = 0, alive = 1)
+                            player.drawAmount = Number(player.alive);
+
+                            //Send state information back
+                            io.in(game.id).emit($.GAME.PLAYER.ENDTURN, {
+                                player: player,
+                                state: state,
+                                game: game.sanitize() //Send updated game info back
+                            });
                         }
-
-                        //Reset player draw amount (dead = 0, alive = 1)
-                        player.drawAmount = Number(player.alive);
-
-                        //Send state information back
-                        io.in(game.id).emit($.GAME.PLAYER.ENDTURN, {
-                            player: player,
-                            state: state,
-                            game: game.sanitize() //Send updated game info back
-                        });
                     }
                 }
             }
@@ -558,9 +570,9 @@ module.exports = function(io, EK) {
                     
                     //Disallow playing the defuse alone
                     if (cards.length == 1) {
-                        if (cards[0].type === $.CARD.DEFUSE) {
+                        if (cards[0].type === $.CARD.DEFUSE || cards[0].type == $.CARD.REGULAR) {
                             socket.emit($.GAME.PLAYER.PLAY, {
-                                error: 'Cannot play defuse alone!'
+                                error: 'Cannot play defuse or regular card alone!'
                             });
                             return;
                         }
@@ -772,6 +784,45 @@ module.exports = function(io, EK) {
                                     to: other
                                 });
                                 
+                                break;
+                            case $.CARD.FUTURE:
+                                
+                                //Get the first 3 cards on the top of the draw pile
+                                var cards = [];
+                                for (var i = 0; i < 3; i++)
+                                {
+                                    if (game.drawPile[i]) {
+                                        cards.push(game.drawPile[i]);
+                                    }
+                                }
+                                
+                                //Set the effect to played
+                                playedSet.effectPlayed = true;
+                                
+                                //Send the cards to the player
+                                socket.emit($.GAME.PLAYER.FUTURE, {
+                                    cards: cards
+                                });
+                                
+                                break;
+                            
+                            case $.CARD.SKIP:
+                                //Remove 1 draw amount as 1 skip = 1 draw amount
+                                player.drawAmount -= 1;
+
+                                //Force player to end turn
+                                endTurn = true;
+
+                                //Set the sets effect to played
+                                playedSet.effectPlayed = true;
+                                break;
+                                
+                            case $.CARD.SHUFFLE:
+                                //Shuffle the deck
+                                game.shuffleDeck();
+                                
+                                //Set the sets effect to played
+                                playedSet.effectPlayed = true;
                                 break;
                         }
                     }
