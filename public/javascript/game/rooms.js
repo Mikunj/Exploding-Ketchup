@@ -98,7 +98,7 @@ var GameRoom = {
     },
     
     /**
-     * Update the start, ready,play and end turn buttons
+     * Update the start, ready, play and end turn buttons
      * @param {Object} EK The main game instance
      */
     updateInputDisplay: function(EK) {
@@ -107,32 +107,50 @@ var GameRoom = {
         if (user && game) {
             var waitingInput = $('#waitingInput');
             var playingInput = $('#playingInput');
-            var startGameButton = $('#startGameButton');
-            var readyGameButton = $('#readyGameButton');
+            var startButton = $('#startGameButton');
+            var readyButton = $('#readyGameButton');
+            var playButton = $('#playGameButton');
+            var drawButton = $('#drawGameButton');
             if (game.status === $C.GAME.STATUS.WAITING) {
                 waitingInput.show();
                 playingInput.hide();
                 
                 //Show and hide the buttons
                 if (game.isGameHost(user)) {
-                    startGameButton.show();
-                    readyGameButton.hide();
+                    startButton.show();
+                    readyButton.hide();
                 } else {
-                    startGameButton.hide();
-                    readyGameButton.show();
+                    startButton.hide();
+                    readyButton.show();
                     
                     //Toggle the display of the ready game button
                     var player = game.getPlayer(user);
                     var text = (player.ready) ? "Un-Ready" : "Ready";
-                    readyGameButton.text(text);
+                    readyButton.text(text);
                 }
                 
             } else if (game.status == $C.GAME.STATUS.PLAYING) {
-                playingInput.show();
                 waitingInput.hide();
+                playingInput.show();
                 
-                //TODO: Toggle play when cards are selected
-                //TODO: Add end turn button here
+                if (game.getCurrentPlayer().user === user.id) {
+                    playButton.show();
+                    drawButton.show();
+
+                    //TODO: Toggle play when cards are selected
+                    //TODO: Add end turn button here
+                    if ($(".card[data-selected='true']").length < 1) {
+                        drawButton.show();
+                        playButton.hide();
+                    } else {
+                        playButton.show();
+                        drawButton.hide();
+                    }
+                } else {
+                    playButton.hide();
+                    drawButton.hide();
+                }
+
             }
         }
     },

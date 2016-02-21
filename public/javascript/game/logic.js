@@ -54,17 +54,9 @@ jQuery(document).ready(function($) {
     });
     
     //Card click
-    $(document).on('click', '.card', function() {
-        //Get select and invert
-        var selected = $(this).data("selected"); 
-        selected = !selected;
-        //TODO: Update selected data
-        $(this).data("selecteded", selected);
-        if (selected) {
-            $(this).removeClass('card-selected');
-        } else {
-            $(this).addClass('card-selected');
-        }
+    $(document).on('click', '#playingInput .card', function() {
+        toggleCardSelected($(this));
+        GameRoom.updateInputDisplay(main);
     });
     
     //******** IO Events ********//
@@ -451,6 +443,24 @@ jQuery(document).ready(function($) {
             GameRoom.logMessage('Error: ' + data.error);
         }
     });
+    
+    /**
+     * Toggle the selected attribute on cards
+     * @param {Object} card The card dom
+     */
+    var toggleCardSelected = function(card) {
+        //Get select and invert
+        var selected = card.attr("data-selected") === 'true'; 
+        selected = !selected;
+
+        if (selected) {
+            card.addClass('card-selected');
+        } else {
+            card.removeClass('card-selected');
+        }
+        
+        card.attr("data-selected", selected.toString());
+    }
     
     /**
      * Force the game host to be ready
