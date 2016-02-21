@@ -54,15 +54,15 @@ var $C = {
     },
 
     CARD: {
-        ATTACK: 'attack',
-        NOPE: 'nope',
-        DEFUSE: 'defuse',
-        EXPLODE: 'explode',
-        SKIP: 'skip',
-        FUTURE: 'future',
-        FAVOR: 'favor',
-        SHUFFLE: 'shuffle',
-        REGULAR: 'regular'
+        ATTACK: 'Attack',
+        NOPE: 'Nope',
+        DEFUSE: 'Defuse',
+        EXPLODE: 'Explode',
+        SKIP: 'Skip',
+        FUTURE: 'Future',
+        FAVOR: 'Favor',
+        SHUFFLE: 'Shuffle',
+        REGULAR: 'Regular'
     },
     
     CARDSET: {

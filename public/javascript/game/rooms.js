@@ -95,6 +95,7 @@ var GameRoom = {
         this.updateInputDisplay(EK);
         this.updateCardDisplay(EK);
         this.updatePlayerList(EK);
+        this.updateGameOverlay(EK);
     },
     
     /**
@@ -139,12 +140,18 @@ var GameRoom = {
 
                     //TODO: Toggle play when cards are selected
                     //TODO: Add end turn button here
-                    if ($(".card[data-selected='true']").length < 1) {
+                    if ($("#playingInput .card[data-selected='true']").length < 1) {
                         drawButton.show();
                         playButton.hide();
                     } else {
                         playButton.show();
                         drawButton.hide();
+                    }
+                    
+                    if (this.shouldEnablePlayButton(EK)) {
+                        playButton.removeClass('disabled');
+                    } else {
+                        playButton.addClass('disabled');
                     }
                 } else {
                     playButton.hide();
@@ -156,24 +163,40 @@ var GameRoom = {
     },
     
     /**
-     * Display cards in current users hand.
+     * Update all cards in current game.
      * All cards get auto deselected.
      * @param {Object} EK The main game instance
      */
     updateCardDisplay: function(EK) {
-       /*<div data-selected="true" class="card">
-            <span>DEFUSE</span>
-        </div>*/
+        //Update current playing card display
+        this.updateCardsForElement(EK.gameData.hand, $('#playingInput #cardDisplay'));
         
+        //Update give popup card display
+        this.updateCardsForElement(EK.gameData.hand, $('#givePopup #cardDisplay'));
+        
+        //Update discard popup card display
+        this.updateCardsForElement(EK.gameData.getDiscardPileWithoutExplode(), $('#discardStealPopup #cardDisplay'));
+        
+        //Update named popup card display
+        $('#namedStealPopup #cardDisplay').empty();
+        $.each($C.CARD, function(key, type) {
+            var html = "<div data-selected='false' class='card noselect'>" +
+                            "<span>" + type + "</span>" +
+                        "</div>";
+            $('#namedStealPopup #cardDisplay').append(html);
+        });
+    },
+    
+    updateCardsForElement: function(cards, element) {
         //Clear cards
-        $('#cardDisplay').empty();
+        element.empty();
         
-        $.each(EK.gameData.hand, function(index, card) {
+        $.each(cards, function(index, card) {
             var html = "<div data-selected='false' data-id='" + card.id +"' class='card noselect'>" +
                             "<span>" + card.name + "</span>" +
                         "</div>";
             
-            $('#cardDisplay').append(html);
+            element.append(html);
             
         });
     },
@@ -208,6 +231,141 @@ var GameRoom = {
             $('#playerList .top-bar').text('Connected Players ( ' + game.players.length + ' )');
             
         }
+    },
+    
+    /**
+     * Update the overlays in game
+     * @param {Object} EK The main game instance
+     */
+    updateGameOverlay: function(EK) {
+        this.updateGiveOverlay(EK);
+        this.updateStealOverlay(EK);
+        this.updateFavorWaitOverlay(EK);
+    },
+    
+    /**
+     * Update give card overlay
+     * @param {Object} EK The main game instance
+     */
+    updateGiveOverlay: function(EK) {
+        var from = EK.gameData.favor.from;
+        if (from) {
+            var user = EK.users[from];
+            $('#givePopup #text').text('Give ' + user.name + ' a card.');
+        }
+    },
+    
+    /**
+     * Update steal overlay
+     * @param {Object} EK The main game instance
+     */
+    updateStealOverlay: function(EK) {
+        //Clear the options
+        $('#blindStealPopup #player-select').empty();
+        $('#namedStealPopup #player-select').empty();
+        
+        //Add all players except us
+        var user = EK.getCurrentUser();
+        var game = EK.getCurrentUserGame();
+        if (game) {
+            $.each(game.players, function(index, player) {
+                if (!player.user === user.id) {
+                    var current = game.users[player.user];
+                    var html = '<option value="' + current.id + '">' + current.name + '</option>';
+                    $('#blindStealPopup #player-select').append(html);
+                    $('#namedStealPopup #player-select').append(html);
+                }
+            });
+        }
+    },
+    
+    /**
+     * Update favor wait overlay
+     * @param {Object} EK The main game instance
+     */
+    updateFavorWaitOverlay: function(EK) {
+        var to = EK.gameData.favor.to;
+        if (to) {
+            var user = EK.users[to];
+            $('#givePopup #text').text('Wait for a favor from ' + user.name + '.');
+        }
+    },
+    
+    showGiveOverlay: function(EK) {
+        this.updateGameOverlay(EK);
+        $('#overlay').show();
+        $('#overlay .popup').hide();
+        $('#givePopup').show();
+        $('#playingInput button').addClass('disabled');
+    },
+    
+    showBlindStealOverlay: function(EK) {
+        this.updateGameOverlay(EK);
+        $('#overlay').show();
+        $('#overlay .popup').hide();
+        $('#blindStealPopup').show();
+        $('#playingInput button').addClass('disabled');
+    },
+    
+    showNamedStealOverlay: function(EK) {
+        this.updateGameOverlay(EK);
+        $('#overlay').show();
+        $('#overlay .popup').hide();
+        $('#namedStealPopup').show();
+        $('#playingInput button').addClass('disabled');
+    },
+    
+    showDiscardStealOverlay: function(EK) { 
+        this.updateGameOverlay(EK);
+        $('#overlay').show();
+        $('#overlay .popup').hide();
+        $('#discardStealPopup').show();
+        $('#playingInput button').addClass('disabled');
+    },
+    
+    showFavorWaitOverlay: function(EK) {
+        this.updateGameOverlay(EK);
+        $('#overlay').show();
+        $('#overlay .popup').hide();
+        $('#favorWaitPopup').show();
+        $('#playingInput button').addClass('disabled');
+    },
+    
+    hideOverlay: function() {
+        $('#overlay').hide();
+        $('#playingInput button').removeClass('disabled');
+    },
+    
+    /**
+     * Whether the play button should be enabled.
+     * This occurs when cards are selected and to make sure that no invalid combos are played.
+     * @returns {Boolean} Whether the play button should be enabled
+     */
+    shouldEnablePlayButton: function(EK) {
+        //Get selected cards and add them to an array
+        var ids = $("#playingInput .card[data-selected='true']");
+        var cards = [];
+        ids.each(function(index, element) {
+            var id = $(this).data('id');
+            var card = EK.gameData.getCardFromHand(id);
+            if (card) {
+                cards.push(card);
+            }
+        });
+        
+        switch (cards.length) {
+            case 1: //Don't allow playing defuse or explode (if it somehow got into players hand)
+                return !(cards[0].type === $C.CARD.DEFUSE || cards[0].type === $C.CARD.EXPLODE); 
+            case 2: //Blind pick
+            case 3: //Named pick
+                return EK.gameData.cardsMatching(cards);
+            case 5: 
+                return EK.gameData.cardsDifferent(cards);
+            default:
+                return false;
+        }
+        
+        return false;
     },
     
     /**

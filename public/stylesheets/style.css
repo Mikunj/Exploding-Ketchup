@@ -191,7 +191,7 @@ html, body {
 
 /* The game room */
 #game {
-    z-index: 7;
+    z-index: 5;
 }
 
 #game #container {
@@ -295,4 +295,73 @@ html, body {
     user-select: none;           /* non-prefixed version, currently
                                   not supported by any browser */
     cursor:default;
+}
+
+#overlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+#backdrop {
+    background: black;
+    opacity: 0.8;
+    z-index: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.popup {
+    min-width: 400px;
+    min-height: 300px;
+    max-height: 400px;
+    max-width: 600px;
+    width: 100%;
+    height: 100%;
+    background: #19194C;
+    border: 5px #46469F solid;
+    border-radius: 10px;
+    opacity: 1;
+}
+
+.popup .container {
+    width: 100%;
+    height: calc(100% - 54px);
+}
+
+.popup .container #text {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 10px;
+}
+
+.popup .container #content {
+    position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.popup .buttonGroup {
+    width: 100%;
+    height: 34px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.buttonGroup button {
+    width: 40%;
+}
+
+#favorWaitPopup {
+    min-height: 150px;
+    max-height: 200px;
+}
+
+#favorWaitPopup .container {
+    height: 100%;
 }

@@ -135,6 +135,8 @@ CardSet.prototype.cardsDifferent = function() {
                 if (match) return false;
             }
         }
+        
+        return true;
     }
     
     //If we just have 1 card then obviously it's different from the rest

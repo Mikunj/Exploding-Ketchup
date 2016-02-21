@@ -65,6 +65,118 @@
         </div>
     
         <div id="game" class="room">
+            <div id="overlay" style="display: none;">
+                <div id="backdrop"></div>
+                <div id="givePopup" class="popup center text-center">
+                    <div class="container">
+                        <div id="content" >
+                            <div id="text">
+                                Give x a card.
+                            </div>
+                            <div id="cardInput">
+                                <div id="cardDisplay" class="center text-center">
+                                    <div data-selected="true" class="card noselect">
+                                        <span>DEFUSE</span>
+                                    </div>
+                                    <div class="card card-selected">
+                                        <span>REGULAR</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttonGroup">
+                        <button id="giveCardButton" class="btn btn-success" type="button">Give</button>
+                    </div>
+                </div>
+                <div id="blindStealPopup" class="popup center text-center">
+                    <div class="container">
+                        <div id="content" >
+                            <div id="text">
+                                Take a card from a player.
+                            </div>
+                            <div class="form-group">
+                                <label for="player-select">Select player:</label>
+                                <select class="form-control" id="player-select">
+                                    <option value="1">1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttonGroup">
+                        <button id="blindStealButton" class="btn btn-success" type="button">Take</button>
+                        <button id="cancelPopupButton" class="btn btn-danger" type="button" onclick="GameRoom.hideOverlay();">Cancel</button>
+                    </div>
+                </div>
+                <div id="discardStealPopup" class="popup center text-center">
+                    <div class="container">
+                        <div id="content" >
+                            <div id="text">
+                                Take a card from the discard pile.
+                            </div>
+                            <div id="cardInput">
+                                <div id="cardDisplay" class="center text-center">
+                                    <div data-selected="true" class="card noselect">
+                                        <span>DEFUSE</span>
+                                    </div>
+                                    <div class="card card-selected">
+                                        <span>REGULAR</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttonGroup">
+                        <button id="discardStealButton" class="btn btn-success" type="button">Take</button>
+                        <button id="cancelPopupButton" class="btn btn-danger" type="button" onclick="GameRoom.hideOverlay();">Cancel</button>
+                    </div>
+                </div>
+                <div id="favorWaitPopup" class="popup center text-center">
+                    <div class="container">
+                        <div id="content" >
+                            <div id="text">
+                                Wait for a favor from x.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="namedStealPopup" class="popup center text-center">
+                    <div class="container">
+                        <div id="content" >
+                            <div id="text">
+                                Select card to take from a player.
+                            </div>
+                            <div class="form-group">
+                                <label for="player-select">Select player:</label>
+                                <select class="form-control" id="player-select">
+                                    <option value="1">1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                </select>
+                            </div>
+                            <div id="cardInput">
+                                <div id="cardDisplay" class="center text-center">
+                                    <div data-selected="false" class="card noselect">
+                                        <span>DEFUSE</span>
+                                    </div>
+                                    <div class="card card-selected">
+                                        <span>REGULAR</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttonGroup">
+                        <button id="blindStealButton" class="btn btn-success" type="button">Take</button>
+                        <button id="cancelPopupButton" class="btn btn-danger" type="button" onclick="GameRoom.hideOverlay();">Cancel</button>
+                    </div>
+                </div>
+            </div>
             <div id="container">
                 <div id="input" class="text-center">
                     <div id="waitingInput">

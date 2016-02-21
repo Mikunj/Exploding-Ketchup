@@ -53,8 +53,31 @@ jQuery(document).ready(function($) {
         };
     });
     
+    $('#playGameButton').click(function() {
+        var count = $("#playingInput .card[data-selected='true']").length;
+    
+    });
+    
     //Card click
     $(document).on('click', '#playingInput .card', function() {
+        toggleCardSelected($(this));
+        GameRoom.updateInputDisplay(main);
+    });
+    
+    $(document).on('click', '#givePopup .card', function() {
+        $('#givePopup .card').attr('data-selected', "false");
+        toggleCardSelected($(this));
+        GameRoom.updateInputDisplay(main);
+    });
+    
+    $(document).on('click', '#discardStealPopup .card', function() {
+        $('#discardStealPopup .card').attr('data-selected', "false");
+        toggleCardSelected($(this));
+        GameRoom.updateInputDisplay(main);
+    });
+    
+    $(document).on('click', '#namedStealPopup .card', function() {
+        $('#namedStealPopup .card').attr('data-selected', "false");
         toggleCardSelected($(this));
         GameRoom.updateInputDisplay(main);
     });
@@ -248,15 +271,15 @@ jQuery(document).ready(function($) {
             
             if (user.id === main.gameData.favor.to) {
                 //We asked this player for a favor
-                //TODO: Enable end turn button
                 main.gameData.favor.to = null;
+                GameRoom.hideOverlay();
                 GameRoom.logMessage("The coward feld!");
             }
             
             if (user.id === main.gameData.favor.from) {
                 //We got asked for a favor from this user
-                //TODO: Hide the favor screen
                 main.gameData.favor.from = null;
+                GameRoom.hideOverlay();
                 GameRoom.logMessage("You did the man a favor and kicked his butt!");
             }
         }
@@ -280,6 +303,7 @@ jQuery(document).ready(function($) {
         if (game) {
             main.gameData.discardPile = data.cards;
             //TODO: Update UI here
+            GameRoom.update(main);
         }
     });
     
@@ -384,9 +408,9 @@ jQuery(document).ready(function($) {
                 break;
             case $C.CARDSET.STEAL.DISCARD:
                 if (data.success) {
-                    GameRoom.logMessage(fromString + " took a " + data.cardType + " from the discard pile.");
+                    GameRoom.logMessage(fromString + " took a " + data.card.name + " from the discard pile.");
                 } else {
-                    GameRoom.logMessage(fromString + " failed to take a " + data.cardType + " from  the discard pile.");
+                    GameRoom.logMessage(fromString + " failed to take a " + data.card.name + " from  the discard pile.");
                 }
                 break;
         }
@@ -401,42 +425,38 @@ jQuery(document).ready(function($) {
         var from = main.users[data.from.id];
         var to = main.users[data.to.id];
         var currentUser = main.getCurrentUser();
+        var fromString = (currentUser.id === from.id) ? "You" : from.name;
+        var toString = (currentUser.id === to.id) ? "You" : to.name;
         
         if (data.hasOwnProperty('force')) {
-            var fromString = (currentUser.id === from.id) ? "You" : from.name;
-            var toString = (currentUser.id === to.id) ? "You" : to.name;
-            
             GameRoom.logMessage(fromString + " asked " + toString + " for a favor.");
             
             if (currentUser.id === from.id) {
                 //Current user asked the favor. Disable end turn button
-                //TODO: If the player you asked for a favor from leaves then enable end turn button
                 main.gameData.favor.to = to.id;
+                GameRoom.showFavorWaitOverlay(main);
             }
             
             if (currentUser.id === to.id) {
                 //From user asked current user for a favor
                 //Show the favor screen
-                //TODO: If the player who asked your for a favor leaves then hide the favor screen and continue
                 main.gameData.favor.from = from.id;
-                
+                GameRoom.showGiveOverlay(main);
             }
-        } else if (data.hasOwnProperty('success')) {
-            var fromString = (currentUser.id === from.id) ? "You" : from.name;
-            var toString = (currentUser.id === to.id) ? "You" : to.name;
             
+        } else if (data.hasOwnProperty('success')) {
             GameRoom.logMessage(fromString + " gave " + toString + " a " + data.card.type + ".");
             
             if (currentUser.id === to.id) {
                 //From user did current user a favor
-                //TODO: Enable end turn button
                 main.gameData.favor.to = null;
+                GameRoom.hideOverlay();
             }
             
             if (currentUser.id === from.id) {
                 //Current user did the favor. 
-                //TODO: Hide the favor screen
                 main.gameData.favor.from = null;
+                GameRoom.hideOverlay();
             }
         
         } else if (data.hasOwnProperty('error')) {

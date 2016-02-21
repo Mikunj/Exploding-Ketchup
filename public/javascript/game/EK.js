@@ -51,6 +51,7 @@ var EK = function() {
         }
         return null;
     }
+    
 };
 
 var GameData = function() {
@@ -65,6 +66,80 @@ var GameData = function() {
         from: null, //The player who asked us
         to: null //The player we asked
     };
+    
+    /**
+     * Get the card with given id from hand
+     * @param   {String} id The card id
+     * @returns {Object} The card object or null
+     */
+    this.getCardFromHand = function(id) {
+        for (var key in this.hand) {
+            var card = this.hand[key];
+            if (card.id === id) return card;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get the current discard pile without explode
+     * @returns {Array} An array of cards
+     */
+    this.getDiscardPileWithoutExplode = function() {
+        var pile = [];
+            for (var key in this.discardPile) {
+                var card = this.discardPile[key];
+                if (!card.type === $C.CARD.EXPLODE) {
+                    pile.push(card);
+                }
+            }
+        return pile;
+    }
+    
+    /**
+     * Whether the cards passed are all matching
+     * @param   {Array} cards An array of cards
+     * @returns {Boolean} True if all cards are matching else false
+     */
+    this.cardsMatching = function(cards) {
+        if (cards.length > 0) {
+            //Easiest way to check if to get the first card and match it against the rest
+            //Cards match if their types are same and the image displayed is the same
+            var card = cards[0];
+            for (var i = 1; i < cards.length; i++) {
+                var compareCard = cards[i];
+                var match = card.name === compareCard.name && card.type === compareCard.type;
+                if (!match) return false;
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Whether the cards passed are all different
+     * @param   {Array} cards An array of cards
+     * @returns {Boolean} True if all cards are different else false
+     */
+    this.cardsDifferent = function(cards) {
+        if (cards.length > 1) {
+            //O(n^2) method as we have to compare each card to another
+            for (var i = 0; i < cards.length - 1; i ++) {
+                var card = cards[i];
+                for (var j = i + 1; j < cards.length; j++) {
+                    var compareCard = cards[j];
+                    var match = card.name === compareCard.name && card.type === compareCard.type;
+                    if (match) return false;
+                }
+            }
+            
+            return true;
+        }
+
+        //If we just have 1 card then obviously it's different from the rest
+        return cards.length == 1;
+    }
 }
 
 //class for local user

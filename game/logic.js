@@ -513,6 +513,7 @@ module.exports = function(io, EK) {
          *   cards: [] //An array of card ids to play
          *   to: "User id" //Optional: The user to do the action against
          *   cardType: "Card type" //Optional: Type of card to steal
+         *   cardId: "Card id to steal" //Optional: Card id to steal
          * }
          * 
          * @param {Object} data The data
@@ -554,6 +555,23 @@ module.exports = function(io, EK) {
                     
                     //Get cards from the players hand
                     var cards = player.getCardsWithId(data.cards);
+                    
+                    //Disallow playing the defuse alone
+                    if (cards.length == 1) {
+                        if (cards[0].type === $.CARD.DEFUSE) {
+                            socket.emit($.GAME.PLAYER.PLAY, {
+                                error: 'Cannot play defuse alone!'
+                            });
+                            return;
+                        }
+                        
+                        if (cards[0].type === $.CARD.EXPLODE) {
+                            socket.emit($.GAME.PLAYER.PLAY, {
+                                error: 'Cannot play explode! How the heck did you even get it?'
+                            });
+                            return;
+                        }
+                    } 
                     
                     //Add the cards to a set
                     var playedSet = new CardSet(player, cards);
@@ -653,22 +671,22 @@ module.exports = function(io, EK) {
 
                             case $.CARDSET.STEAL.DISCARD:
                                 //Make sure we have a specified card selected
-                                if (!data.hasOwnProperty('cardType')) {
+                                if (!data.hasOwnProperty('cardId')) {
                                     socket.emit($.GAME.PLAYER.PLAY, {
                                         error: 'Invalid card type selected'
                                     });
                                     return;
                                 }
-                                var type = data.cardType;
+                                var id = data.cardId;
                                 
                                 var card = null;
                                 var currentSet = null;
                                 //Go through the discard pile and remove given card and add it to user
                                 for (var key in game.discardPile) {
                                     var set = game.discardPile[key];
-                                    if (set.hasCardType(type)) {
+                                    if (set.hasCardsWithId(id)) {
                                         //Get the card and remove the set if it's empty
-                                        card = set.removeCardType(type);
+                                        card = set.removeCardWithId(id);
                                         if (card) {
                                             currentSet = set; 
                                             break;
@@ -683,7 +701,7 @@ module.exports = function(io, EK) {
                                     //Notify players of the steal
                                     io.in(game.id).emit($.GAME.PLAYER.STEAL, {
                                         success: true,
-                                        card: card.id,
+                                        card: card,
                                         type: steal,
                                         player: player
                                     });
