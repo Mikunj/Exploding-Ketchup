@@ -241,9 +241,6 @@ Game.prototype.increment = function(index) {
 Game.prototype.getNextAliveIndex = function(start) {
     var next = this.increment(start);
     
-    console.log(next);
-    console.log(this.players[next]);
-    
     //Go to the next alive player
     while(this.playerAliveCount() > 1 && !this.players[next].alive) {
         this.increment(next);
