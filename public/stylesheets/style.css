@@ -112,6 +112,18 @@ html, body {
     word-wrap: break-word;
 }
 
+.message-error {
+    color: #d9534f;
+}
+
+.message-system {
+    color: #5bc0de;
+}
+
+.message-local {
+    color: #f0ad4e;
+}
+
 .user {
     min-width: 100%;
     width: 100%;

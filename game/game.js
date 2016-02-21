@@ -1,6 +1,7 @@
 var Player = require('./player');
 var $ = require('./constants');
 var Card = require('./card');
+var CardSet = require('./cardset');
 
 /**
  * A game on the server

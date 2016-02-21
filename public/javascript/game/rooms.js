@@ -379,16 +379,56 @@ var GameRoom = {
     /**
      * Log a message into the chat
      * @param {String} message The message
+     * @param {String} type The message class tye
      */
-    logMessage: function(message) {
+    logMessage: function(message, type) {
+        type = type || 'default';
         var dt = new Date();
         var utcDate = dt.toUTCString();
-        var html = "<div class='message'>[" + utcDate + "] " + message + "</div>";
+        var html = "<div class='message message-" + type + "'>[" + utcDate + "] " + message + "</div>";
         $('#messages').append(html);
         
         
         $('#messages').animate({
             scrollTop: $('#messages')[0].scrollHeight
         }, 500);
+    },
+    
+    /**
+     * Log an error into the chat.
+     * This appends a '[Error]' tag.
+     * @param {String} error The error string
+     */
+    logError: function(error) {
+        this.logMessage('[Error] ' + error, "error");
+    },
+    
+    /**
+     * Log a system message into the chat.
+     * This appends a '[System]' tag.
+     * Generally use this over logLocal when everyone is going to get the message.
+     * @param {String} message The message
+     */
+    logSystem: function(message) {
+        this.logMessage('[System] ' + message, "system");
+    },
+    
+    /**
+     * Log a local message into the chat.
+     * This appends a '[Local]' tag.
+     * Generally use this over logSystem when just the local user is going to get the message.
+     * @param {String} message The message
+     */
+    logLocal: function(message) {
+        this.logMessage('[Local] ' + message, "local");
+    },
+    
+    /**
+     * Log a chat message.
+     * This appends a '[Chat]' tag.
+     * @param {String} message The message
+     */
+    logChat: function(message) {
+        this.logMessage('[Chat] ' + message);
     }
 };

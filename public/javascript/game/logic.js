@@ -33,12 +33,12 @@ jQuery(document).ready(function($) {
         var game = main.getCurrentUserGame();
         if (user && game) {
             if (!game.isGameHost(user)) {
-                GameRoom.logMessage('Error: Game can only be started by hosts');
+                GameRoom.logError('Error: Game can only be started by hosts');
                 return;
             }
             
             if (!game.canStart()) {
-                GameRoom.logMessage('Cannot start game.');
+                GameRoom.logError('Cannot start game.');
                 return;
             }
             
@@ -168,8 +168,8 @@ jQuery(document).ready(function($) {
             //Update
             GameRoom.update(main);
             
-            //Bob
-            GameRoom.logMessage(main.getCurrentUser().name + ' joined the game.');
+            //Tell user they joined the game
+            GameRoom.logSystem(main.getCurrentUser().name + ' joined the game.');
             
             //Ready up
             io.emit($C.GAME.PLAYER.READY, { gameId: data.game.id});
@@ -183,7 +183,7 @@ jQuery(document).ready(function($) {
     
     io.on($C.GAME.START, function(data) {
         if (data.hasOwnProperty('error')) {
-            GameRoom.logMessage('Error: ' + data.error);
+            GameRoom.logError(data.error);
         } else {
             //Update game data
             main.addGame(gameFromData(data.game));
@@ -195,7 +195,7 @@ jQuery(document).ready(function($) {
             //Get hand
             io.emit($C.GAME.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
 
-            GameRoom.logMessage('Started Game!');
+            GameRoom.logSystem('Started Game!');
         }
     });
     
@@ -212,6 +212,9 @@ jQuery(document).ready(function($) {
         //Reset local game data
         main.gameData = new GameData();
         GameRoom.updateCardDisplay(main);
+        
+        //Force ready
+        forceGameHostReady(main.getCurrentUserGame());
     });
     
     io.on($C.GAME.STOPPED, function(data) {
@@ -220,7 +223,7 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.GAME.WIN, function(data) {
-        GameRoom.logMessage(data.user.name + ' WON!');
+        GameRoom.logSystem(data.user.name + ' WON!');
     });
           
     io.on($C.GAME.REMOVED, function(data) {
@@ -248,7 +251,7 @@ jQuery(document).ready(function($) {
             
             //Update
             GameRoom.update(main);
-            GameRoom.logMessage(main.getCurrentUser().name + ' joined the game.');
+            GameRoom.logSystem(main.getCurrentUser().name + ' joined the game.');
         }
     });
     
@@ -284,14 +287,14 @@ jQuery(document).ready(function($) {
         //Update game data
         main.addGame(gameFromData(data.game));
         GameRoom.update(main);
-        GameRoom.logMessage(data.player.user.name + ' joined the game.');
+        GameRoom.logSystem(data.player.user.name + ' joined the game.');
     });
     
     io.on($C.GAME.PLAYER.DISCONNECT, function(data) {
         //Update game data
         main.addGame(gameFromData(data.game));
         GameRoom.update(main);
-        GameRoom.logMessage(data.player.user.name + ' left the game.');
+        GameRoom.logSystem(data.player.user.name + ' left the game.');
         
         //We need to check if current user was getting a favor or giving a favor to the disconnected player
         var player = data.player;
@@ -302,14 +305,14 @@ jQuery(document).ready(function($) {
                 //We asked this player for a favor
                 main.gameData.favor.to = null;
                 GameRoom.hideOverlay();
-                GameRoom.logMessage("The coward feld!");
+                GameRoom.logLocal("The coward feld!");
             }
             
             if (user.id === main.gameData.favor.from) {
                 //We got asked for a favor from this user
                 main.gameData.favor.from = null;
                 GameRoom.hideOverlay();
-                GameRoom.logMessage("You did the man a favor and kicked his butt!");
+                GameRoom.logLocal("You did the man a favor and kicked his butt!");
             }
         }
         
@@ -336,9 +339,9 @@ jQuery(document).ready(function($) {
                 string += card.name + ', ';
             });
             string = string.slice(0, -2); //Remove ', '
-            GameRoom.logMessage(string);
+            GameRoom.logLocal(string);
         } else {
-            GameRoom.logMessage('There is nothing to see!');
+            GameRoom.logLocal('There is nothing to see!');
         }
     });
     
@@ -353,7 +356,7 @@ jQuery(document).ready(function($) {
     
     io.on($C.GAME.PLAYER.ENDTURN, function(data) {
         if (data.hasOwnProperty('error')) {
-            GameRoom.logMessage('Error: ' + data.error);
+            GameRoom.logError(data.error);
         } else if (data.hasOwnProperty('force')) {
             //Force end turn
             io.emit($C.GAME.PLAYER.ENDTURN, { gameId: main.getCurrentUserGame().id });
@@ -364,6 +367,10 @@ jQuery(document).ready(function($) {
             
             var game = main.getCurrentUserGame();
             var user = data.player.user;
+            
+            //Fetch the hand
+            io.emit($C.GAME.PLAYER.HAND, { gameId: game.id });
+            
             var message = null;
             switch (data.state) {
                 case $C.GAME.PLAYER.TURN.DEFUSED:
@@ -379,7 +386,7 @@ jQuery(document).ready(function($) {
             
             //Send the state message to user
             if (message) {
-                GameRoom.logMessage(message);
+                GameRoom.logSystem(message);
             }
             
             //Send messages to users
@@ -390,11 +397,11 @@ jQuery(document).ready(function($) {
                 
                 //The turn message
                 var turnMessage = (currentUser.id === nextUser.id) ? "It is your turn!" : "It is " + nextUser.name + "'s turn!";
-                GameRoom.logMessage(turnMessage);
+                GameRoom.logSystem(turnMessage);
                 
                 //Tell the player how much they have to draw
                 if (currentUser.id === nextUser.id) {
-                    GameRoom.logMessage("Draw " + nextPlayer.drawAmount + " card(s)!");
+                    GameRoom.logSystem("Draw " + nextPlayer.drawAmount + " card(s)!");
                 }
                 
             }
@@ -415,21 +422,21 @@ jQuery(document).ready(function($) {
         if (data.cards) {
             var type = "";
             $.each(data.cards, function(index, card) {
-                GameRoom.logMessage("You drew a " + card.name);
+                GameRoom.logLocal("You drew a " + card.name);
             });
         }
     });
     
     io.on($C.GAME.PLAYER.PLAY, function(data) {
         if (data.hasOwnProperty('error')) {
-            GameRoom.logMessage("Error: " + data.error);
+            GameRoom.logError(data.error);
         } else {
             //Tell users that a player played cards
             var user = data.player.user;
             var cards = data.cards;
             if (cards) {
                 $.each(cards, function(index, card) {
-                    GameRoom.logMessage(user.name + " played a " + card.type + " card.");
+                    GameRoom.logSystem(user.name + " played a " + card.type + " card.");
                 });
             }
             
@@ -450,20 +457,20 @@ jQuery(document).ready(function($) {
         
         switch(data.type) {
             case $C.CARDSET.STEAL.BLIND:
-                GameRoom.logMessage(fromString + " took a card from " + toString);
+                GameRoom.logSystem(fromString + " took a card from " + toString);
                 break;
             case $C.CARDSET.STEAL.NAMED:
                 if (data.success) {
-                    GameRoom.logMessage(fromString + " took a " + data.cardType + " from " + toString);
+                    GameRoom.logSystem(fromString + " took a " + data.cardType + " from " + toString);
                 } else {
-                    GameRoom.logMessage(fromString + " failed to take a " + data.cardType + " from " + toString);
+                    GameRoom.logSystem(fromString + " failed to take a " + data.cardType + " from " + toString);
                 }
                 break;
             case $C.CARDSET.STEAL.DISCARD:
                 if (data.success) {
-                    GameRoom.logMessage(fromString + " took a " + data.card.name + " from the discard pile.");
+                    GameRoom.logSystem(fromString + " took a " + data.card.name + " from the discard pile.");
                 } else {
-                    GameRoom.logMessage(fromString + " failed to take a " + data.card.name + " from  the discard pile.");
+                    GameRoom.logSystem(fromString + " failed to take a " + data.card.name + " from  the discard pile.");
                 }
                 break;
         }
@@ -482,7 +489,7 @@ jQuery(document).ready(function($) {
         var toString = (currentUser.id === to.id) ? "You" : to.name;
         
         if (data.hasOwnProperty('force')) {
-            GameRoom.logMessage(fromString + " asked " + toString + " for a favor.");
+            GameRoom.logSystem(fromString + " asked " + toString + " for a favor.");
             
             if (currentUser.id === from.id) {
                 //Current user asked the favor. Disable end turn button
@@ -498,7 +505,7 @@ jQuery(document).ready(function($) {
             }
             
         } else if (data.hasOwnProperty('success')) {
-            GameRoom.logMessage(fromString + " gave " + toString + " a " + data.card.type + ".");
+            GameRoom.logSystem(fromString + " gave " + toString + " a " + data.card.type + ".");
             
             if (currentUser.id === to.id) {
                 //From user did current user a favor
@@ -513,7 +520,7 @@ jQuery(document).ready(function($) {
             }
         
         } else if (data.hasOwnProperty('error')) {
-            GameRoom.logMessage('Error: ' + data.error);
+            GameRoom.logError(data.error);
         }
     });
     

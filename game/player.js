@@ -38,7 +38,7 @@ Player.prototype.reset = function() {
  */
 Player.prototype.cardIndexById = function(id) {
     for (var i = 0; i < this.hand.length; i++) {
-        if (id === this.hand[i].id)
+        if (this.hand[i].id === id)
             return i;
     }
 
@@ -65,7 +65,7 @@ Player.prototype.cardTypeIndex = function(type) {
  * @returns {Boolean} Whether the player has the card
  */
 Player.prototype.hasCard = function(card) {
-    return (this.cardIndex(card) > 0);
+    return (this.cardIndex(card) >= 0);
 }
 
 /**
@@ -74,7 +74,7 @@ Player.prototype.hasCard = function(card) {
  * @returns {Boolean} Whether the player has the card
  */
 Player.prototype.hasCardWithId = function(id) {
-    return (this.cardIndexById(id) > 0);
+    return (this.cardIndexById(id) >= 0);
 }
 
 /**
@@ -97,7 +97,7 @@ Player.prototype.hasCardsWithId = function(ids) {
  * @returns {Boolean} Whether the player has the card
  */
 Player.prototype.hasCardType = function(type) {
-    return (this.cardTypeIndex(type) > 0);
+    return (this.cardTypeIndex(type) >= 0);
 }
 
 /**
@@ -110,7 +110,7 @@ Player.prototype.getCardsWithId = function(ids) {
     for (var key in ids) {
         var id = ids[key];
         var cardIndex = this.cardIndexById(id);
-        if (cardIndex > 0) {
+        if (cardIndex >= 0) {
             cards.push(this.hand[cardIndex]);
         }
     }
@@ -137,7 +137,7 @@ Player.prototype.getRandomCard = function() {
  */
 Player.prototype.getCardType = function(type) {
     var index = this.cardTypeIndex(type);
-    return (index > 0) ? this.hand[index] : null;
+    return (index >= 0) ? this.hand[index] : null;
 }
 
 /**
@@ -185,7 +185,7 @@ Player.prototype.removeCards = function(cards) {
  */
 Player.prototype.removeCardWithId = function(id) {
     var index = this.cardIndexById(id);
-    return (index > 0) ? this.hand.splice(index, 1)[0] : null;
+    return (index >= 0) ? this.hand.splice(index, 1)[0] : null;
 }
 
 /**
@@ -209,7 +209,7 @@ Player.prototype.removeCardsWithId = function(ids) {
  */
 Player.prototype.removeCardType = function(type) {
     var index = this.cardTypeIndex(type);
-    return (index > 0) ? this.hand.splice(index, 1)[0] : null;
+    return (index >= 0) ? this.hand.splice(index, 1)[0] : null;
 }
 
 module.exports = Player;

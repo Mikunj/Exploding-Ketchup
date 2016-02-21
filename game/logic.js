@@ -452,7 +452,7 @@ module.exports = function(io, EK) {
                     }
 
                     //Use while loop incase player picks up 2 explodes
-                    while (player.hasCardType($.CARD.EXPLODE)) {
+                    while (player.hasCardType($.CARD.EXPLODE)) {                    
                         if (player.hasCardType($.CARD.DEFUSE)) {
                             //Remove deufse and add it to the discard pile
                             var defuse = player.removeCardType($.CARD.DEFUSE);
