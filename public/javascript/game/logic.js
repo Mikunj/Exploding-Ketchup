@@ -80,6 +80,13 @@ jQuery(document).ready(function($) {
         }
     });
     
+    $('#drawGameButton').click(function() {
+        var game = main.getCurrentUserGame();
+        if (game) {
+            io.emit($C.GAME.PLAYER.ENDTURN, { gameId: game.id });
+        };
+    });
+    
     //Card click
     $(document).on('click', '#playingInput .card', function() {
         toggleCardSelected($(this));
@@ -387,7 +394,7 @@ jQuery(document).ready(function($) {
                 
                 //Tell the player how much they have to draw
                 if (currentUser.id === nextUser.id) {
-                    GameRoom.logMessage("Draw " + nextPlayer.drawAmount + " cards!");
+                    GameRoom.logMessage("Draw " + nextPlayer.drawAmount + " card(s)!");
                 }
                 
             }
@@ -397,7 +404,7 @@ jQuery(document).ready(function($) {
     
     io.on($C.GAME.PLAYER.DRAW, function(data) {
         //Update data
-        var game = EK.getCurrentUserGame();
+        var game = main.getCurrentUserGame();
         if (game) {
             game.updatePlayer(data.player);
         }
@@ -408,7 +415,7 @@ jQuery(document).ready(function($) {
         if (data.cards) {
             var type = "";
             $.each(data.cards, function(index, card) {
-                GameRoom.logMessage("You drew a " + card.type);
+                GameRoom.logMessage("You drew a " + card.name);
             });
         }
     });

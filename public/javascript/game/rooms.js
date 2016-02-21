@@ -92,8 +92,8 @@ var GameRoom = {
      * @param {Object} EK The main game instance
      */
     update: function(EK) {
-        this.updateInputDisplay(EK);
         this.updateCardDisplay(EK);
+        this.updateInputDisplay(EK);
         this.updatePlayerList(EK);
         this.updateGameOverlay(EK);
     },
@@ -138,8 +138,6 @@ var GameRoom = {
                     playButton.show();
                     drawButton.show();
 
-                    //TODO: Toggle play when cards are selected
-                    //TODO: Add end turn button here
                     if ($("#playingInput .card[data-selected='true']").length < 1) {
                         drawButton.show();
                         playButton.hide();

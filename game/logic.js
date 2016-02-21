@@ -813,7 +813,9 @@ module.exports = function(io, EK) {
                                 player.drawAmount -= 1;
 
                                 //Force player to end turn
-                                endTurn = true;
+                                if (player.drawAmount < 1) {
+                                    endTurn = true;
+                                }
 
                                 //Set the sets effect to played
                                 playedSet.effectPlayed = true;
