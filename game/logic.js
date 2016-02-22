@@ -398,12 +398,15 @@ module.exports = function(io, EK) {
             //We can only get hand if game is playing
             if (game && game.status == $.GAME.STATUS.PLAYING) {
                 var user = EK.connectedUsers[socket.id];
-
+                var player = game.getPlayer(user);
+                
                 //Return the player hand
-                socket.emit($.GAME.PLAYER.HAND, {
-                    player: game.getPlayer(user),
-                    hand: game.getPlayer(user).hand
-                });
+                if (player) {
+                    socket.emit($.GAME.PLAYER.HAND, {
+                        player: game.getPlayer(user),
+                        hand: game.getPlayer(user).hand
+                    });
+                }
             }
         });
         
