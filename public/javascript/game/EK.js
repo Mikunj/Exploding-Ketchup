@@ -157,7 +157,7 @@ var User = function(id, nickname) {
 };
 
 //class for current game
-var Game = function(id, title, status, players, index) {
+var Game = function(id, title, status, players, index, drawPileLength) {
     //Game id
     this.id = id;
 
@@ -172,6 +172,9 @@ var Game = function(id, title, status, players, index) {
     
     //Current player index
     this.currentIndex = index;
+    
+    //The amount of cards left in the draw pile
+    this.drawPileLength = drawPileLength;
     
     //Get a player in the game
     this.getPlayer = function(user) {
@@ -267,7 +270,8 @@ var Player = function(userId, alive, ready, drawAmount) {
             return (this.ready) ? status.READY : status.NOTREADY;
         } else if (game.status === $C.GAME.STATUS.PLAYING) {
             //Check if we are the current player
-            return (game.getCurrentPlayer().user === this.user) ? status.PLAYING : status.WAITING;
+            var currentPlayer = game.getCurrentPlayer();
+            return (currentPlayer && currentPlayer.user === this.user) ? status.PLAYING : status.WAITING;
         }
         
         return status.NOTREADY;

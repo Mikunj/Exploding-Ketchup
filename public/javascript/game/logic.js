@@ -498,7 +498,7 @@ jQuery(document).ready(function($) {
                 
                 //Tell the player how much they have to draw
                 if (currentUser.id === nextUser.id) {
-                    GameRoom.logSystem("Draw " + nextPlayer.drawAmount + " card(s)!");
+                    GameRoom.logLocal("Draw " + nextPlayer.drawAmount + " card(s)!");
                 }
                 
             }
@@ -507,20 +507,36 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.GAME.PLAYER.DRAW, function(data) {
-        //Update data
-        var game = main.getCurrentUserGame();
-        if (game) {
-            game.updatePlayer(data.player);
-        }
-        main.gameData.hand = data.hand;
-        GameRoom.updateCardDisplay(main);
+        //Update game data
+        main.addGame(gameFromData(data.game));
+        GameRoom.update(main);
         
-        //Tell the user what cards they drew
-        if (data.cards) {
-            var type = "";
-            $.each(data.cards, function(index, card) {
-                GameRoom.logLocal("You drew a " + card.name);
-            });
+        if (data.hasOwnProperty('hand')) {
+            main.gameData.hand = data.hand;
+            GameRoom.update(main);
+
+            //Tell the user what cards they drew
+            if (data.cards) {
+                var type = "";
+                $.each(data.cards, function(index, card) {
+                    GameRoom.logLocal("You drew a " + card.name + ".");
+                });
+            }
+            
+            //Tell the user if they have to draw more cards
+            var user = main.getCurrentUser();
+            var game = main.getCurrentUserGame();
+            if (user && game) {
+                var player = game.getPlayer(user);
+                
+                //Only tell user to draw more if they have a draw amount >= 1 after removing current drawn
+                if (player.drawAmount - 1 >= 1) {
+                    GameRoom.logLocal("Draw " + (player.drawAmount - 1) + " card(s)!");
+                }
+            }
+            
+        } else {
+            GameRoom.logSystem(data.player.user.name + " drew a card.");
         }
     });
     
@@ -567,24 +583,24 @@ jQuery(document).ready(function($) {
         
         switch(data.type) {
             case $C.CARDSET.STEAL.BLIND:
-                GameRoom.logSystem(fromString + " took a card from " + toString);
+                GameRoom.logSystem(fromString + " took a card from " + toString+ ".");
                 
                 //Tell the players involved what they lost or gained
                 if (currentUser.id === from.id) {
-                    GameRoom.logLocal("You took a " + data.card.name);
+                    GameRoom.logLocal("You took a " + data.card.name+ ".");
                 }
                 
                 if (currentUser.id === to.id) {
-                    GameRoom.logLocal("You lost a " + data.card.name);
+                    GameRoom.logLocal("You lost a " + data.card.name+ ".");
                 }
                 
                 break;
             case $C.CARDSET.STEAL.NAMED:
                 //Use logLocal so that the card taking stands out
                 if (data.success) {
-                    GameRoom.logLocal(fromString + " took a " + data.cardType + " from " + toString);
+                    GameRoom.logLocal(fromString + " took a " + data.cardType + " from " + toString+ ".");
                 } else {
-                    GameRoom.logLocal(fromString + " failed to take a " + data.cardType + " from " + toString);
+                    GameRoom.logLocal(fromString + " failed to take a " + data.cardType + " from " + toString+ ".");
                 }
                 break;
             case $C.CARDSET.STEAL.DISCARD:
@@ -721,7 +737,7 @@ jQuery(document).ready(function($) {
             }
         });
         
-        return new Game(data.id, data.title, data.status, players, data.currentPlayerIndex);
+        return new Game(data.id, data.title, data.status, players, data.currentPlayerIndex, data.drawPileLength);
     }
 
 });

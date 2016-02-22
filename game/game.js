@@ -51,7 +51,8 @@ Game.prototype.sanitize = function() {
         title: this.title,
         status: this.status,
         players: this.getPlayers(),
-        currentPlayerIndex: this.cUserIndex
+        currentPlayerIndex: this.cUserIndex,
+        drawPileLength: this.drawPile.length
     }
 }
 

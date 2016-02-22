@@ -445,9 +445,15 @@ module.exports = function(io, EK) {
                         //If player has no defuse then player is out
                         var drawn = game.drawCards(player, 1);
                         socket.emit($.GAME.PLAYER.DRAW, {
-                            player: player,
+                            game: game.sanitize(),
                             cards: drawn,
                             hand: player.hand
+                        });
+                        
+                        //Tell other players that player drew a card
+                        socket.broadcast.in(game.id).emit($.GAME.PLAYER.DRAW, {
+                            game: game.sanitize(),
+                            player: player
                         });
                     }
 
