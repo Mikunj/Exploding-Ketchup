@@ -204,9 +204,9 @@ Game.prototype.start = function () {
     }
     
     //Add in extra defuses to negate the lack of nopes
-    /*for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
         this.drawPile.push(new Card(this.generateRandomID(), 'Defuse', $.CARD.DEFUSE, 0));
-    }*/
+    }
     
     this.shuffleDeck();
     
@@ -366,7 +366,7 @@ Game.prototype.resetDeck = function() {
             //Special
             this.drawPile.push(new Card(this.generateRandomID(), 'Attack', $.CARD.ATTACK, 0));
             this.drawPile.push(new Card(this.generateRandomID(), 'Skip', $.CARD.SKIP, 1));
-            /*this.drawPile.push(new Card(this.generateRandomID(), 'Favor', $.CARD.FAVOR, 2));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Favor', $.CARD.FAVOR, 2));
             this.drawPile.push(new Card(this.generateRandomID(), 'Shuffle', $.CARD.SHUFFLE, 3));
             
             //Regular
@@ -374,10 +374,10 @@ Game.prototype.resetDeck = function() {
             this.drawPile.push(new Card(this.generateRandomID(), 'Engineer', $.CARD.REGULAR, 5));
             this.drawPile.push(new Card(this.generateRandomID(), 'Soldier', $.CARD.REGULAR, 6));
             this.drawPile.push(new Card(this.generateRandomID(), 'Heavy', $.CARD.REGULAR, 7));
-            this.drawPile.push(new Card(this.generateRandomID(), 'Spy', $.CARD.REGULAR, 8));*/
+            this.drawPile.push(new Card(this.generateRandomID(), 'Spy', $.CARD.REGULAR, 8));
         }
         
-        //this.drawPile.push(new Card(this.generateRandomID(), 'Future', $.CARD.FUTURE, 9));
+        this.drawPile.push(new Card(this.generateRandomID(), 'Future', $.CARD.FUTURE, 9));
     }
 }
 
