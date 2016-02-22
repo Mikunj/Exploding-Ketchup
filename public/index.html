@@ -14,6 +14,10 @@
       <!-- Bootstrap -->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+      
+      <!-- Perfect scroll bar -->
+      <link href="stylesheets/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" type="text/css">
+      <script src="javascript/perfect-scrollbar/perfect-scrollbar.jquery.js"></script>
 
       <!-- Game -->
       <link href="stylesheets/style.css" rel="stylesheet" type="text/css">
@@ -45,7 +49,7 @@
                         <button id="newGameButton" class="btn btn-success" type="button">New Game</button>
                     </span>
                 </div>
-                <div class="content">
+                <div class="content scrollable">
                     <div class="game" data-id='#'>
                         <div id="top">
                             <div id="title">GAME</div>
@@ -60,7 +64,7 @@
             </div>
             <div id="userList" class="col-md-2 col-sm-4 col-xs-12">
                 <div class="top-bar text-center">Connected Users (0)</div>
-                <div class="content"></div>
+                <div class="content scrollable"></div>
             </div>
         </div>
     
@@ -77,7 +81,7 @@
                                 Give x a card.
                             </div>
                             <div id="cardInput">
-                                <div id="cardDisplay" class="center text-center">
+                                <div id="cardDisplay" class="center text-center scrollable">
                                     <div data-selected="true" class="card noselect">
                                         <span>DEFUSE</span>
                                     </div>
@@ -121,7 +125,7 @@
                                 Take a card from the discard pile.
                             </div>
                             <div id="cardInput">
-                                <div id="cardDisplay" class="center text-center">
+                                <div id="cardDisplay" class="center text-center scrollable">
                                     <div data-selected="true" class="card noselect">
                                         <span>DEFUSE</span>
                                     </div>
@@ -162,7 +166,7 @@
                                 </select>
                             </div>
                             <div id="cardInput">
-                                <div id="cardDisplay" class="center text-center">
+                                <div id="cardDisplay" class="center text-center scrollable">
                                     <div data-selected="false" class="card noselect">
                                         <span>DEFUSE</span>
                                     </div>
@@ -207,7 +211,7 @@
                                 Discard pile.
                             </div>
                             <div id="cardInput">
-                                <div id="cardDisplay" class="center text-center">
+                                <div id="cardDisplay" class="center text-center scrollable">
                                     <div data-selected="true" class="card noselect">
                                         <span>DEFUSE</span>
                                     </div>
@@ -228,7 +232,7 @@
                     <div class="center text-center" style="width: 100%;">
                         <div id="text" style="font-size: 2em; font-weight: bold;" >Discard Pile</div>
                         <div id="cardInput">
-                            <div id="cardDisplay" class="center text-center">
+                            <div id="cardDisplay" class="center text-center scrollable">
                                 <div data-selected="true" class="card noselect">
                                     <span>DEFUSE</span>
                                 </div>
@@ -264,7 +268,7 @@
                         <button id="playGameButton" class="btn btn-success" type="button">Play</button>
                         <button id="drawGameButton" class="btn btn-success" type="button">Draw</button>
                         <div id="cardInput">
-                            <div id="cardDisplay" class="center text-center">
+                            <div id="cardDisplay" class="center text-center scrollable">
                                 <div data-selected="true" class="card noselect">
                                     <span>DEFUSE</span>
                                 </div>
@@ -281,7 +285,7 @@
                     <div class="top-bar text-center">
                         Players ( 0 )
                     </div>
-                    <div class="content">
+                    <div class="content scrollable">
                         <div class="user">
                             Bob
                             <div class="status status-red">

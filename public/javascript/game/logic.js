@@ -22,6 +22,12 @@ jQuery(document).ready(function($) {
     //Connect to socket
     io = io.connect();
     
+    //Init scrollbars
+    $('.scrollable').perfectScrollbar();
+    $(window).resize(function() {
+        $('.scrollable').perfectScrollbar('update');
+    });
+    
     //******** Click Events ********//
     
     $('#leaveButton').click(function() {

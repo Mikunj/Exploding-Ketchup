@@ -1,6 +1,7 @@
 html, body {
     width:100%;
     height: 100%;
+    overflow-y: hidden;
 }
 
 .room {
@@ -11,6 +12,13 @@ html, body {
     height: 100%;
     top: 0;
     left: 0;
+}
+
+@media (max-width:641px) { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ 
+    html, body, .container-fluid, .room {
+        height: 1000px;
+        overflow-y: scroll;
+    }
 }
 
 .center {
