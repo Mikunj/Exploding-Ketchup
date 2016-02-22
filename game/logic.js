@@ -991,7 +991,9 @@ module.exports = function(io, EK) {
             return false;
 
         //Leave old room
-        socket.leave(user.currentRoom);
+        if (user.currentRoom) {
+            socket.leave(user.currentRoom);
+        }
 
         //Join the game room
         user.currentRoom = game.id;
