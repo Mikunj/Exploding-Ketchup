@@ -679,7 +679,7 @@ jQuery(document).ready(function($) {
                 }
 
             } else if (data.hasOwnProperty('success')) {
-                GameRoom.logSystem(fromString + " gave " + toString + " a " + data.card.type + ".");
+                GameRoom.logSystem(fromString + " gave " + toString + " a " + data.card.name + ".");
 
                 if (currentUser.id === to.id) {
                     //From user did current user a favor
