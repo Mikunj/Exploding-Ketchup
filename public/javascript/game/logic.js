@@ -24,6 +24,13 @@ jQuery(document).ready(function($) {
     
     //******** Click Events ********//
     
+    $('#leaveButton').click(function() {
+        var game = main.getCurrentUserGame();
+        if (game) {
+            io.emit($C.GAME.LEAVE, { gameId: game.id });
+        }
+    });
+    
     $("#loginButton").click(function() {
         var nickname = $('#nameInput').val();
         io.emit($C.LOBBY.CONNECT, { nickname: nickname });

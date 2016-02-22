@@ -75,7 +75,7 @@ var Lobby = {
         
         //Add games to the list
         $.each(EK.games, function(id, game) {
-            var disabledString = (game.status == $C.GAME.STATUS.PLAYING) ? 'disabled' : '';
+            var disabledString = (game.status === $C.GAME.STATUS.PLAYING) ? 'disabled' : '';
             var html = "<div class='game' data-id='" + game.id + "'>" +
                             "<div id='top'>" +
                                 "<div id='title'>" + game.title + "</div>" +
@@ -83,7 +83,7 @@ var Lobby = {
                                 "<div id='players'>Players: " + game.players.length + "</div>" +
                             "</div>" +
                             "<div id='bottom'>" +
-                                "<button id='joinGameButton' data-id='" + game.id + "' class='btn btn-success btn-block" + disabledString + 
+                                "<button id='joinGameButton' data-id='" + game.id + "' class='btn btn-success btn-block " + disabledString + 
                                 "' type='button'>Join</button>" +
                             "</div>" +
                         "</div>";

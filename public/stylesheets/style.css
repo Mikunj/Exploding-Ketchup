@@ -227,6 +227,14 @@ html, body {
     width: 100%;
 }
 
+#game #leave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 10px;
+    z-index: 25;
+}
+
 #input button {
     width: 25%;
 }

@@ -78,6 +78,7 @@ Game.prototype.sanitize = function() {
  * @returns {Boolean}  Whether adding a player is successful
  */
 Game.prototype.addPlayer = function (user) {
+    if (this.status === $.GAME.STATUS.PLAYING) return false;
     var connected = this.isPlayerConnected(user);
 
     if (this.players.length + 1 > this.maxPlayers || connected)
