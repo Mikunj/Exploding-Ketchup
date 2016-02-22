@@ -87,29 +87,120 @@ jQuery(document).ready(function($) {
         };
     });
     
+    $('#giveCardButton').click(function() {
+        var game = main.getCurrentUserGame();
+        var from = main.gameData.favor.from;
+        if (game && from) {
+            //Get the selected card id
+            var cards = $("#givePopup .card[data-selected='true']");
+            
+            if (cards.length > 0) {
+                //Get the first card id (since we only need to give 1 card)
+                var id = cards.data('id');
+                
+                //Give the card to the 'from' player
+                io.emit($C.GAME.PLAYER.FAVOR, {
+                    gameId: game.id,
+                    to: from,
+                    card: id
+                });
+            }
+            
+        }
+    
+    });
+    
+    $('#favorSelectButton').click(function() {
+        var cards = $("#playingInput .card[data-selected='true']");
+        var to = $('#favorSelectPopup #player-select').val();
+        var game = main.getCurrentUserGame();
+        
+        if (cards.length > 0 && to && game) {
+            
+            //Play the favor card
+            io.emit($C.GAME.PLAYER.PLAY, {
+                gameId: game.id,
+                cards: cardIdsFromDOMData(cards),
+                to: to
+            });
+            
+            GameRoom.hideOverlay();
+        }
+        
+    });
+    
+    $('#blindStealButton').click(function() {
+        var cards = $("#playingInput .card[data-selected='true']");
+        var to = $('#blindStealPopup #player-select').val();
+        var game = main.getCurrentUserGame();
+        
+        if (cards.length > 0 && to && game) {
+            
+            //Play the cards and the steal
+            io.emit($C.GAME.PLAYER.PLAY, {
+                gameId: game.id,
+                cards: cardIdsFromDOMData(cards),
+                to: to
+            });
+            
+            GameRoom.hideOverlay();
+        }
+        
+    });
+    
+    $('#namedStealButton').click(function() {
+        var cards = $("#playingInput .card[data-selected='true']");
+        var to = $('#namedStealPopup #player-select').val();
+        var cardTypes = $("#namedStealPopup .card[data-selected='true']");
+        var game = main.getCurrentUserGame();
+        
+        if (cards.length > 0 && cardTypes.length > 0 && to && game) {
+            
+            //Play the cards and the steal
+            io.emit($C.GAME.PLAYER.PLAY, {
+                gameId: game.id,
+                cards: cardIdsFromDOMData(cards),
+                to: to,
+                cardType: cardTypes.data('type')
+            });
+            
+            GameRoom.hideOverlay();
+        }
+        
+    });
+    
+    $('#discardStealButton').click(function() {
+        var cards = $("#playingInput .card[data-selected='true']");
+        var discardCards = $("#discardStealPopup .card[data-selected='true']");
+        var game = main.getCurrentUserGame();
+        
+        if (cards.length > 0 && discardCards.length > 0 && game) {
+            
+            //Play the cards and the steal
+            io.emit($C.GAME.PLAYER.PLAY, {
+                gameId: game.id,
+                cards: cardIdsFromDOMData(cards),
+                cardId: discardCards.data('id')
+            });
+            
+            GameRoom.hideOverlay();
+        }
+        
+    });
+    
     //Card click
     $(document).on('click', '#playingInput .card', function() {
         toggleCardSelected($(this));
         GameRoom.updateInputDisplay(main);
     });
     
-    $(document).on('click', '#givePopup .card', function() {
-        $('#givePopup .card').attr('data-selected', "false");
+    $(document).on('click', '.popup .card', function() {
+        $('.popup .card').attr('data-selected', "false");
+        $('.popup .card').removeClass('card-selected');
         toggleCardSelected($(this));
         GameRoom.updateInputDisplay(main);
     });
     
-    $(document).on('click', '#discardStealPopup .card', function() {
-        $('#discardStealPopup .card').attr('data-selected', "false");
-        toggleCardSelected($(this));
-        GameRoom.updateInputDisplay(main);
-    });
-    
-    $(document).on('click', '#namedStealPopup .card', function() {
-        $('#namedStealPopup .card').attr('data-selected', "false");
-        toggleCardSelected($(this));
-        GameRoom.updateInputDisplay(main);
-    });
     
     //******** IO Events ********//
     
@@ -436,7 +527,7 @@ jQuery(document).ready(function($) {
             var cards = data.cards;
             if (cards) {
                 $.each(cards, function(index, card) {
-                    GameRoom.logSystem(user.name + " played a " + card.type + " card.");
+                    GameRoom.logSystem(user.name + " played a " + card.name + " card.");
                 });
             }
             
@@ -458,6 +549,16 @@ jQuery(document).ready(function($) {
         switch(data.type) {
             case $C.CARDSET.STEAL.BLIND:
                 GameRoom.logSystem(fromString + " took a card from " + toString);
+                
+                //Tell the players involved what they lost or gained
+                if (currentUser.id === from.id) {
+                    GameRoom.logLocal("You took a " + data.card.name);
+                }
+                
+                if (currentUser.id === to.id) {
+                    GameRoom.logLocal("You lost a " + data.card.name);
+                }
+                
                 break;
             case $C.CARDSET.STEAL.NAMED:
                 if (data.success) {
@@ -482,45 +583,54 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.GAME.PLAYER.FAVOR, function(data) {
-        var from = main.users[data.from.id];
-        var to = main.users[data.to.id];
-        var currentUser = main.getCurrentUser();
-        var fromString = (currentUser.id === from.id) ? "You" : from.name;
-        var toString = (currentUser.id === to.id) ? "You" : to.name;
-        
-        if (data.hasOwnProperty('force')) {
-            GameRoom.logSystem(fromString + " asked " + toString + " for a favor.");
-            
-            if (currentUser.id === from.id) {
-                //Current user asked the favor. Disable end turn button
-                main.gameData.favor.to = to.id;
-                GameRoom.showFavorWaitOverlay(main);
-            }
-            
-            if (currentUser.id === to.id) {
-                //From user asked current user for a favor
-                //Show the favor screen
-                main.gameData.favor.from = from.id;
-                GameRoom.showGiveOverlay(main);
-            }
-            
-        } else if (data.hasOwnProperty('success')) {
-            GameRoom.logSystem(fromString + " gave " + toString + " a " + data.card.type + ".");
-            
-            if (currentUser.id === to.id) {
-                //From user did current user a favor
-                main.gameData.favor.to = null;
-                GameRoom.hideOverlay();
-            }
-            
-            if (currentUser.id === from.id) {
-                //Current user did the favor. 
-                main.gameData.favor.from = null;
-                GameRoom.hideOverlay();
-            }
-        
-        } else if (data.hasOwnProperty('error')) {
+        if (data.hasOwnProperty('error')) {
             GameRoom.logError(data.error);
+        } else {
+            
+            var currentUser = main.getCurrentUser();
+            var from = main.users[data.from.id];
+            var to = main.users[data.to.id];
+            var fromString = (currentUser.id === from.id) ? "You" : from.name;
+            var toString = (currentUser.id === to.id) ? "You" : to.name;
+
+            if (data.hasOwnProperty('force')) {
+                GameRoom.logSystem(fromString + " asked " + toString + " for a favor.");
+
+                if (currentUser.id === from.id) {
+                    //Current user asked the favor. Disable end turn button
+                    main.gameData.favor.to = to.id;
+                    GameRoom.showFavorWaitOverlay(main);
+                }
+
+                if (currentUser.id === to.id) {
+                    //From user asked current user for a favor
+                    //Show the favor screen
+                    main.gameData.favor.from = from.id;
+                    GameRoom.showGiveOverlay(main);
+                }
+
+            } else if (data.hasOwnProperty('success')) {
+                GameRoom.logSystem(fromString + " gave " + toString + " a " + data.card.type + ".");
+
+                if (currentUser.id === to.id) {
+                    //From user did current user a favor
+                    main.gameData.favor.to = null;
+                    GameRoom.hideOverlay();
+                }
+
+                if (currentUser.id === from.id) {
+                    //Current user did the favor. 
+                    main.gameData.favor.from = null;
+                    GameRoom.hideOverlay();
+                }
+                
+                if (currentUser.id === to.id || currentUser.id === from.id) {
+                    io.emit($C.GAME.PLAYER.HAND, {
+                        gameId: main.getCurrentUserGame().id
+                    });
+                }
+
+            }
         }
     });
     

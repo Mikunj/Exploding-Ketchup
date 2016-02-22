@@ -457,6 +457,7 @@ module.exports = function(io, EK) {
                             //Remove deufse and add it to the discard pile
                             var defuse = player.removeCardType($.CARD.DEFUSE);
                             var set = new CardSet(player, [defuse]);
+                            set.effectPlayed = true;
                             game.discardPile.push(set);
                             
                             //Add the bomb back into the draw pile at a random position
@@ -624,7 +625,7 @@ module.exports = function(io, EK) {
                                 io.in(game.id).emit($.GAME.PLAYER.STEAL, {
                                     to: other.id,
                                     from: socket.id,
-                                    cardId: card.id,
+                                    card: card,
                                     type: steal
                                 });
                                 
@@ -654,7 +655,7 @@ module.exports = function(io, EK) {
                                 var type = data.cardType;
 
                                 //Remove the specified card from the other players hand and add it to the current player
-                                var card = other.removeCardType(type);
+                                var card = otherPlayer.removeCardType(type);
                                 if (card) {
                                     player.addCard(card);
                                     
@@ -858,7 +859,7 @@ module.exports = function(io, EK) {
          * 
          * Request Data: {
          *   gameId: "game id",
-         *   to: "The player to do favor to",
+         *   to: "The user id to do favor to",
          *   card: "The card id"
          * }
          * @param {Object} data The data
@@ -906,9 +907,9 @@ module.exports = function(io, EK) {
                         //Notify players of the favor
                         io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
                             success: true,
-                            to: other.id,
-                            from: user.id,
-                            card: data.card
+                            to: other,
+                            from: user,
+                            card: card
                         });
                         return;
                     }

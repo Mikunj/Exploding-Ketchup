@@ -1,3 +1,5 @@
+var $ = require('./constants');
+
 /**
  * A set of cards played by the player.
  * @param {Object} player The owner of the set

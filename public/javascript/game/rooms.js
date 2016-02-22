@@ -134,7 +134,8 @@ var GameRoom = {
                 waitingInput.hide();
                 playingInput.show();
                 
-                if (game.getCurrentPlayer().user === user.id) {
+                var currentPlayer = game.getCurrentPlayer();
+                if (currentPlayer && currentPlayer.user === user.id) {
                     playButton.show();
                     drawButton.show();
 
@@ -174,11 +175,12 @@ var GameRoom = {
         
         //Update discard popup card display
         this.updateCardsForElement(EK.gameData.getDiscardPileWithoutExplode(), $('#discardStealPopup #cardDisplay'));
+        this.updateCardsForElement(EK.gameData.discardPile, $('#discardPilePopup #cardDisplay'));
         
         //Update named popup card display
         $('#namedStealPopup #cardDisplay').empty();
         $.each($C.CARD, function(key, type) {
-            var html = "<div data-selected='false' class='card noselect'>" +
+            var html = "<div data-selected='false' data-type='" + type + "' class='card noselect'>" +
                             "<span>" + type + "</span>" +
                         "</div>";
             $('#namedStealPopup #cardDisplay').append(html);
@@ -249,7 +251,9 @@ var GameRoom = {
         var from = EK.gameData.favor.from;
         if (from) {
             var user = EK.users[from];
-            $('#givePopup #text').text('Give ' + user.name + ' a card.');
+            if (user) {
+                $('#givePopup #text').text('Give ' + user.name + ' a card.');
+            }
         }
     },
     
@@ -287,7 +291,9 @@ var GameRoom = {
         var to = EK.gameData.favor.to;
         if (to) {
             var user = EK.users[to];
-            $('#givePopup #text').text('Wait for a favor from ' + user.name + '.');
+            if (user) {
+                $('#favorWaitPopup #text').text('Wait for a favor from ' + user.name + '.');
+            }
         }
     },
     
