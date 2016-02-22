@@ -96,6 +96,7 @@ var GameRoom = {
         this.updateInputDisplay(EK);
         this.updatePlayerList(EK);
         this.updateGameOverlay(EK);
+        this.updatePlayAreaDisplay(EK);
     },
     
     /**
@@ -112,9 +113,12 @@ var GameRoom = {
             var readyButton = $('#readyGameButton');
             var playButton = $('#playGameButton');
             var drawButton = $('#drawGameButton');
+            var playArea = $('#playArea');
+            
             if (game.status === $C.GAME.STATUS.WAITING) {
                 waitingInput.show();
                 playingInput.hide();
+                playArea.hide();
                 
                 //Show and hide the buttons
                 if (game.isGameHost(user)) {
@@ -133,6 +137,7 @@ var GameRoom = {
             } else if (game.status == $C.GAME.STATUS.PLAYING) {
                 waitingInput.hide();
                 playingInput.show();
+                playArea.show();
                 
                 var currentPlayer = game.getCurrentPlayer();
                 if (currentPlayer && currentPlayer.user === user.id) {
@@ -177,6 +182,18 @@ var GameRoom = {
         this.updateCardsForElement(EK.gameData.getDiscardPileWithoutExplode(), $('#discardStealPopup #cardDisplay'));
         this.updateCardsForElement(EK.gameData.discardPile, $('#discardPilePopup #cardDisplay'));
         
+        //Get top 6 cards for discard pile display
+        var discards = [];
+        var pile = EK.gameData.discardPile;
+        if (pile.length > 0) {
+            var num = Math.min(6, pile.length);
+            for (var i = 0; i < num; i++) {
+                var card = pile[i];
+                discards.push(card);
+            };
+        }
+        this.updateCardsForElement(discards, $('#playArea #cardDisplay'));
+        
         //Update named popup card display
         $('#namedStealPopup #cardDisplay').empty();
         $.each($C.CARD, function(key, type) {
@@ -199,6 +216,17 @@ var GameRoom = {
             element.append(html);
             
         });
+    },
+    
+    /**
+     * Update the play area display
+     * @param {Object} EK The main game instance
+     */
+    updatePlayAreaDisplay: function(EK) {
+        var game = EK.getCurrentUserGame();
+        if (game) {
+            $('#playArea #text').text('Discard Pile (' + game.drawPileLength + ' left)');
+        }
     },
     
     /**
@@ -349,11 +377,13 @@ var GameRoom = {
         $('#overlay').show();
         $('#overlay .popup').hide();
         $('#discardPilePopup').show();
+        $('#playArea button').addClass('disabled');
     },
     
     hideOverlay: function() {
         $('#overlay').hide();
         $('#playingInput button').removeClass('disabled');
+        $('#playArea button').removeClass('disabled');
     },
     
     /**

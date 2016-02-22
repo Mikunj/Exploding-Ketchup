@@ -186,6 +186,11 @@ Game.prototype.start = function () {
         this.drawPile.push(new Card(this.generateRandomID(), 'Explode', $.CARD.EXPLODE, 0));
     }
     
+    //Add in extra defuses to negate the lack of nopes
+    for (var i = 0; i < 8; i++) {
+        this.drawPile.push(new Card(this.generateRandomID(), 'Defuse', $.CARD.DEFUSE, 0));
+    }
+    
     this.shuffleDeck();
     
     return true;

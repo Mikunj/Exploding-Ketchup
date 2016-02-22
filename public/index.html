@@ -221,7 +221,38 @@
                 </div>
             </div>
             <div id="container">
-                <div id="input" class="text-center">
+                <div id="playArea">
+                    <div class="center text-center" style="width: 100%;">
+                        <div id="text" style="font-size: 2em; font-weight: bold;" >Discard Pile</div>
+                        <div id="cardInput">
+                            <div id="cardDisplay" class="center text-center">
+                                <div data-selected="true" class="card noselect">
+                                    <span>DEFUSE</span>
+                                </div>
+                                <div class="card noselect">
+                                    <span>REGULAR</span>
+                                </div>
+                                <div class="card noselect">
+                                    <span>REGULAR</span>
+                                </div>
+                                <div class="card noselect">
+                                    <span>REGULAR</span>
+                                </div>
+                                <div class="card noselect">
+                                    <span>REGULAR</span>
+                                </div>
+                                <div class="card noselect">
+                                    <span>REGULAR</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div id="playInput" class="text-center">
+                            <button id="showDiscardButton" class="btn btn-success" type="button" onclick="GameRoom.showDiscardPileOverlay();">Show All Discard Pile</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="input" class="text-center" >
                     <div id="waitingInput">
                         <button id="startGameButton" class="btn btn-success" type="button">Start Game</button>
                         <button id="readyGameButton" class="btn btn-success" type="button">Ready</button>

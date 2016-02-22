@@ -445,7 +445,6 @@ jQuery(document).ready(function($) {
         var game = main.getCurrentUserGame();
         if (game) {
             main.gameData.discardPile = data.cards;
-            //TODO: Update UI here
             GameRoom.update(main);
         }
     });
