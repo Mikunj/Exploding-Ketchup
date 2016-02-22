@@ -1,3 +1,19 @@
+/**
+  Exloding Ketchup. 
+  A Exploding Kittens clone without kittens.
+  Copyright (C) 2016  Mikunj Varsani
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+*/
+
 var $ = {
     LOBBY: {
         ROOM: 'lobby',
@@ -67,42 +83,6 @@ var $ = {
             DISCARD: 'discardSteal',
             INVALID: 'invalidSteal'
         }
-    },
-    
-    ROUND: {
-        DATA: 'roundData',
-        NEW: 'newRound'
     }
 };
-//Socket
-/*$.LOBBY = {};
-$.LOBBY.ROOM = 'lobby';
-$.LOBBY.CONNECT = 'connecting';
-$.LOBBY.DISCONNECT = 'disconnect';
-$.LOBBY.JOIN = 'joinLobby';
-
-$.GAME = {};
-$.GAME.CREATE = 'createGame';
-$.GAME.JOIN = 'joinGame';
-$.GAME.LEAVE = 'leaveGame';
-$.GAME.CREATED = 'gameCreated';
-$.GAME.START = 'startGame';
-$.GAME.STOP = 'stopGame';
-
-$.GAME.STATUS = {};
-$.GAME.STATUS.WAITING = 'gameStatusWaiting';
-$.GAME.STATUS.PLAYING = 'gameStatusPlaying';
-
-$.USER = {};
-$.USER.CONNECT = 'userConnected';
-$.USER.DISCONNECT = 'userDisconnected';
-
-$.PLAYER = {};
-$.PLAYER.CONNECT = 'playerConnected';
-$.PLAYER.DISCONNECT = 'playerDisconnected';
-
-$.ROUND = {};
-$.ROUND.DATA = 'roundData';
-$.ROUND.NEW = 'newRound';
-*/
 module.exports = $;

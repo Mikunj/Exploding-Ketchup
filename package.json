@@ -1,13 +1,17 @@
 {
   "name": "EK",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
-  },
+  "author": "Mikunj Varsani",
+  "version": "1.0.0",
+  "description": "Explosive Ketchup.",
   "dependencies": {
     "debug": "~2.1.1",
     "express": "~4.11.1",
-    "express.io": "latest"
-  }
+    "socket.io": "latest"
+  },
+  "engines": {
+    "node": "5.6.0"
+  },
+  "scripts": {
+     "start": "node ./bin/www"
+   }
 }

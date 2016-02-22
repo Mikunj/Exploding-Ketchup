@@ -1,12 +1,30 @@
 #!/usr/bin/env node
 
 /**
+  Exloding Ketchup. 
+  A Exploding Kittens clone without kittens.
+  Copyright (C) 2016  Mikunj Varsani
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+*/
+
+/**
  * Module dependencies.
  */
 
 var app = require('../app');
 var debug = require('debug')('EK:server');
 var http = require('http');
+var EK = require('../game/EK');
+var Logic = require('../game/logic');
 
 /**
  * Get port from environment and store in Express.
@@ -28,6 +46,14 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+
+/**
+ * Setup game and logic
+ */
+var io = require('socket.io').listen(server);
+var game = new EK(io);
+var logic = new Logic(io, game);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -86,5 +112,5 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  console.log('Listening on ' + bind);
 }
