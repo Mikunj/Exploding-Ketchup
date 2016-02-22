@@ -283,8 +283,10 @@ jQuery(document).ready(function($) {
             main.gameData = new GameData();
             GameRoom.update(main);
             
-            //Get hand
-            io.emit($C.GAME.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
+            //Get hand and discard piles
+            var game = main.getCurrentUserGame();
+            io.emit($C.GAME.PLAYER.HAND, { gameId: game.id });
+            io.emit($C.GAME.DISCARDPILE, { gameId: game.id });
 
             GameRoom.logSystem('Started Game!');
         }
@@ -407,6 +409,9 @@ jQuery(document).ready(function($) {
             }
         }
         
+        //Get the discard pile
+        io.emit($C.GAME.DISCARDPILE, { gameId: main.getCurrentUserGame().id });
+        
         //We may have a new game host, so force them to be ready
         forceGameHostReady(main.games[data.game.id]);
     });
@@ -459,8 +464,9 @@ jQuery(document).ready(function($) {
             var game = main.getCurrentUserGame();
             var user = data.player.user;
             
-            //Fetch the hand
+            //Fetch the hand and discard piles
             io.emit($C.GAME.PLAYER.HAND, { gameId: game.id });
+            io.emit($C.GAME.DISCARDPILE, { gameId: game.id });
             
             var message = null;
             switch (data.state) {
@@ -533,9 +539,13 @@ jQuery(document).ready(function($) {
             
             //Get hand again once playing
             var cUser = main.getCurrentUser();
+            var game = main.getCurrentUserGame();
             if (cUser && cUser.id === user.id) {
-                io.emit($C.GAME.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
+                io.emit($C.GAME.PLAYER.HAND, { gameId: game.id });
             }
+            
+            //Get the discard pile
+            io.emit($C.GAME.DISCARDPILE, { gameId: game.id });
         }
     });
     
@@ -543,8 +553,17 @@ jQuery(document).ready(function($) {
         var from = main.users[data.from];
         var to = main.users[data.to];
         var currentUser = main.getCurrentUser();
-        var fromString = (currentUser.id === from.id) ? "You" : from.name;
-        var toString = (currentUser.id === to.id) ? "You" : to.name;
+        var fromString = "";
+        var toString = "";
+        
+        //Only set strings if we have the data
+        if (from) {
+            fromString = (currentUser.id === from.id) ? "You" : from.name;
+        }
+        
+        if (to) {
+            toString = (currentUser.id === to.id) ? "You" : to.name
+        }
         
         switch(data.type) {
             case $C.CARDSET.STEAL.BLIND:
@@ -561,25 +580,31 @@ jQuery(document).ready(function($) {
                 
                 break;
             case $C.CARDSET.STEAL.NAMED:
+                //Use logLocal so that the card taking stands out
                 if (data.success) {
-                    GameRoom.logSystem(fromString + " took a " + data.cardType + " from " + toString);
+                    GameRoom.logLocal(fromString + " took a " + data.cardType + " from " + toString);
                 } else {
-                    GameRoom.logSystem(fromString + " failed to take a " + data.cardType + " from " + toString);
+                    GameRoom.logLocal(fromString + " failed to take a " + data.cardType + " from " + toString);
                 }
                 break;
             case $C.CARDSET.STEAL.DISCARD:
+                //Use logLocal so that the card taking stands out
                 if (data.success) {
-                    GameRoom.logSystem(fromString + " took a " + data.card.name + " from the discard pile.");
+                    GameRoom.logLocal(fromString + " took a " + data.card.name + " from the discard pile.");
                 } else {
-                    GameRoom.logSystem(fromString + " failed to take a " + data.card.name + " from  the discard pile.");
+                    GameRoom.logLocal(fromString + " failed to take a " + data.card.name + " from  the discard pile.");
                 }
                 break;
         }
         
         //Update hand
+        var game = main.getCurrentUserGame();
         if (currentUser.id === from.id || currentUser.id === to.id) {
-            io.emit($C.GAME.PLAYER.HAND, { gameId: main.getCurrentUserGame().id });
+            io.emit($C.GAME.PLAYER.HAND, { gameId: game.id });
         }
+        
+        //Get the discard pile
+        io.emit($C.GAME.DISCARDPILE, { gameId: game.id });
     });
     
     io.on($C.GAME.PLAYER.FAVOR, function(data) {

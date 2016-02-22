@@ -26,16 +26,25 @@ CardSet.prototype.isEmpty = function() {
 }
 
 /**
+ * Get the index of a card in the set by id
+ * @param   {String} id Card id
+ * @returns {Number} The index of the card or -1 if not found
+ */
+CardSet.prototype.cardIndexById = function(id) {
+    for (var key in this.cards) {
+        var card = this.cards[key];
+        if (card.id === id) return key;
+    }
+    return -1;
+}
+
+/**
  * Whether the card set has a card with given id
  * @param   {String} id The card id
  * @returns {Boolean}  True if the set has the card else false
  */
 CardSet.prototype.hasCardWithId = function(id) {
-    for (var key in this.cards) {
-        var card = this.cards[key];
-        if (card.id === id) return true;
-    }
-    return false;
+    return this.cardIndexById(id) >= 0;
 }
 
 /**
@@ -74,6 +83,16 @@ CardSet.prototype.removeCardType = function(type) {
         return chosenCard;
     }
     return null;
+}
+
+/**
+ * Remove a card with given id from the cards
+ * @param   {String} id The card id
+ * @returns {Object} The card or null
+ */
+CardSet.prototype.removeCardWithId = function(id) {
+    var index = this.cardIndexById(id);
+    return (index >= 0) ? this.cards.splice(index, 1)[0] : null;
 }
 
 /**

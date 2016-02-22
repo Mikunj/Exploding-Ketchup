@@ -89,7 +89,7 @@ var GameData = function() {
         var pile = [];
             for (var key in this.discardPile) {
                 var card = this.discardPile[key];
-                if (!card.type === $C.CARD.EXPLODE) {
+                if (card.type != $C.CARD.EXPLODE) {
                     pile.push(card);
                 }
             }

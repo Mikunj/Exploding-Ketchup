@@ -692,14 +692,15 @@ module.exports = function(io, EK) {
                                     });
                                     return;
                                 }
+                                //Get the data needed
                                 var id = data.cardId;
-                                
                                 var card = null;
                                 var currentSet = null;
+                                
                                 //Go through the discard pile and remove given card and add it to user
                                 for (var key in game.discardPile) {
                                     var set = game.discardPile[key];
-                                    if (set.hasCardsWithId(id)) {
+                                    if (set.hasCardWithId(id)) {
                                         //Get the card and remove the set if it's empty
                                         card = set.removeCardWithId(id);
                                         if (card) {
@@ -718,14 +719,14 @@ module.exports = function(io, EK) {
                                         success: true,
                                         card: card,
                                         type: steal,
-                                        player: player
+                                        from: socket.id
                                     });
                                 } else {
                                     //Tell them of the failure
                                     io.in(game.id).emit($.GAME.PLAYER.STEAL, {
                                         success: false,
                                         type: steal,
-                                        player: player
+                                        from: socket.id
                                     });
                                     return;
                                 }
@@ -776,6 +777,15 @@ module.exports = function(io, EK) {
                                 }
                                 
                                 var other = EK.connectedUsers[data.to];
+                                var otherPlayer = game.getPlayer(other);
+                                
+                                //Check if the other player has any cards
+                                if (otherPlayer && otherPlayer.hand.length < 1) {
+                                    socket.emit($.GAME.PLAYER.PLAY, {
+                                        error: 'User has no cards in their hand!'
+                                    });
+                                    return;
+                                }
                                 
                                 //Set the favor to false
                                 playedSet.effectPlayed = false;
