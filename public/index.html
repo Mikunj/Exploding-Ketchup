@@ -197,6 +197,28 @@
                         <button id="cancelPopupButton" class="btn btn-danger" type="button" onclick="GameRoom.hideOverlay();">Cancel</button>
                     </div>
                 </div>
+                <div id="discardPilePopup" class="popup center text-center">
+                    <div class="container">
+                        <div id="content" >
+                            <div id="text">
+                                Discard pile.
+                            </div>
+                            <div id="cardInput">
+                                <div id="cardDisplay" class="center text-center">
+                                    <div data-selected="true" class="card noselect">
+                                        <span>DEFUSE</span>
+                                    </div>
+                                    <div class="card card-selected">
+                                        <span>REGULAR</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttonGroup">
+                        <button class="btn btn-danger" type="button" onclick="GameRoom.hideOverlay();">Close</button>
+                    </div>
+                </div>
             </div>
             <div id="container">
                 <div id="input" class="text-center">

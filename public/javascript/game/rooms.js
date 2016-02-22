@@ -339,6 +339,12 @@ var GameRoom = {
         $('#playingInput button').addClass('disabled');
     },
     
+    showDiscardPileOverlay: function() {
+        $('#overlay').show();
+        $('#overlay .popup').hide();
+        $('#discardPilePopup').show();
+    },
+    
     hideOverlay: function() {
         $('#overlay').hide();
         $('#playingInput button').removeClass('disabled');
