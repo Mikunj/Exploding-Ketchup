@@ -20,7 +20,8 @@ var $ = require('./constants');
 var CardSet = require('./cardset');
 
 /*
-TODO: Make it so player can draw 1 card at a time even when they have more than 1 draw amount
+TODO: Add mobile click using jquery
+TODO: Remove NOPE and EXPLODE from the select
 */
 
 /**
@@ -1050,7 +1051,7 @@ module.exports = function(io, EK) {
                     
                     //Check if the player is the current one drawing, if so determine winner or force next turn
                     if (player === currentPlayer) {
-                        
+                        //TODO: When last player leaves the next alive player is not set 
                         //Next players turn
                         var nextAlive = game.getNextAliveIndex(game.cUserIndex - 1);
                         game.cUserIndex = nextAlive;
