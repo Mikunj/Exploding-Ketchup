@@ -54,7 +54,7 @@ html, body {
 }
 
 .error {
-    background: #FFAEB9;
+    background: #D9534F;
     border-radius: 5px;
     font-size: 1em;
 }
@@ -166,7 +166,7 @@ html, body {
 }
 
 .status-red {
-    background: #FFAEB9;
+    background: #D9534F;
 }
 
 .status-green {
