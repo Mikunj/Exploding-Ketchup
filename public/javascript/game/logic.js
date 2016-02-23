@@ -121,7 +121,7 @@ jQuery(document).ready(function($) {
     $('#drawGameButton').bind('click touchstart', function(e) {
         e.preventDefault();
         var game = main.getCurrentUserGame();
-        if (game) {
+        if (game && !main.gameData.currentPlayedSet) {
             io.emit($C.GAME.PLAYER.ENDTURN, { gameId: game.id });
         };
     });
@@ -230,6 +230,22 @@ jQuery(document).ready(function($) {
             GameRoom.hideOverlay();
         }
         
+    });
+    
+    $('#nopeGameButton').bind('click touchstart', function(e) {
+        e.preventDefault();
+        var game = main.getCurrentUserGame();
+        var currentSet = main.gameData.currentPlayedSet;
+        if (game && main.gameData.hasCardTypeInHand($C.CARD.NOPE) && currentSet) {
+            
+            //If we are the one who played the set and the amount of nopes is even then don't emit the event
+            if (currentSet.owner.user.id === main.getCurrentUser().id && (currentSet.nopeAmount % 2 == 1)) return;
+            
+            io.emit($C.GAME.PLAYER.NOPE, {
+                gameId: game.id,
+                setId: main.gameData.currentPlayedSet.id
+            });
+        }
     });
     
     //Card click
@@ -600,9 +616,21 @@ jQuery(document).ready(function($) {
             var user = data.player.user;
             var cards = data.cards;
             if (cards) {
+                var string = '';
                 $.each(cards, function(index, card) {
-                    GameRoom.logSystem(user.name + " played a " + card.name + " card.");
+                    string += card.name + ", ";
                 });
+                
+                //Trim excess
+                string = string.slice(0, -2);
+                
+                var playString = (cards.length <= 1) ? " played a " : " played ";
+                GameRoom.logSystem(user.name + playString + string + " card.");
+            }
+            
+            //Set the new set
+            if (data.set) {
+                main.gameData.currentPlayedSet = data.set;
             }
             
             //Get hand again once playing
@@ -615,6 +643,52 @@ jQuery(document).ready(function($) {
             //Get the discard pile
             io.emit($C.GAME.DISCARDPILE, { gameId: game.id });
         }
+    });
+    
+    io.on($C.GAME.PLAYER.NOPE, function(data) {
+        if (data.hasOwnProperty('error')) {
+            GameRoom.logError(data.error);
+        } else if (data.hasOwnProperty('canNope')) {
+            main.gameData.currentPlayedSet = null;
+            GameRoom.update(main);
+            GameRoom.logLocal("Cannot play any more nopes");
+        } else {
+            /*
+            //Notify players that a nope was played
+                        io.in(game.id).emit($.GAME.PLAYER.NOPE, {
+                            player: player,
+                            cards: [card],
+                            game: game.sanitize(),
+                            set: pendingSet.set
+                        });
+                        */
+            //Tell users that nope was played
+            var user = data.player.user;
+            var cards = data.cards;
+            if (cards) {
+                $.each(cards, function(index, card) {
+                    GameRoom.logSystem(user.name + " played a " + card.name + " card.");
+                });
+            }
+            
+            //Set the new set
+            main.gameData.currentPlayedSet = data.set;
+            
+            //Update game data
+            main.addGame(gameFromData(data.game));
+            GameRoom.update(main);
+            
+            //Get hand again once someone played a nope
+            var cUser = main.getCurrentUser();
+            var game = main.getCurrentUserGame();
+            if (cUser && cUser.id === user.id) {
+                io.emit($C.GAME.PLAYER.HAND, { gameId: game.id });
+            }
+            
+            //Get the discard pile
+            io.emit($C.GAME.DISCARDPILE, { gameId: game.id }); 
+        }
+    
     });
     
     io.on($C.GAME.PLAYER.STEAL, function(data) {

@@ -372,6 +372,7 @@ Game.prototype.resetDeck = function() {
             this.drawPile.push(new Card(this.generateRandomID(), 'Skip', $.CARD.SKIP, 1));
             this.drawPile.push(new Card(this.generateRandomID(), 'Favor', $.CARD.FAVOR, 2));
             this.drawPile.push(new Card(this.generateRandomID(), 'Shuffle', $.CARD.SHUFFLE, 3));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Nope', $.CARD.NOPE, 3));
             
             //Regular
             this.drawPile.push(new Card(this.generateRandomID(), 'Pyro', $.CARD.REGULAR, 4));
@@ -445,6 +446,38 @@ Game.prototype.getDiscardPile = function() {
     }
     
     return pile;
+}
+
+/**
+ * Get the last played set in discard which isn't a nope
+ * @returns {Object} The last set in discard
+ */
+Game.prototype.getLastDiscardSet = function() {
+    var last = null;
+    for (var i = this.discardPile.length - 1; i >= 0; i--) {
+        var set = this.discardPile[i];
+        var hasNope = set.cards.length == 1 && set.hasCardType($.CARD.NOPE);
+        if (!hasNope) {
+            last = set;
+            break;
+        }
+    }
+    return last;
+}
+
+/**
+ * Update a discarded set if it is in the discard pile
+ * @param {Object} set The card set
+ */
+Game.prototype.updateDiscardSet = function(set) {
+    for (var key in this.discardPile) {
+        if (this.discardPile[key].id === set.id) {
+            this.discardPile[key].cards = set.cards;
+            this.discardPile[key].nopeAmount = set.nopeAmount;
+            this.discardPile[key].nopePlayed = set.nopePlayed;
+            this.discardPile[key].effectPlayed = set.effectPlayed;
+        }
+    }
 }
 
 module.exports = Game;

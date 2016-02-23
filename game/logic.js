@@ -523,7 +523,6 @@ module.exports = function(io, EK) {
                     } else {
                         
                         //Check if player defused or exploded, if so then they have to end their turn no matter the amount of draws remaining
-                        //TODO: Just double check this D:
                         if (!(state === $.GAME.PLAYER.TURN.SURVIVED)) player.drawAmount = 1; 
                         
                         player.drawAmount -= 1;
@@ -595,17 +594,15 @@ module.exports = function(io, EK) {
                         return;
                     }
                     
-                    //Keep track if we have to force user to end turn
-                    var endTurn = false;
                     
                     //Get cards from the players hand
                     var cards = player.getCardsWithId(data.cards);
                     
-                    //Disallow playing the defuse alone
+                    //Disallow playing the defuse, regular or nope alone
                     if (cards.length == 1) {
-                        if (cards[0].type === $.CARD.DEFUSE || cards[0].type == $.CARD.REGULAR) {
+                        if (cards[0].type === $.CARD.DEFUSE || cards[0].type === $.CARD.REGULAR || cards[0].type === $.CARD.NOPE) {
                             socket.emit($.GAME.PLAYER.PLAY, {
-                                error: 'Cannot play defuse or regular card alone!'
+                                error: 'Cannot play defuse, regular or nope cards alone!'
                             });
                             return;
                         }
@@ -642,26 +639,6 @@ module.exports = function(io, EK) {
                                     });
                                     return;
                                 }
-
-                                var other = EK.connectedUsers[data.to];
-                                var otherPlayer = game.getPlayer(other);
-                                
-                                //Remove a random card from the other players hand and add it to the current player
-                                var card = otherPlayer.getRandomCard();
-                                otherPlayer.removeCard(card);
-                                player.addCard(card);
-                                
-                                //Tell players that a steal occurred
-                                io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                                    to: other.id,
-                                    from: socket.id,
-                                    card: card,
-                                    type: steal
-                                });
-                                
-                                //Set effect played
-                                playedSet.effectPlayed = true;
-
                                 break;
                             case $.CARDSET.STEAL.NAMED:
                                 //Only steal if we have someone to steal from
@@ -679,39 +656,6 @@ module.exports = function(io, EK) {
                                     });
                                     return;
                                 }
-
-                                var other = EK.connectedUsers[data.to];
-                                var otherPlayer = game.getPlayer(other);
-                                var type = data.cardType;
-
-                                //Remove the specified card from the other players hand and add it to the current player
-                                var card = otherPlayer.removeCardType(type);
-                                if (card) {
-                                    player.addCard(card);
-                                    
-                                    //Tell players that a steal occurred
-                                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                                        success: true,
-                                        to: other.id,
-                                        from: socket.id,
-                                        cardType: type,
-                                        card: card.id,
-                                        type: steal  
-                                    });
-                                } else {
-                                    //Tell players that stealing was unsuccessful
-                                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                                        success: false,
-                                        to: other.id,
-                                        from: socket.id,
-                                        cardType: type,
-                                        type: steal
-                                    });
-                                }
-                                
-                                //Set effect played
-                                playedSet.effectPlayed = true;
-
                                 break;
 
                             case $.CARDSET.STEAL.DISCARD:
@@ -721,54 +665,7 @@ module.exports = function(io, EK) {
                                         error: 'Invalid card type selected'
                                     });
                                     return;
-                                }
-                                //Get the data needed
-                                var id = data.cardId;
-                                var card = null;
-                                var currentSet = null;
-                                
-                                //Go through the discard pile and remove given card and add it to user
-                                for (var key in game.discardPile) {
-                                    var set = game.discardPile[key];
-                                    if (set.hasCardWithId(id)) {
-                                        //Get the card and remove the set if it's empty
-                                        card = set.removeCardWithId(id);
-                                        if (card) {
-                                            currentSet = set; 
-                                            break;
-                                        }
-                                    }
-                                }
-                                
-                                //If card existed then give it to the user
-                                if (card) {
-                                    player.addCard(card);
-                                    
-                                    //Notify players of the steal
-                                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                                        success: true,
-                                        card: card,
-                                        type: steal,
-                                        from: socket.id
-                                    });
-                                } else {
-                                    //Tell them of the failure
-                                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                                        success: false,
-                                        type: steal,
-                                        from: socket.id
-                                    });
-                                    return;
-                                }
-                                
-                                //Set effect played
-                                playedSet.effectPlayed = true;
-                                
-                                //Remove the set from the discard pile if it's empty
-                                if (currentSet && currentSet.isEmpty()) {
-                                    game.discardPile.splice(game.discardPile.indexOf(currentSet));
-                                }
-                                
+                                }  
                                 break;
 
                             default:
@@ -780,23 +677,7 @@ module.exports = function(io, EK) {
                         }
                     } else {
                         var card = playedSet.cards[0];
-                        switch (card.type) {
-                            case $.CARD.ATTACK:
-                                //Attack the next person that is alive
-                                var nextPlayer = game.getNextAlive(game.cUserIndex);
-                                
-                                //Set the draw amount to 0 so that we just end our turn without drawing anything
-                                player.drawAmount = 0;
-                                nextPlayer.drawAmount = 2;
-                                
-                                //Force player to end turn
-                                endTurn = true;
-                                
-                                //Set the sets effect to played
-                                playedSet.effectPlayed = true;
-                                
-                                break;
-                                
+                        switch (card.type) {    
                             case $.CARD.FAVOR:
                                 //Only favor if we have someone to get a favor from
                                 if (!otherPlayerExists(data)) {
@@ -817,57 +698,6 @@ module.exports = function(io, EK) {
                                     return;
                                 }
                                 
-                                //Set the favor to false
-                                playedSet.effectPlayed = false;
-                                
-                                //Ask other player for favor
-                                io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
-                                    force: true,
-                                    from: user,
-                                    to: other
-                                });
-                                
-                                break;
-                            case $.CARD.FUTURE:
-                                
-                                //Get the first 3 cards on the top of the draw pile
-                                var futureCards = [];
-                                for (var i = 0; i < 3; i++)
-                                {
-                                    if (game.drawPile[i]) {
-                                        futureCards.push(game.drawPile[i]);
-                                    }
-                                }
-                                
-                                //Set the effect to played
-                                playedSet.effectPlayed = true;
-                                
-                                //Send the cards to the player
-                                socket.emit($.GAME.PLAYER.FUTURE, {
-                                    cards: futureCards
-                                });
-                                
-                                break;
-                            
-                            case $.CARD.SKIP:
-                                //Remove 1 draw amount as 1 skip = 1 draw amount
-                                player.drawAmount -= 1;
-
-                                //Force player to end turn
-                                if (player.drawAmount < 1) {
-                                    endTurn = true;
-                                }
-
-                                //Set the sets effect to played
-                                playedSet.effectPlayed = true;
-                                break;
-                                
-                            case $.CARD.SHUFFLE:
-                                //Shuffle the deck
-                                game.shuffleDeck();
-                                
-                                //Set the sets effect to played
-                                playedSet.effectPlayed = true;
                                 break;
                         }
                     }
@@ -879,20 +709,73 @@ module.exports = function(io, EK) {
                     //Notify players that cards were played
                     io.in(game.id).emit($.GAME.PLAYER.PLAY, {
                         player: player,
-                        cards: cards
+                        cards: cards,
+                        set: playedSet
                     });
                     
-                    //Send user info about ending turn
-                    if (endTurn) {
-                        //Tell player to force end turn
-                        socket.emit($.GAME.PLAYER.ENDTURN, {
-                            force: true,
-                            player: player
-                        });
-                    }
+                    //Wait for nope requests
+                    playedSet.nopePlayed = true;
+                    checkNopes(playedSet, data, socket, game);
+                    
                 }
             }
         }); //End $.GAME.PLAYER.PLAY
+        
+        /**
+         * Nope a played set.
+         * 
+         * Request Data: {
+         *   gameId: "gameId",
+         *   setId: "Set id to nope"
+         * }
+         * 
+         * @param {Object} data The data
+         */
+        socket.on($.GAME.PLAYER.NOPE, function(data) {
+            var game = EK.gameList[data.gameId];
+            var user = EK.connectedUsers[socket.id];
+            if (game && game.status == $.GAME.STATUS.PLAYING) {
+                var pendingSet = EK.pendingSets[data.setId];
+                
+                //If the set is pending and the set has the same amount of nopes played ad passed in then we want to play nopes
+                if (pendingSet && !pendingSet.set.nopePlayed) {
+                    
+                    var player = game.getPlayer(user);
+                    
+                    //Check if player has a nope
+                    if (player && player.hasCardType($.CARD.NOPE)) {
+                        
+                        //Play the nope and set the pending set data
+                        var card = player.removeCardType($.CARD.NOPE);
+                        var cardSet = new CardSet(player, [card]);
+                        cardSet.effectPlayed = true;
+                        game.discardPile.push(cardSet);
+                        
+                        //Set the nope played and amount
+                        EK.pendingSets[data.setId].set.nopePlayed = true;
+                        EK.pendingSets[data.setId].set.nopeAmount += 1;
+                    
+                        //Notify players that a nope was played
+                        io.in(game.id).emit($.GAME.PLAYER.NOPE, {
+                            player: player,
+                            cards: [card],
+                            game: game.sanitize(),
+                            set: EK.pendingSets[data.setId].set
+                        });
+                        
+                    } else {
+                        socket.emit($.GAME.PLAYER.NOPE, {
+                        error: "Could not get player or you don't have a nope card!"
+                        });
+                    }
+                    
+                } else {
+                    socket.emit($.GAME.PLAYER.NOPE, {
+                        error: 'Could not play nope!'
+                    });
+                }
+            }
+        });
         
         /**
          * Give a favor to a player
@@ -937,21 +820,25 @@ module.exports = function(io, EK) {
                     //Check if the favor is still possible
                     if (!effectsPlayed(game, otherPlayer)) {
                         
-                        //Remove the card from player and give it to other player
-                        var card = player.removeCardWithId(data.card);
-                        otherPlayer.addCard(card);
-                        
-                        //Set the effect play
-                        game.discardPile[game.discardPile.length - 1].effectPlayed = true;
-                        
-                        //Notify players of the favor
-                        io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
-                            success: true,
-                            to: other,
-                            from: user,
-                            card: card
-                        });
-                        return;
+                        //Make sure the last set is still not pending
+                        var lastSet = game.getLastDiscardSet();
+                        if (!EK.pendingSets[lastSet.id]) {
+                            //Remove the card from player and give it to other player
+                            var card = player.removeCardWithId(data.card);
+                            otherPlayer.addCard(card);
+
+                            //Set the effect play
+                            game.discardPile[game.discardPile.length - 1].effectPlayed = true;
+
+                            //Notify players of the favor
+                            io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
+                                success: true,
+                                to: other,
+                                from: user,
+                                card: card
+                            });
+                            return;
+                        }
                     }
                 }
                 
@@ -966,6 +853,301 @@ module.exports = function(io, EK) {
     //************ Socket methods ************//
     
     /**
+     * Process the actions of a pending set
+     * @param   {Object}   pendingSet The pending set object. Not to be confused with card set.
+     */
+    var processPendingSet = function(pendingSet) {
+        //Emit most errors out from this method because the errors should have been handled by $.GAME.PLAYER.PLAY socket handler
+        
+        //Get data needed
+        var data = pendingSet.data;
+        var playedSet = pendingSet.set;
+        var socket = pendingSet.socket;
+        var game = EK.gameList[pendingSet.data.gameId];
+        var user = EK.connectedUsers[socket.id];
+        var player = game.getPlayer(user);
+        
+        //Keep track if we have to force user to end turn
+        var endTurn = false;
+        
+        //Whether the other specified player exists
+        var otherPlayerExists = function(data) {
+            var user = EK.connectedUsers[data.to];
+            var player = game.getPlayer(user);
+
+            //Make sure we have a person 'to' do action on and that we're not doing the action to ourself and that the player is alive
+            return data.hasOwnProperty('to') && user && EK.connectedUsers[socket.id] != user && player && player.alive;
+        }
+
+        //Check for combos
+        if (playedSet.cards.length > 1) {
+            var steal = playedSet.canSteal();
+            switch(steal) {
+                case $.CARDSET.STEAL.BLIND:
+                    var other = EK.connectedUsers[data.to];
+                    var otherPlayer = game.getPlayer(other);
+
+                    //Remove a random card from the other players hand and add it to the current player
+                    var card = otherPlayer.getRandomCard();
+                    otherPlayer.removeCard(card);
+                    player.addCard(card);
+
+                    //Tell players that a steal occurred
+                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                        to: other.id,
+                        from: socket.id,
+                        card: card,
+                        type: steal
+                    });
+
+                    //Set effect played
+                    playedSet.effectPlayed = true;
+
+                    break;
+                case $.CARDSET.STEAL.NAMED:
+                    var other = EK.connectedUsers[data.to];
+                    var otherPlayer = game.getPlayer(other);
+                    var type = data.cardType;
+
+                    //Remove the specified card from the other players hand and add it to the current player
+                    var card = otherPlayer.removeCardType(type);
+                    if (card) {
+                        player.addCard(card);
+
+                        //Tell players that a steal occurred
+                        io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                            success: true,
+                            to: other.id,
+                            from: socket.id,
+                            cardType: type,
+                            card: card.id,
+                            type: steal  
+                        });
+                    } else {
+                        //Tell players that stealing was unsuccessful
+                        io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                            success: false,
+                            to: other.id,
+                            from: socket.id,
+                            cardType: type,
+                            type: steal
+                        });
+                    }
+
+                    //Set effect played
+                    playedSet.effectPlayed = true;
+
+                    break;
+
+                case $.CARDSET.STEAL.DISCARD:
+                    //Get the data needed
+                    var id = data.cardId;
+                    var card = null;
+                    var currentSet = null;
+
+                    //Go through the discard pile and remove given card and add it to user
+                    for (var key in game.discardPile) {
+                        var set = game.discardPile[key];
+                        if (set.hasCardWithId(id)) {
+                            //Get the card and remove the set if it's empty
+                            card = set.removeCardWithId(id);
+                            if (card) {
+                                currentSet = set; 
+                                break;
+                            }
+                        }
+                    }
+
+                    //If card existed then give it to the user
+                    if (card) {
+                        player.addCard(card);
+
+                        //Notify players of the steal
+                        io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                            success: true,
+                            card: card,
+                            type: steal,
+                            from: socket.id
+                        });
+                    } else {
+                        //Tell them of the failure
+                        io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                            success: false,
+                            type: steal,
+                            from: socket.id
+                        });
+                    }
+
+                    //Set effect played
+                    playedSet.effectPlayed = true;
+
+                    //Remove the set from the discard pile if it's empty
+                    if (currentSet && currentSet.isEmpty()) {
+                        game.discardPile.splice(game.discardPile.indexOf(currentSet));
+                    }
+
+                    break;
+
+                default:
+                    //Make sure to let the player know to only play 1 card at a time if not playing a combo
+                    socket.emit($.GAME.PLAYER.PLAY, {
+                        error: 'Invalid combo'
+                    });
+            }
+        } else {
+            var card = playedSet.cards[0];
+            switch (card.type) {
+                case $.CARD.ATTACK:
+                    //Attack the next person that is alive
+                    var nextPlayer = game.getNextAlive(game.cUserIndex);
+
+                    //Set the draw amount to 0 so that we just end our turn without drawing anything
+                    player.drawAmount = 0;
+                    nextPlayer.drawAmount = 2;
+
+                    //Force player to end turn
+                    endTurn = true;
+
+                    //Set the sets effect to played
+                    playedSet.effectPlayed = true;
+
+                    break;
+
+                case $.CARD.FAVOR:
+                    var other = EK.connectedUsers[data.to];
+                    var otherPlayer = game.getPlayer(other);
+                    
+                    //Set the favor to false
+                    playedSet.effectPlayed = false;
+
+                    //Check if the other player has any cards
+                    //Tough luck if a player gets this D:
+                    //This can happen if the favor goes through even with nopes and the person has no card
+                    if (otherPlayer && otherPlayer.hand.length < 1) {
+                        socket.emit($.GAME.PLAYER.PLAY, {
+                            error: 'User has no cards in their hand!'
+                        });
+                        playedSet.effectPlayed = true;
+                    } else {
+                        //Ask other player for favor
+                        io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
+                            force: true,
+                            from: user,
+                            to: other
+                        });
+                    }
+
+                    break;
+                case $.CARD.FUTURE:
+
+                    //Get the first 3 cards on the top of the draw pile
+                    var futureCards = [];
+                    for (var i = 0; i < 3; i++)
+                    {
+                        if (game.drawPile[i]) {
+                            futureCards.push(game.drawPile[i]);
+                        }
+                    }
+
+                    //Set the effect to played
+                    playedSet.effectPlayed = true;
+
+                    //Send the cards to the player
+                    socket.emit($.GAME.PLAYER.FUTURE, {
+                        cards: futureCards
+                    });
+
+                    break;
+
+                case $.CARD.SKIP:
+                    //Remove 1 draw amount as 1 skip = 1 draw amount
+                    player.drawAmount -= 1;
+
+                    //Force player to end turn
+                    if (player.drawAmount < 1) {
+                        endTurn = true;
+                    }
+
+                    //Set the sets effect to played
+                    playedSet.effectPlayed = true;
+                    break;
+
+                case $.CARD.SHUFFLE:
+                    //Shuffle the deck
+                    game.shuffleDeck();
+
+                    //Set the sets effect to played
+                    playedSet.effectPlayed = true;
+                    break;
+            }
+        }
+
+        //Update the discard pile
+        game.updateDiscardSet(playedSet);
+        
+        //Notify players again that cards were played
+        io.in(game.id).emit($.GAME.PLAYER.PLAY, {
+            player: player,
+            cards: playedSet.cards
+        });
+
+        //Send user info about ending turn
+        if (endTurn) {
+            //Tell player to force end turn
+            socket.emit($.GAME.PLAYER.ENDTURN, {
+                force: true,
+                player: player
+            });
+        }
+    }
+    
+    /**
+     * Check if any nopes were played.
+     * If a nope was played then extend timer by 3 seconds.
+     * If no nopes were played then process the played set
+     * @param {Object} playedSet The played set
+     * @param {Object} data The data
+     * @param {Object} socket The socket      
+     * @param {Object} game The game    
+     */
+    var checkNopes = function(playedSet, data, socket, game) {
+        var pending = EK.pendingSets[playedSet.id];
+        if (!pending) {
+            EK.addPendingSet(playedSet, data, socket);
+            pending = EK.pendingSets[playedSet.id];
+        }
+        
+        if (pending.set.nopePlayed) {
+            EK.pendingSets[playedSet.id].set.nopePlayed = false;
+            setTimeout(function() {
+                checkNopes(pending.set, data, socket, game);
+            }, 3000);
+        } else {
+            
+            //If there is an even amount of nopes played then we can process
+            if (pending.set.nopeAmount % 2 == 0) {
+                processPendingSet(pending);
+            } else {
+                pending.set.effectPlayed = true;
+                
+                //Update the discard pile
+                game.updateDiscardSet(pending.set);
+            }
+            
+            //Notify players that set cannot be noped any more
+            if (pending.data && pending.data.gameId) {
+                io.in(pending.data.gameId).emit($.GAME.PLAYER.NOPE, {
+                    set: pending.set,
+                    canNope: false
+                });
+            }
+            
+            //Remove the set from pending
+            EK.removePendingSet(pending.set);
+        }
+    }
+    
+    /**
      * Whether the last card sets effects were played
      * @param   {Object}   game   The game
      * @param   {Object} player The player
@@ -974,7 +1156,7 @@ module.exports = function(io, EK) {
     var effectsPlayed = function(game, player) {
         //Check for last set effect played
         if (game.discardPile.length > 0) {
-            var lastSet = game.discardPile[game.discardPile.length - 1];
+            var lastSet = game.getLastDiscardSet();
             if (lastSet.owner == player) {
                 return lastSet.effectPlayed;
             }

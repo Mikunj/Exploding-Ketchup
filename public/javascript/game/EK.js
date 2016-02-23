@@ -77,11 +77,27 @@ var GameData = function() {
     //The discard pile
     this.discardPile = [];
     
+    //The current played set
+    this.currentPlayedSet = null;
+    
     //Whether we are in a favor or not
     this.favor = {
         from: null, //The player who asked us
         to: null //The player we asked
     };
+    
+    /**
+     * Check if the hand contains a certain card type
+     * @param   {String} type The card type
+     * @returns {Boolean}  Whether the hand has it
+     */
+    this.hasCardTypeInHand = function(type) {
+        for (var key in this.hand) {
+            var card = this.hand[key];
+            if (card.type === type) return true;
+        }
+        return false;
+    }
     
     /**
      * Get the card with given id from hand

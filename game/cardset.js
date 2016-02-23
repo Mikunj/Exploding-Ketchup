@@ -23,6 +23,17 @@ var $ = require('./constants');
  */
 var CardSet = function(player, cards) {
     
+    /**
+     * Generate a random id
+     * @returns {String}   A random id
+     */
+    this.generateRandomID = function() {
+        return '_' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    //The set id
+    this.id = this.generateRandomID();
+    
     //The owner of the set
     this.owner = player;
     
@@ -31,6 +42,13 @@ var CardSet = function(player, cards) {
     
     //The effects of the card has been played
     this.effectPlayed = false;
+    
+    //If a nope was played on this card set
+    this.nopePlayed = false;
+    
+    //Number of nopes played on this set
+    this.nopeAmount = 0;
+
 }
 
 /**

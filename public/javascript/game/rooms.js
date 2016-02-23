@@ -153,6 +153,7 @@ var GameRoom = {
             var playButton = $('#playGameButton');
             var drawButton = $('#drawGameButton');
             var playArea = $('#playArea');
+            var nopeButton = $('#nopeGameButton');
             
             if (game.status === $C.GAME.STATUS.WAITING) {
                 waitingInput.show();
@@ -182,6 +183,7 @@ var GameRoom = {
                 if (currentPlayer && currentPlayer.user === user.id) {
                     playButton.show();
                     drawButton.show();
+                    nopeButton.hide();
 
                     if ($("#playingInput .card[data-selected='true']").length < 1) {
                         drawButton.show();
@@ -200,7 +202,20 @@ var GameRoom = {
                     playButton.hide();
                     drawButton.hide();
                 }
-
+                
+                //Show nope button if we have a set and a nope card
+                if (EK.gameData.currentPlayedSet) {
+                    
+                    if (EK.gameData.hasCardTypeInHand($C.CARD.NOPE)) {
+                        nopeButton.removeClass('disabled');
+                    } else {
+                        nopeButton.addClass('disabled');
+                    }
+                    
+                    nopeButton.show();
+                } else {
+                    nopeButton.hide();
+                }
             }
         }
     },
@@ -451,8 +466,8 @@ var GameRoom = {
         });
         
         switch (cards.length) {
-            case 1: //Don't allow playing defuse, regular or explode (if it somehow got into players hand)
-                return !(cards[0].type === $C.CARD.DEFUSE || cards[0].type === $C.CARD.EXPLODE || cards[0].type == $C.CARD.REGULAR); 
+            case 1: //Don't allow playing defuse, regular, nope or explode (if it somehow got into players hand)
+                return !(cards[0].type === $C.CARD.DEFUSE || cards[0].type === $C.CARD.EXPLODE || cards[0].type === $C.CARD.REGULAR || cards[0].type === $C.CARD.NOPE); 
             case 2: //Blind pick
             case 3: //Named pick
                 return EK.gameData.cardsMatching(cards);

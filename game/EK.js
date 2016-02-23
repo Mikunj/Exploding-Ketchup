@@ -29,6 +29,9 @@ var EK = function(io) {
     
     //List of all the current games
     this.gameList = {};
+    
+    //List of pending card sets to be processed
+    this.pendingSets = {};
 }
 
 /**
@@ -87,6 +90,30 @@ EK.prototype.addGame = function(game) {
 EK.prototype.removeGame = function(game) {
     if (game.id in this.gameList) {
         delete this.gameList[game.id];
+    }
+}
+
+/**
+ * Add a pending set to the list
+ * @param {Object} set    The card set
+ * @param {Object} data   The data associated with the set
+ * @param {Object} socket The socket
+ */
+EK.prototype.addPendingSet = function(set, data, socket) {
+    this.pendingSets[set.id] = {
+        set: set,
+        data: data,
+        socket: socket
+    };
+}
+
+/**
+ * Remove a set from the pending set list
+ * @param {Object} set A card set
+ */
+EK.prototype.removePendingSet = function(set) {
+    if (set.id in this.pendingSets) {
+        delete this.pendingSets[set.id];
     }
 }
 
