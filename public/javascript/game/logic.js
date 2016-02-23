@@ -234,13 +234,13 @@ jQuery(document).ready(function($) {
     
     //Card click
     $(document).on('click touchstart', '#playingInput .card', function(e) {
-        e.preventDefault();
+        //e.preventDefault();
         toggleCardSelected($(this));
         GameRoom.updateInputDisplay(main);
     });
     
     $(document).on('click touchstart', '.popup .card', function(e) {
-        e.preventDefault();
+        //e.preventDefault();
         $('.popup .card').attr('data-selected', "false");
         $('.popup .card').removeClass('card-selected');
         toggleCardSelected($(this));

@@ -14,10 +14,22 @@ html, body {
     left: 0;
 }
 
-@media (max-width:641px) { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ 
+@media (max-width:641px) { /* small devices */ 
     html, body, .container-fluid, .room {
         height: 1000px;
         overflow-y: scroll;
+    }
+    
+    #loginInput {
+        width: 100% !important;
+    }
+    
+    #input button {
+        width: 50% !important;
+    }
+    
+    .popup {
+        min-width: 100% !important;
     }
 }
 
