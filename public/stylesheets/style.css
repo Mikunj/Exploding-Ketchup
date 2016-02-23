@@ -24,6 +24,10 @@ html, body {
         width: 100% !important;
     }
     
+    #loginInput #title {
+        font-size: 3.5em !important;
+    }
+    
     #input button {
         width: 50% !important;
     }
@@ -31,6 +35,8 @@ html, body {
     .popup {
         min-width: 100% !important;
     }
+    
+    
 }
 
 .center {
