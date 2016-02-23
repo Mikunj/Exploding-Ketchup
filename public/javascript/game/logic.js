@@ -240,7 +240,7 @@ jQuery(document).ready(function($) {
             
             //If we are the one who played the set and the amount of nopes is even then don't emit the event
             if (currentSet.owner.user.id === main.getCurrentUser().id && (main.gameData.currentPlayedSet.nopeAmount % 2 == 1)) {
-                console.log('Cannot nope: main.gameData.currentPlayedSet.nopeAmount played ');
+                console.log('Cannot nope: ' + main.gameData.currentPlayedSet.nopeAmount + ' played');
                 return;
             }
             
