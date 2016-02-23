@@ -831,7 +831,7 @@ module.exports = function(io, EK) {
                             otherPlayer.addCard(card);
 
                             //Set the effect play
-                            game.discardPile[game.discardPile.length - 1].effectPlayed = true;
+                            game.getLastDiscardSet().effectPlayed = true;
 
                             //Notify players of the favor
                             io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
