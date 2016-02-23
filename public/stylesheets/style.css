@@ -324,6 +324,7 @@ html, body {
     display: inline-block;
     margin-right: 10px;
     border: 5px solid black;
+    cursor: pointer;
 }
 
 .card:first-child {
