@@ -16,6 +16,8 @@
 
 jQuery(document).ready(function($) {
     
+    //TODO: Fix mobile click event
+    
     //Main game instance
     var main = new EK();
     
