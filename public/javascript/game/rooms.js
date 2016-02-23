@@ -204,12 +204,15 @@ var GameRoom = {
                 }
                 
                 //Show nope button if we have a set and a nope card
-                if (EK.gameData.currentPlayedSet) {
+                if (EK.gameData.currentPlayedSet && EK.gameData.hasCardTypeInHand($C.CARD.NOPE)) {
+                    var currentPlayer = game.getCurrentPlayer();
                     
-                    if (EK.gameData.hasCardTypeInHand($C.CARD.NOPE)) {
-                        nopeButton.removeClass('disabled');
-                    } else {
+                    //If we are the current player and the set has an even amount of nopes then disable the nope button
+                    if (currentPlayer && currentPlayer.user === user.id && 
+                        (EK.gameData.currentPlayedSet.nopeAmount % 2 == 0) ) {
                         nopeButton.addClass('disabled');
+                    } else {
+                        nopeButton.removeClass('disabled');
                     }
                     
                     nopeButton.show();

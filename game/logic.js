@@ -706,11 +706,14 @@ module.exports = function(io, EK) {
                     player.removeCards(cards);
                     game.discardPile.push(playedSet);
                     
+                    //Don't send the set details if players have no nopes
+                    var replySet = playersHaveNope(game) ? playedSet : null;
+                    
                     //Notify players that cards were played
                     io.in(game.id).emit($.GAME.PLAYER.PLAY, {
                         player: player,
                         cards: cards,
-                        set: playedSet
+                        set: replySet
                     });
                     
                     //Wait for nope requests
@@ -1086,10 +1089,10 @@ module.exports = function(io, EK) {
         game.updateDiscardSet(playedSet);
         
         //Notify players again that cards were played
-        io.in(game.id).emit($.GAME.PLAYER.PLAY, {
+        /*io.in(game.id).emit($.GAME.PLAYER.PLAY, {
             player: player,
             cards: playedSet.cards
-        });
+        });*/
 
         //Send user info about ending turn
         if (endTurn) {
@@ -1111,13 +1114,21 @@ module.exports = function(io, EK) {
      * @param {Object} game The game    
      */
     var checkNopes = function(playedSet, data, socket, game) {
+        
+        //Check if the set is pending
         var pending = EK.pendingSets[playedSet.id];
         if (!pending) {
             EK.addPendingSet(playedSet, data, socket);
             pending = EK.pendingSets[playedSet.id];
         }
         
+        //Set the sets nopePlayed to false as no other player can nope
+        if (!playersHaveNope(game)) {     
+            pending.set.nopePlayed = false;
+        }
+        
         if (pending.set.nopePlayed) {
+            //Poll the set
             EK.pendingSets[playedSet.id].set.nopePlayed = false;
             setTimeout(function() {
                 checkNopes(pending.set, data, socket, game);
@@ -1145,6 +1156,22 @@ module.exports = function(io, EK) {
             //Remove the set from pending
             EK.removePendingSet(pending.set);
         }
+    }
+    
+    /**
+     * Check if players in a game have nopes
+     * @param   {Object} game The game
+     * @returns {Boolean}  Whether any player has a nope
+     */
+    var playersHaveNope = function(game) {
+        //Check if any players have a nope
+        for (var key in game.players) {
+            var player = game.players[key];
+            if (player.hasCardType($.CARD.NOPE)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**

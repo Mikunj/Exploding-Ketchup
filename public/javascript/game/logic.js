@@ -239,7 +239,10 @@ jQuery(document).ready(function($) {
         if (game && main.gameData.hasCardTypeInHand($C.CARD.NOPE) && currentSet) {
             
             //If we are the one who played the set and the amount of nopes is even then don't emit the event
-            if (currentSet.owner.user.id === main.getCurrentUser().id && (currentSet.nopeAmount % 2 == 1)) return;
+            if (currentSet.owner.user.id === main.getCurrentUser().id && (main.gameData.currentPlayedSet.nopeAmount % 2 == 1)) {
+                console.log('Cannot nope: main.gameData.currentPlayedSet.nopeAmount played ');
+                return;
+            }
             
             io.emit($C.GAME.PLAYER.NOPE, {
                 gameId: game.id,
@@ -625,12 +628,14 @@ jQuery(document).ready(function($) {
                 string = string.slice(0, -2);
                 
                 var playString = (cards.length <= 1) ? " played a " : " played ";
-                GameRoom.logSystem(user.name + playString + string + " card.");
+                GameRoom.logSystem(user.name + playString + string + " card(s).");
             }
             
             //Set the new set
             if (data.set) {
                 main.gameData.currentPlayedSet = data.set;
+                GameRoom.update(main);
+                GameRoom.logSystem("A player can play a nope card!");
             }
             
             //Get hand again once playing
@@ -649,19 +654,12 @@ jQuery(document).ready(function($) {
         if (data.hasOwnProperty('error')) {
             GameRoom.logError(data.error);
         } else if (data.hasOwnProperty('canNope')) {
+            if (main.gameData.currentPlayedSet) {                
+                GameRoom.logSystem("Cannot play any more nope cards!");
+            }
             main.gameData.currentPlayedSet = null;
             GameRoom.update(main);
-            GameRoom.logLocal("Cannot play any more nopes");
         } else {
-            /*
-            //Notify players that a nope was played
-                        io.in(game.id).emit($.GAME.PLAYER.NOPE, {
-                            player: player,
-                            cards: [card],
-                            game: game.sanitize(),
-                            set: pendingSet.set
-                        });
-                        */
             //Tell users that nope was played
             var user = data.player.user;
             var cards = data.cards;

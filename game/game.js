@@ -205,7 +205,8 @@ Game.prototype.start = function () {
     
     //Add in extra defuses to negate the lack of nopes
     var multiplier = (this.players.length > 5) ? 2 : 1;
-    for (var i = 0; i < 4 * multiplier; i++) {
+    var count = (6 * multiplier) - this.players.length;
+    for (var i = 0; i < count; i++) {
         this.drawPile.push(new Card(this.generateRandomID(), 'Defuse', $.CARD.DEFUSE, 0));
     }
     
@@ -372,7 +373,6 @@ Game.prototype.resetDeck = function() {
             this.drawPile.push(new Card(this.generateRandomID(), 'Skip', $.CARD.SKIP, 1));
             this.drawPile.push(new Card(this.generateRandomID(), 'Favor', $.CARD.FAVOR, 2));
             this.drawPile.push(new Card(this.generateRandomID(), 'Shuffle', $.CARD.SHUFFLE, 3));
-            this.drawPile.push(new Card(this.generateRandomID(), 'Nope', $.CARD.NOPE, 3));
             
             //Regular
             this.drawPile.push(new Card(this.generateRandomID(), 'Pyro', $.CARD.REGULAR, 4));
@@ -383,6 +383,7 @@ Game.prototype.resetDeck = function() {
         }
         
         this.drawPile.push(new Card(this.generateRandomID(), 'Future', $.CARD.FUTURE, 9));
+        this.drawPile.push(new Card(this.generateRandomID(), 'Nope', $.CARD.NOPE, 3));
     }
 }
 
