@@ -320,48 +320,48 @@ html, body {
 
 .card-selected {
     background: #5bc0de;
-    color: white;
-    border: none;
+    color: white !important;
+    border: none !important;
 }
 
 .card-attack {
-    color: #9A89BF;
-    border: 5px solid #9A89BF;
+    color: #C8A755;
+    border: 5px solid #C8A755;
 }
 
 .card-skip {
-    color: #8DD4F4;
-    border: 5px solid #8DD4F4;
+    color: #3DA8AA;
+    border: 5px solid #3DA8AA;
 }
 
 .card-defuse {
-    color: #92CB9B;
-    border: 5px solid #92CB9B;
+    color: #8A9F56;
+    border: 5px solid #8A9F56;
 }
 
 .card-explode {
-    color: #F29D80;
-    border: 5px solid #F29D80;
+    color: #CF1441;
+    border: 5px solid #CF1441;
 }
 
 .card-future {
-    color: #F09FA5;
-    border: 5px solid #F09FA5;
+    color: #EA6987;
+    border: 5px solid #EA6987;
 }
 
 .card-favor {
-    color: #95B2DE;
-    border: 5px solid #95B2DE;
+    color: #A9A097;
+    border: 5px solid #A9A097;
 }
 
 .card-shuffle {
-    color: #C797BF;
-    border: 5px solid #C797BF;
+    color: #973A36;
+    border: 5px solid #973A36;
 }
 
 .card-regular {
-    color: #EFB485;
-    border: 5px solid #EFB485;
+    color: #B58865;
+    border: 5px solid #B58865;
 }
 
 .card span{

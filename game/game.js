@@ -204,7 +204,8 @@ Game.prototype.start = function () {
     }
     
     //Add in extra defuses to negate the lack of nopes
-    for (var i = 0; i < 8; i++) {
+    var multiplier = (this.players.length > 5) ? 2 : 1;
+    for (var i = 0; i < 4 * multiplier; i++) {
         this.drawPile.push(new Card(this.generateRandomID(), 'Defuse', $.CARD.DEFUSE, 0));
     }
     
@@ -350,19 +351,22 @@ Game.prototype.reset = function (){
 Game.prototype.resetDeck = function() {
     /*
     A deck consists of:
-    8 Attack cards
-    8 Skip cards
-    8 Favor cards
-    8 Shuffle cards
-    10 Future cards
-    8 x 5 Regular cards
+    4 Attack cards
+    4 Skip cards
+    4 Favor cards
+    4 Shuffle cards
+    5 Future cards
+    4 x 5 Regular cards
+    More than 5 players then deck size doubles
     */
     
     this.drawPile = [];
     
+    var multiplier = (this.players.length > 5) ? 2 : 1;
+    
     //Generate cards
-    for (var i = 0; i < 10; i++) {
-        if (i < 8) {
+    for (var i = 0; i < 5 * multiplier; i++) {
+        if (i < 4 * multiplier) {
             //Special
             this.drawPile.push(new Card(this.generateRandomID(), 'Attack', $.CARD.ATTACK, 0));
             this.drawPile.push(new Card(this.generateRandomID(), 'Skip', $.CARD.SKIP, 1));
