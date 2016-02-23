@@ -62,9 +62,10 @@ html, body {
     padding: 10px;
 }
 
-#loginInput div #title {
+#loginInput #title {
     font-size: 4em;
     margin-bottom: 10px;
+    max-width: 100%;
 }
 
 #loginButton {
