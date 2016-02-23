@@ -321,7 +321,7 @@ html, body {
 .card-selected {
     background: #5bc0de;
     color: white !important;
-    border: none !important;
+    border: 5px solid white !important;
 }
 
 .card-attack {

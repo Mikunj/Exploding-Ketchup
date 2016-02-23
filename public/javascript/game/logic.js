@@ -32,19 +32,22 @@ jQuery(document).ready(function($) {
     
     //******** Click Events ********//
     
-    $('#leaveButton').bind('click touchstart', function() {
+    $('#leaveButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var game = main.getCurrentUserGame();
         if (game) {
             io.emit($C.GAME.LEAVE, { gameId: game.id });
         }
     });
     
-    $("#loginButton").bind('click touchstart', function() {
+    $("#loginButton").bind('click touchstart', function(e) {
+        e.preventDefault();
         var nickname = $('#nameInput').val();
         io.emit($C.LOBBY.CONNECT, { nickname: nickname });
     });
     
-    $("#newGameButton").bind('click touchstart', function() {
+    $("#newGameButton").bind('click touchstart', function(e) {
+        e.preventDefault();
         var name = prompt("Type in a title:", "bob");
         if (name) {
             io.emit($C.GAME.CREATE, { title: name });
@@ -52,14 +55,16 @@ jQuery(document).ready(function($) {
     });
     
     //Since we dynamically create the button, we have to call the clikc function this way
-    $(document).on('click touchstart', '#joinGameButton', function() {
+    $(document).on('click touchstart', '#joinGameButton', function(e) {
+        e.preventDefault();
         var id = $(this).data("id");
         if (id) {
             io.emit($C.GAME.JOIN, { gameId: id });
         }
     });
     
-    $('#startGameButton').bind('click touchstart', function() {
+    $('#startGameButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var user = main.getCurrentUser();
         var game = main.getCurrentUserGame();
         if (user && game) {
@@ -77,14 +82,16 @@ jQuery(document).ready(function($) {
         }
     });
     
-    $('#readyGameButton').bind('click touchstart', function() {
+    $('#readyGameButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var game = main.getCurrentUserGame();
         if (game) {
             io.emit($C.GAME.PLAYER.READY, { gameId: game.id });
         };
     });
     
-    $('#playGameButton').bind('click touchstart', function() {
+    $('#playGameButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var cards = $("#playingInput .card[data-selected='true']");
     
         switch (cards.length) {
@@ -111,14 +118,16 @@ jQuery(document).ready(function($) {
         }
     });
     
-    $('#drawGameButton').bind('click touchstart', function() {
+    $('#drawGameButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var game = main.getCurrentUserGame();
         if (game) {
             io.emit($C.GAME.PLAYER.ENDTURN, { gameId: game.id });
         };
     });
     
-    $('#giveCardButton').bind('click touchstart', function() {
+    $('#giveCardButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var game = main.getCurrentUserGame();
         var from = main.gameData.favor.from;
         if (game && from) {
@@ -141,7 +150,8 @@ jQuery(document).ready(function($) {
     
     });
     
-    $('#favorSelectButton').bind('click touchstart', function() {
+    $('#favorSelectButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var cards = $("#playingInput .card[data-selected='true']");
         var to = $('#favorSelectPopup #player-select').val();
         var game = main.getCurrentUserGame();
@@ -160,7 +170,8 @@ jQuery(document).ready(function($) {
         
     });
     
-    $('#blindStealButton').bind('click touchstart', function() {
+    $('#blindStealButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var cards = $("#playingInput .card[data-selected='true']");
         var to = $('#blindStealPopup #player-select').val();
         var game = main.getCurrentUserGame();
@@ -179,7 +190,8 @@ jQuery(document).ready(function($) {
         
     });
     
-    $('#namedStealButton').bind('click touchstart', function() {
+    $('#namedStealButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var cards = $("#playingInput .card[data-selected='true']");
         var to = $('#namedStealPopup #player-select').val();
         var cardTypes = $("#namedStealPopup .card[data-selected='true']");
@@ -200,7 +212,8 @@ jQuery(document).ready(function($) {
         
     });
     
-    $('#discardStealButton').bind('click touchstart', function() {
+    $('#discardStealButton').bind('click touchstart', function(e) {
+        e.preventDefault();
         var cards = $("#playingInput .card[data-selected='true']");
         var discardCards = $("#discardStealPopup .card[data-selected='true']");
         var game = main.getCurrentUserGame();
@@ -220,12 +233,14 @@ jQuery(document).ready(function($) {
     });
     
     //Card click
-    $(document).on('click touchstart', '#playingInput .card', function() {
+    $(document).on('click touchstart', '#playingInput .card', function(e) {
+        e.preventDefault();
         toggleCardSelected($(this));
         GameRoom.updateInputDisplay(main);
     });
     
-    $(document).on('click touchstart', '.popup .card', function() {
+    $(document).on('click touchstart', '.popup .card', function(e) {
+        e.preventDefault();
         $('.popup .card').attr('data-selected', "false");
         $('.popup .card').removeClass('card-selected');
         toggleCardSelected($(this));
