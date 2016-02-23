@@ -46,9 +46,14 @@ html, body {
     
     #chatbox {
         float: left !important;
+    } 
+}
+
+@media (max-height: 700px) {
+    html, body, .container-fluid, .room {
+        height: 1000px;
+        overflow-y: scroll;
     }
-    
-    
 }
 
 .center {
