@@ -40,6 +40,14 @@ html, body {
         cursor: pointer !important;
     }
     
+    #playerList {
+        float: right !important;
+    }
+    
+    #chatbox {
+        float: left !important;
+    }
+    
     
 }
 
