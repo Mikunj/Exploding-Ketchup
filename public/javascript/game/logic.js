@@ -16,7 +16,7 @@
 
 jQuery(document).ready(function($) {
     
-    //TODO: Fix mobile click event
+    //TODO: Order cards by type, makes it easier for everyone
     
     //Main game instance
     var main = new EK();
@@ -294,7 +294,9 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.GAME.UPDATE, function(data) {
-        main.addGame(gameFromData(data.game));
+        if (main.games[data.game.id]) {
+            main.addGame(gameFromData(data.game));
+        }
         Lobby.updateGameList(main);
     });
     

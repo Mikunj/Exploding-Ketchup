@@ -14,6 +14,25 @@
   GNU General Public License for more details.
 */
 
+var Helper = {
+    /**
+     * Sort by a given field.
+     * Used in conjunction with Array.sort()
+     * 
+     * @param   {String} field  The field/property to sort by
+     * @param   {Boolean} ascending Ascending sort
+     * @param   {Function} primer  function to prime/ready the data for sort
+     */
+    sortBy: function(field, ascending, primer){
+        var key = function (x) {return primer ? primer(x[field]) : x[field]};
+
+        return function (a,b) {
+            var A = key(a), B = key(b);
+            return ( (A < B) ? -1 : ((A > B) ? 1 : 0) ) * [-1,1][+!!ascending];                  
+        }
+    }
+}
+
 var Login = {
     
     /**
@@ -52,7 +71,11 @@ var Lobby = {
         $('#userList .content').empty();
         
         //Add user to the list
-        $.each(EK.users, function(id, user) {
+        var sorted = Object.keys(EK.users).map(function(key){
+            return EK.users[key];
+        });
+        sorted.sort(Helper.sortBy('name', true));
+        $.each(sorted, function(key, user) {
             var html = "<div class='user' data-id='" + user.id + "'>" + user.name + "</div>";
 
             //Check that we don't double up on adding users
@@ -188,14 +211,20 @@ var GameRoom = {
      * @param {Object} EK The main game instance
      */
     updateCardDisplay: function(EK) {
+        var sortedHand = EK.gameData.hand;
+        sortedHand.sort(Helper.sortBy('name', true));
+        
         //Update current playing card display
-        this.updateCardsForElement(EK.gameData.hand, $('#playingInput #cardDisplay'));
+        this.updateCardsForElement(sortedHand, $('#playingInput #cardDisplay'));
         
         //Update give popup card display
-        this.updateCardsForElement(EK.gameData.hand, $('#givePopup #cardDisplay'));
+        this.updateCardsForElement(sortedHand, $('#givePopup #cardDisplay'));
         
         //Update discard popup card display
-        this.updateCardsForElement(EK.gameData.getDiscardPileWithoutExplode(), $('#discardStealPopup #cardDisplay'));
+        var sortedDiscards = EK.gameData.getDiscardPileWithoutExplode();
+        sortedDiscards.sort(Helper.sortBy('name', true));
+        
+        this.updateCardsForElement(sortedDiscards, $('#discardStealPopup #cardDisplay'));
         this.updateCardsForElement(EK.gameData.discardPile, $('#discardPilePopup #cardDisplay'));
         
         //Get top 6 cards for discard pile display
