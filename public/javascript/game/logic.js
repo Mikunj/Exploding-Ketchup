@@ -276,6 +276,11 @@ jQuery(document).ready(function($) {
         Lobby.updateUserList(main);
     });
     
+    io.on($C.GAME.UPDATE, function(data) {
+        main.addGame(gameFromData(data.game));
+        Lobby.updateGameList(main);
+    });
+    
     io.on($C.GAME.CREATE, function(data) {
         if (!data.hasOwnProperty('error')) {
             //Hide lobby

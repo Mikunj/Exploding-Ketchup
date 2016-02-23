@@ -262,6 +262,11 @@ module.exports = function(io, EK) {
                 success: 'Successfully joined game!',
                 game: game.sanitize()
             });
+            
+            //Send data to everyone
+            io.emit($.GAME.UPDATE, {
+                game: game.sanitize()
+            });
         });
 
         /**
@@ -299,11 +304,15 @@ module.exports = function(io, EK) {
             //Notify players that user has left
             io.in(game.id).emit($.GAME.PLAYER.DISCONNECT, {
                 player: player,
-                game: game
+                game: game.sanitize()
             });
             
             socket.emit($.GAME.LEAVE, {
                 success: 'Left game'
+            });
+            
+            io.emit($.GAME.UPDATE, {
+                game: game.sanitize()
             });
         });
 
@@ -641,7 +650,7 @@ module.exports = function(io, EK) {
 
                                 var other = EK.connectedUsers[data.to];
                                 var otherPlayer = game.getPlayer(other);
-
+                                
                                 //Remove a random card from the other players hand and add it to the current player
                                 var card = otherPlayer.getRandomCard();
                                 otherPlayer.removeCard(card);

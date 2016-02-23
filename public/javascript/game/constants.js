@@ -31,6 +31,7 @@ var $C = {
         STARTED: 'gameStarted',
         STOPPED: 'gameStopped',
         WIN: 'winGame',
+        UPDATE: 'updateGame',
         DISCARDPILE: 'discardPile',
         STATUS: {
             WAITING: 'gameWaiting',

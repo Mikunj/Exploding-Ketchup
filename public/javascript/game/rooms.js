@@ -146,7 +146,7 @@ var GameRoom = {
                     
                     //Toggle the display of the ready game button
                     var player = game.getPlayer(user);
-                    var text = (player.ready) ? "Un-Ready" : "Ready";
+                    var text = (player.ready) ? "Not Ready" : "Ready";
                     readyButton.text(text);
                 }
                 
