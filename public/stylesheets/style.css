@@ -1,7 +1,7 @@
 html, body {
     width:100%;
     height: 100%;
-    overflow-y: hidden;
+    overflow-y: scroll;
 }
 
 .room {
@@ -49,7 +49,7 @@ html, body {
     } 
 }
 
-@media (max-height: 700px) {
+@media (max-height: 600px) {
     html, body, .container-fluid, .room {
         height: 1000px;
         overflow-y: scroll;
@@ -299,6 +299,7 @@ html, body {
     float: left;
     height: 100%;
     padding: 0;
+    background: #19194C;
 }
 
 #chatBox {
