@@ -19,11 +19,6 @@ var Game = require('./game');
 var $ = require('./constants');
 var CardSet = require('./cardset');
 
-/*
-TODO: Add mobile click using jquery
-TODO: Remove NOPE and EXPLODE from the select
-*/
-
 /**
  * This class handles all the game logic
  * @param {Object} io The socket io

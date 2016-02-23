@@ -311,6 +311,7 @@ html, body {
     border-radius: 4px;
     display: inline-block;
     margin-right: 10px;
+    border: 5px solid black;
 }
 
 .card:first-child {
@@ -320,6 +321,47 @@ html, body {
 .card-selected {
     background: #5bc0de;
     color: white;
+    border: none;
+}
+
+.card-attack {
+    color: #FFF59C;
+    border: 5px solid #FFF59C;
+}
+
+.card-skip {
+    color: #8DD4F4;
+    border: 5px solid #8DD4F4;
+}
+
+.card-defuse {
+    color: #92CB9B;
+    border: 5px solid #92CB9B;
+}
+
+.card-explode {
+    color: #F29D80;
+    border: 5px solid #F29D80;
+}
+
+.card-future {
+    color: #F09FA5;
+    border: 5px solid #F09FA5;
+}
+
+.card-favor {
+    color: #95B2DE;
+    border: 5px solid #95B2DE;
+}
+
+.card-shuffle {
+    color: #C797BF;
+    border: 5px solid #C797BF;
+}
+
+.card-regular {
+    color: #EFB485;
+    border: 5px solid #EFB485;
 }
 
 .card span{

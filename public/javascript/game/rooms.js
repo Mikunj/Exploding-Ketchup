@@ -213,10 +213,12 @@ var GameRoom = {
         //Update named popup card display
         $('#namedStealPopup #cardDisplay').empty();
         $.each($C.CARD, function(key, type) {
-            var html = "<div data-selected='false' data-type='" + type + "' class='card noselect'>" +
-                            "<span>" + type + "</span>" +
-                        "</div>";
-            $('#namedStealPopup #cardDisplay').append(html);
+            if (!(type === $C.CARD.NOPE || type === $C.CARD.EXPLODE)) {
+                var html = "<div data-selected='false' data-type='" + type + "' class='card noselect card-" + type.toLowerCase() +"'>" +
+                                "<span>" + type + "</span>" +
+                            "</div>";
+                $('#namedStealPopup #cardDisplay').append(html);
+            }
         });
     },
     
@@ -225,7 +227,7 @@ var GameRoom = {
         element.empty();
         
         $.each(cards, function(index, card) {
-            var html = "<div data-selected='false' data-id='" + card.id +"' class='card noselect'>" +
+            var html = "<div data-selected='false' data-id='" + card.id +"' class='card noselect card-" + card.type.toLowerCase() +"'>" +
                             "<span>" + card.name + "</span>" +
                         "</div>";
             
