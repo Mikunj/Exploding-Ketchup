@@ -369,7 +369,7 @@ var GameRoom = {
         var game = EK.getCurrentUserGame();
         if (game) {
             $.each(game.players, function(index, player) {
-                if (!(player.user === user.id)) {
+                if (!(player.user === user.id) && player.alive) {
                     var current = EK.users[player.user];
                     var html = '<option value="' + current.id + '">' + current.name + '</option>';
                     
