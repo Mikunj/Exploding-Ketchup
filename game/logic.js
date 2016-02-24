@@ -643,6 +643,17 @@ module.exports = function(io, EK) {
                                     });
                                     return;
                                 }
+                                
+                                var other = EK.connectedUsers[data.to];
+                                var otherPlayer = game.getPlayer(other);
+                                //Only steal if they have cards in their hands
+                                if (otherPlayer.hand.length <= 0) {
+                                    socket.emit($.GAME.PLAYER.PLAY, {
+                                        error: 'User has no cards!'
+                                    });
+                                    return;
+                                }
+                                
                                 break;
                             case $.CARDSET.STEAL.NAMED:
                                 //Only steal if we have someone to steal from
@@ -891,58 +902,62 @@ module.exports = function(io, EK) {
             var steal = playedSet.canSteal();
             switch(steal) {
                 case $.CARDSET.STEAL.BLIND:
-                    var other = EK.connectedUsers[data.to];
-                    var otherPlayer = game.getPlayer(other);
+                    if (otherPlayerExists(data)) {
+                        var other = EK.connectedUsers[data.to];
+                        var otherPlayer = game.getPlayer(other);
 
-                    //Remove a random card from the other players hand and add it to the current player
-                    var card = otherPlayer.getRandomCard();
-                    otherPlayer.removeCard(card);
-                    player.addCard(card);
-
-                    //Tell players that a steal occurred
-                    io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                        to: other.id,
-                        from: socket.id,
-                        card: card,
-                        type: steal
-                    });
-
-                    //Set effect played
-                    playedSet.effectPlayed = true;
-
-                    break;
-                case $.CARDSET.STEAL.NAMED:
-                    var other = EK.connectedUsers[data.to];
-                    var otherPlayer = game.getPlayer(other);
-                    var type = data.cardType;
-
-                    //Remove the specified card from the other players hand and add it to the current player
-                    var card = otherPlayer.removeCardType(type);
-                    if (card) {
+                        //Remove a random card from the other players hand and add it to the current player
+                        var card = otherPlayer.getRandomCard();
+                        otherPlayer.removeCard(card);
                         player.addCard(card);
 
                         //Tell players that a steal occurred
                         io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                            success: true,
                             to: other.id,
                             from: socket.id,
-                            cardType: type,
-                            card: card.id,
-                            type: steal  
-                        });
-                    } else {
-                        //Tell players that stealing was unsuccessful
-                        io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                            success: false,
-                            to: other.id,
-                            from: socket.id,
-                            cardType: type,
+                            card: card,
                             type: steal
                         });
+
+                        //Set effect played
+                        playedSet.effectPlayed = true;
                     }
 
-                    //Set effect played
-                    playedSet.effectPlayed = true;
+                    break;
+                case $.CARDSET.STEAL.NAMED:
+                    if (otherPlayerExists(data)) {
+                        var other = EK.connectedUsers[data.to];
+                        var otherPlayer = game.getPlayer(other);
+                        var type = data.cardType;
+
+                        //Remove the specified card from the other players hand and add it to the current player
+                        var card = otherPlayer.removeCardType(type);
+                        if (card) {
+                            player.addCard(card);
+
+                            //Tell players that a steal occurred
+                            io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                                success: true,
+                                to: other.id,
+                                from: socket.id,
+                                cardType: type,
+                                card: card.id,
+                                type: steal  
+                            });
+                        } else {
+                            //Tell players that stealing was unsuccessful
+                            io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                                success: false,
+                                to: other.id,
+                                from: socket.id,
+                                cardType: type,
+                                type: steal
+                            });
+                        }
+
+                        //Set effect played
+                        playedSet.effectPlayed = true;
+                    }
 
                     break;
 
@@ -1021,27 +1036,29 @@ module.exports = function(io, EK) {
                     break;
 
                 case $.CARD.FAVOR:
-                    var other = EK.connectedUsers[data.to];
-                    var otherPlayer = game.getPlayer(other);
-                    
-                    //Set the favor to false
-                    playedSet.effectPlayed = false;
+                    if (otherPlayerExists(data)) {
+                        var other = EK.connectedUsers[data.to];
+                        var otherPlayer = game.getPlayer(other);
 
-                    //Check if the other player has any cards
-                    //Tough luck if a player gets this D:
-                    //This can happen if the favor goes through even with nopes and the person has no card
-                    if (otherPlayer && otherPlayer.hand.length < 1) {
-                        socket.emit($.GAME.PLAYER.PLAY, {
-                            error: 'User has no cards in their hand!'
-                        });
-                        playedSet.effectPlayed = true;
-                    } else {
-                        //Ask other player for favor
-                        io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
-                            force: true,
-                            from: user,
-                            to: other
-                        });
+                        //Set the favor to false
+                        playedSet.effectPlayed = false;
+
+                        //Check if the other player has any cards
+                        //Tough luck if a player gets this D:
+                        //This can happen if the favor goes through even with nopes and the person has no card
+                        if (otherPlayer && otherPlayer.hand.length < 1) {
+                            socket.emit($.GAME.PLAYER.PLAY, {
+                                error: 'User has no cards in their hand!'
+                            });
+                            playedSet.effectPlayed = true;
+                        } else {
+                            //Ask other player for favor
+                            io.in(game.id).emit($.GAME.PLAYER.FAVOR, {
+                                force: true,
+                                from: user,
+                                to: other
+                            });
+                        }
                     }
 
                     break;
