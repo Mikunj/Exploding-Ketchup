@@ -14,11 +14,7 @@
   GNU General Public License for more details.
 */
 
-/* Make color different if player draws up a card */
-
 jQuery(document).ready(function($) {
-    
-    //TODO: Order cards by type, makes it easier for everyone
     
     //Main game instance
     var main = new EK();
@@ -621,16 +617,24 @@ jQuery(document).ready(function($) {
             var user = data.player.user;
             var cards = data.cards;
             if (cards) {
-                var string = '';
+                var cardString = '';
                 $.each(cards, function(index, card) {
-                    string += card.name + ", ";
+                    cardString += card.name + ", ";
                 });
                 
                 //Trim excess
-                string = string.slice(0, -2);
+                cardString = cardString.slice(0, -2);
                 
+                //Build the string to show to user
                 var playString = (cards.length <= 1) ? " played a " : " played ";
-                GameRoom.logSystemGreen(user.name + playString + string + " card(s).");
+                var suffix = ".";
+                if (data.to) {
+                    var other = main.users[data.to];
+                    var otherString = (other.id === main.getCurrentUser().id) ? "You" : other.name;
+                    suffix = " targetting " + otherString + ".";
+                }
+                
+                GameRoom.logSystemGreen(user.name + playString + cardString + " card(s)" + suffix);
             }
             
             //Set the new set

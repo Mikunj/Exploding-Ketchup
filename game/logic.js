@@ -19,6 +19,10 @@ var Game = require('./game');
 var $ = require('./constants');
 var CardSet = require('./cardset');
 
+/*
+TODO: Add reverse card
+*/
+
 /**
  * This class handles all the game logic
  * @param {Object} io The socket io
@@ -714,7 +718,8 @@ module.exports = function(io, EK) {
                         game: game.sanitize(),
                         player: player,
                         cards: cards,
-                        set: replySet
+                        set: replySet,
+                        to: data.to
                     });
                     
                     //Wait for nope requests
