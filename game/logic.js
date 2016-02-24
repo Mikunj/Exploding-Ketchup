@@ -919,11 +919,15 @@ module.exports = function(io, EK) {
                                 card: card,
                                 type: steal
                             });
-
-                            //Set effect played
-                            playedSet.effectPlayed = true;
+                        } else {
+                            socket.emit($.GAME.PLAYER.PLAY, {
+                                error: 'User has no cards in their hand!'
+                            });
                         }
                     }
+                    
+                    //Set effect played
+                    playedSet.effectPlayed = true;
 
                     break;
                 case $.CARDSET.STEAL.NAMED:
@@ -956,11 +960,11 @@ module.exports = function(io, EK) {
                                 type: steal
                             });
                         }
-
-                        //Set effect played
-                        playedSet.effectPlayed = true;
                     }
 
+                    //Set effect played
+                    playedSet.effectPlayed = true;
+                    
                     break;
 
                 case $.CARDSET.STEAL.DISCARD:
