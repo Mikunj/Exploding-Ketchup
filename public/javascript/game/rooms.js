@@ -260,7 +260,7 @@ var GameRoom = {
         //Update named popup card display
         $('#namedStealPopup #cardDisplay').empty();
         $.each($C.CARD, function(key, type) {
-            if (!(type === $C.CARD.NOPE || type === $C.CARD.EXPLODE)) {
+            if (type != $C.CARD.EXPLODE) {
                 var html = "<div data-selected='false' data-type='" + type + "' class='card noselect card-" + type.toLowerCase() +"'>" +
                                 "<span>" + type + "</span>" +
                             "</div>";

@@ -638,6 +638,7 @@ jQuery(document).ready(function($) {
                 main.gameData.currentPlayedSet = data.set;
                 //GameRoom.update(main);
                 GameRoom.logSystem("A player can play a nope card!");
+                startNopeTimer();
             }
             
             //Update game
@@ -665,6 +666,10 @@ jQuery(document).ready(function($) {
             }
             main.gameData.currentPlayedSet = null;
             GameRoom.update(main);
+            
+            //Update nope button timer
+            $('#nopeGameButton').text('Nope');
+            $('#nopeGameButton').attr('data-count', 0);
         } else {
             //Tell users that nope was played
             var user = data.player.user;
@@ -681,6 +686,9 @@ jQuery(document).ready(function($) {
             //Update game data
             main.addGame(gameFromData(data.game));
             GameRoom.update(main);
+            
+            //Start the timer again
+            startNopeTimer();
             
             //Get hand again once someone played a nope
             var cUser = main.getCurrentUser();
@@ -806,6 +814,49 @@ jQuery(document).ready(function($) {
     });
     
     /**
+     * Dtart a 3 second timer on the nope button
+     */
+    var startNopeTimer = function() {
+        //Add a timer to the nope
+        $('#nopeGameButton').attr('data-count', 3);
+        updateNopeButton();
+        if ($('#nopeGameButton').attr('data-timer-started') == 1) return;
+        
+        var interval = setInterval(function() {
+            var button = $('#nopeGameButton');
+            var count = button.attr('data-count');
+            button.attr('data-timer-started', 1);
+
+            count --;
+            button.attr('data-count', count);
+            
+            updateNopeButton(interval);
+        }, 1000);
+    }
+    
+    /**
+     * Update nope button with the interval
+     * @param {Object} interval The interval
+     */
+    var updateNopeButton = function(interval) {
+        var button = $('#nopeGameButton');
+        var count = button.attr('data-count');
+        
+        if (count < 0) {
+            //Update nope button timer
+            button.text('Nope');
+            button.attr('data-count', 0);
+            button.attr('data-timer-started', 0);
+            if (interval) {
+                clearInterval(interval);
+            }
+        } else {
+            button.text('Nope (' + count + ')');
+            GameRoom.logLocal(count + ' seconds to nope!');
+        }
+    }
+    
+    /**
      * Get the card ids from the dom data of cards
      * @param   {Object} data The card DOM data
      * @returns {Array}  An array of card ids
@@ -858,8 +909,7 @@ jQuery(document).ready(function($) {
      */
     var gameFromData = function(data) {
         var players = [];
-        console.log(data);
-        
+
         //Add players
         $.each(data.players, function(index, player) {
             var user = main.users[player.user.id];
