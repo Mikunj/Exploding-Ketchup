@@ -23,6 +23,7 @@ var CardSet = require('./cardset');
 TODO: Add reverse card
 BUG: When stealing a card from discard pile, the other cards of the same type disappear
 or when noped the card still disappears
+BUG: When 1 steal occurs the whole deck disappears O.O
 */
 
 /**
@@ -1058,7 +1059,7 @@ module.exports = function(io, EK) {
                         if (otherPlayer && otherPlayer.hand.length < 1) {
                             socket.emit($.GAME.PLAYER.PLAY, {
                                 error: 'User has no cards in their hand!'
-                            });
+                            });                     
                             playedSet.effectPlayed = true;
                         } else {
                             //Ask other player for favor
