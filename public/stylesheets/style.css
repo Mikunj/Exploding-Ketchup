@@ -164,6 +164,10 @@ html, body {
     color: #5bc0de;
 }
 
+.message-system-green {
+    color: #5cb85c;
+}
+
 .message-local {
     color: #f0ad4e;
 }

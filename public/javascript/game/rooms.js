@@ -527,6 +527,14 @@ var GameRoom = {
     },
     
     /**
+     * Log a green system message
+     * @param {String} message The message
+     */
+    logSystemGreen: function(message) {
+        this.logMessage('[System] ' + message, "system-green");
+    },
+    
+    /**
      * Log a local message into the chat.
      * This appends a '[Local]' tag.
      * Generally use this over logSystem when just the local user is going to get the message.

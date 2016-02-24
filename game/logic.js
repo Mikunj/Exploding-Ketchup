@@ -740,8 +740,7 @@ module.exports = function(io, EK) {
             if (game && game.status == $.GAME.STATUS.PLAYING) {
                 var pendingSet = EK.pendingSets[data.setId];
                 
-                //If the set is pending and the set has the same amount of nopes played ad passed in then we want to play nopes
-                if (pendingSet && !pendingSet.set.nopePlayed) {
+                if (pendingSet /*&& !pendingSet.set.nopePlayed*/) {
                     
                     var player = game.getPlayer(user);
                     

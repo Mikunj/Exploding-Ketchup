@@ -14,7 +14,7 @@
   GNU General Public License for more details.
 */
 
-/* Add card counter for player */
+/* Make color different if player draws up a card */
 
 jQuery(document).ready(function($) {
     
@@ -390,7 +390,7 @@ jQuery(document).ready(function($) {
     });
     
     io.on($C.GAME.WIN, function(data) {
-        GameRoom.logSystem(data.user.name + ' WON!');
+        GameRoom.logSystemGreen(data.user.name + ' WON!');
     });
           
     io.on($C.GAME.REMOVED, function(data) {
@@ -630,7 +630,7 @@ jQuery(document).ready(function($) {
                 string = string.slice(0, -2);
                 
                 var playString = (cards.length <= 1) ? " played a " : " played ";
-                GameRoom.logSystem(user.name + playString + string + " card(s).");
+                GameRoom.logSystemGreen(user.name + playString + string + " card(s).");
             }
             
             //Set the new set
@@ -676,7 +676,7 @@ jQuery(document).ready(function($) {
             var cards = data.cards;
             if (cards) {
                 $.each(cards, function(index, card) {
-                    GameRoom.logSystem(user.name + " played a " + card.name + " card.");
+                    GameRoom.logSystemGreen(user.name + " played a " + card.name + " card.");
                 });
             }
             
@@ -721,7 +721,7 @@ jQuery(document).ready(function($) {
         
         switch(data.type) {
             case $C.CARDSET.STEAL.BLIND:
-                GameRoom.logSystem(fromString + " took a card from " + toString+ ".");
+                GameRoom.logSystemGreen(fromString + " took a card from " + toString+ ".");
                 
                 //Tell the players involved what they lost or gained
                 if (currentUser.id === from.id) {
@@ -736,17 +736,17 @@ jQuery(document).ready(function($) {
             case $C.CARDSET.STEAL.NAMED:
                 //Use logLocal so that the card taking stands out
                 if (data.success) {
-                    GameRoom.logLocal(fromString + " took a " + data.cardType + " from " + toString+ ".");
+                    GameRoom.logSystemGreen(fromString + " took a " + data.cardType + " from " + toString+ ".");
                 } else {
-                    GameRoom.logLocal(fromString + " failed to take a " + data.cardType + " from " + toString+ ".");
+                    GameRoom.logSystemGreen(fromString + " failed to take a " + data.cardType + " from " + toString+ ".");
                 }
                 break;
             case $C.CARDSET.STEAL.DISCARD:
                 //Use logLocal so that the card taking stands out
                 if (data.success) {
-                    GameRoom.logLocal(fromString + " took a " + data.card.name + " from the discard pile.");
+                    GameRoom.logSystemGreen(fromString + " took a " + data.card.name + " from the discard pile.");
                 } else {
-                    GameRoom.logLocal(fromString + " failed to take a " + data.card.name + " from  the discard pile.");
+                    GameRoom.logSystemGreen(fromString + " failed to take a " + data.card.name + " from  the discard pile.");
                 }
                 break;
         }
@@ -773,7 +773,7 @@ jQuery(document).ready(function($) {
             var toString = (currentUser.id === to.id) ? "You" : to.name;
 
             if (data.hasOwnProperty('force')) {
-                GameRoom.logSystem(fromString + " asked " + toString + " for a favor.");
+                GameRoom.logSystemGreen(fromString + " asked " + toString + " for a favor.");
 
                 if (currentUser.id === from.id) {
                     //Current user asked the favor. Disable end turn button
@@ -789,7 +789,7 @@ jQuery(document).ready(function($) {
                 }
 
             } else if (data.hasOwnProperty('success')) {
-                GameRoom.logSystem(fromString + " gave " + toString + " a " + data.card.name + ".");
+                GameRoom.logSystemGreen(fromString + " gave " + toString + " a " + data.card.name + ".");
 
                 if (currentUser.id === to.id) {
                     //From user did current user a favor
