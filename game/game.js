@@ -113,7 +113,8 @@ Game.prototype.getPlayers = function() {
             user: player.user,
             ready: player.ready,
             alive: player.alive,
-            drawAmount: player.drawAmount
+            drawAmount: player.drawAmount,
+            cardCount: player.hand.length
         });
     }
     

@@ -311,8 +311,14 @@ var GameRoom = {
                 var classString = (game.isGameHost(user)) ? "status-blue" : "";
                 var html = "<div class='user data-id='" + user.id + "'>" + 
                                 "<div id='name' class='" + classString + "'>" + user.name + "</div>" +
-                                "<div class='status status-" + player.statusColor(game) +"'>" + player.status(game) + "</div>" +
-                            "</div>";
+                                "<div class='status status-" + player.statusColor(game) +"'>" + player.status(game) + "</div>";
+                
+                //Add card counts
+                if (game.status == $C.GAME.STATUS.PLAYING) {
+                    html += "<div class='status status-grey'>" + (player.cardCount || 0) + "</div>";
+                }
+                
+                html += "</div>";
 
                 //Check that we don't double up on adding users
                 if ($("#playerList .content .user[data-id='" + user.id + "']").length < 1) {

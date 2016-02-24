@@ -104,10 +104,10 @@ module.exports = function(io, EK) {
                 return;
             }
             
-            //Check if nickname is between 3 and 10 characters
-            if (nickname.length < 3 || nickname.length > 10) {
+            //Check if nickname is between 3 and 8 characters
+            if (nickname.length < 3 || nickname.length > 8) {
                 socket.emit($.LOBBY.CONNECT, {
-                    error: 'Name has to be between 3 and 10 characters!'
+                    error: 'Name has to be between 3 and 8 characters!'
                 });
                 return;
             }
@@ -711,6 +711,7 @@ module.exports = function(io, EK) {
                     
                     //Notify players that cards were played
                     io.in(game.id).emit($.GAME.PLAYER.PLAY, {
+                        game: game.sanitize(),
                         player: player,
                         cards: cards,
                         set: replySet
@@ -719,7 +720,6 @@ module.exports = function(io, EK) {
                     //Wait for nope requests
                     playedSet.nopePlayed = true;
                     checkNopes(playedSet, data, socket, game);
-                    
                 }
             }
         }); //End $.GAME.PLAYER.PLAY

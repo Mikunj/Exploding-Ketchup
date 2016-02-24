@@ -234,7 +234,8 @@ var Game = function(id, title, status, players, index, drawPileLength) {
                 cPlayer.user = data.user.id;
                 cPlayer.alive = data.alive;
                 cPlayer.ready = data.ready;
-                cPlayer.drawAmount = data.drawAmount
+                cPlayer.drawAmount = data.drawAmount;
+                cPlayer.cardCount = data.cardCount;
             }
         }
     }
@@ -280,7 +281,7 @@ var Game = function(id, title, status, players, index, drawPileLength) {
     }
 }
 
-var Player = function(userId, alive, ready, drawAmount) {
+var Player = function(userId, alive, ready, drawAmount, cardCount) {
     //The user associated with the player
     this.user = userId;
     
@@ -289,6 +290,9 @@ var Player = function(userId, alive, ready, drawAmount) {
     
     //The amount of cards player has to draw
     this.drawAmount = drawAmount;
+    
+    //Amount of cards player has
+    this.cardCount = cardCount;
     
     //Set the player to ready
     this.ready = ready;

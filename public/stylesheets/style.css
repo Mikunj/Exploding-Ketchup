@@ -221,6 +221,10 @@ html, body {
     background: #5bc0de;
 }
 
+.status-grey {
+    background: darkgrey;
+}
+
 .game {
     background: #2E2E69;
     display: inline-block;

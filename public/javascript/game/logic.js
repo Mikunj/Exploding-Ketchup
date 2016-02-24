@@ -14,6 +14,8 @@
   GNU General Public License for more details.
 */
 
+/* Add card counter for player */
+
 jQuery(document).ready(function($) {
     
     //TODO: Order cards by type, makes it easier for everyone
@@ -584,7 +586,7 @@ jQuery(document).ready(function($) {
         
         if (data.hasOwnProperty('hand')) {
             main.gameData.hand = data.hand;
-            GameRoom.update(main);
+            GameRoom.updateCardDisplay(main);
 
             //Tell the user what cards they drew
             if (data.cards) {
@@ -634,9 +636,13 @@ jQuery(document).ready(function($) {
             //Set the new set
             if (data.set) {
                 main.gameData.currentPlayedSet = data.set;
-                GameRoom.update(main);
+                //GameRoom.update(main);
                 GameRoom.logSystem("A player can play a nope card!");
             }
+            
+            //Update game
+            main.addGame(gameFromData(data.game));
+            GameRoom.update(main);
             
             //Get hand again once playing
             var cUser = main.getCurrentUser();
@@ -852,12 +858,13 @@ jQuery(document).ready(function($) {
      */
     var gameFromData = function(data) {
         var players = [];
+        console.log(data);
         
         //Add players
         $.each(data.players, function(index, player) {
             var user = main.users[player.user.id];
             if (user) {
-                players.push(new Player(user.id, player.alive, player.ready, player.drawAmount));
+                players.push(new Player(user.id, player.alive, player.ready, player.drawAmount, player.cardCount));
             }
         });
         
