@@ -14,6 +14,8 @@
   GNU General Public License for more details.
 */
 
+/* TODO: Remove players from player list if they are dead */
+
 jQuery(document).ready(function($) {
     
     //Main game instance

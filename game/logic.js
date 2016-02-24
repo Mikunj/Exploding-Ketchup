@@ -22,6 +22,7 @@ var CardSet = require('./cardset');
 /*
 TODO: Add reverse card
 BUG: When stealing a card from discard pile, the other cards of the same type disappear
+or when noped the card still disappears
 */
 
 /**
@@ -755,7 +756,7 @@ module.exports = function(io, EK) {
             if (game && game.status == $.GAME.STATUS.PLAYING) {
                 var pendingSet = EK.pendingSets[data.setId];
                 
-                if (pendingSet /*&& !pendingSet.set.nopePlayed*/) {
+                if (pendingSet && !pendingSet.set.nopePlayed) {
                     
                     var player = game.getPlayer(user);
                     
@@ -788,7 +789,7 @@ module.exports = function(io, EK) {
                     
                 } else {
                     socket.emit($.GAME.PLAYER.NOPE, {
-                        error: 'Could not play nope!'
+                        error: 'Could not play nope at this time!'
                     });
                 }
             }
