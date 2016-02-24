@@ -23,7 +23,6 @@ var CardSet = require('./cardset');
 TODO: Add reverse card
 BUG: When stealing a card from discard pile, the other cards of the same type disappear
 or when noped the card still disappears
-BUG: When 1 steal occurs the whole deck disappears O.O
 */
 
 /**
@@ -975,7 +974,7 @@ module.exports = function(io, EK) {
                     //Get the data needed
                     var id = data.cardId;
                     var card = null;
-                    var currentSet = null;
+                    var currentKey = null;
 
                     //Go through the discard pile and remove given card and add it to user
                     for (var key in game.discardPile) {
@@ -984,7 +983,7 @@ module.exports = function(io, EK) {
                             //Get the card and remove the set if it's empty
                             card = set.removeCardWithId(id);
                             if (card) {
-                                currentSet = set; 
+                                currentKey = key; 
                                 break;
                             }
                         }
@@ -1014,8 +1013,9 @@ module.exports = function(io, EK) {
                     playedSet.effectPlayed = true;
 
                     //Remove the set from the discard pile if it's empty
+                    var currentSet = game.discardPile[currentKey];
                     if (currentSet && currentSet.isEmpty()) {
-                        game.discardPile.splice(game.discardPile.indexOf(currentSet));
+                        game.discardPile.splice(currentKey, 1);
                     }
 
                     break;

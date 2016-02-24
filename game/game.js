@@ -441,6 +441,7 @@ Game.prototype.canStart = function() {
  */
 Game.prototype.getDiscardPile = function() {
     var pile = [];
+    
     //We have to iterate backwards from the pile so that the recently played cards are at the top
     for(var i = this.discardPile.length - 1; i >= 0; i--) {
         var cards = this.discardPile[i].cards;
@@ -478,6 +479,7 @@ Game.prototype.updateDiscardSet = function(set) {
             this.discardPile[key].nopeAmount = set.nopeAmount;
             this.discardPile[key].nopePlayed = set.nopePlayed;
             this.discardPile[key].effectPlayed = set.effectPlayed;
+            break;
         }
     }
 }
