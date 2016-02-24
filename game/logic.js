@@ -1235,7 +1235,7 @@ module.exports = function(io, EK) {
             return false;
 
         //Leave old room
-        if (user.currentRoom) {
+        if (user && user.currentRoom) {
             socket.leave(user.currentRoom);
         }
 
