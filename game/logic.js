@@ -646,6 +646,9 @@ module.exports = function(io, EK) {
                                     return;
                                 }
                                 
+                                var other = EK.connectedUsers[data.to];
+                                var otherPlayer = game.getPlayer(other);
+                                
                                 //Check if the other player has any cards
                                 if (otherPlayer && otherPlayer.hand.length < 1) {
                                     socket.emit($.GAME.PLAYER.PLAY, {
