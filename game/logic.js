@@ -21,6 +21,7 @@ var CardSet = require('./cardset');
 
 /*
 TODO: Add reverse card
+BUG: When stealing a card from discard pile, the other cards of the same type disappear
 */
 
 /**
@@ -496,7 +497,7 @@ module.exports = function(io, EK) {
                             
                             //Add the bomb back into the draw pile at a random position
                             var explode = player.removeCardType($.CARD.EXPLODE);
-                            var index = Math.floor(Math.random() * (game.drawPile.length - 1));
+                            var index = Math.floor(Math.random() * (game.drawPile.length));
                             game.drawPile.splice(index, 0, explode);
                             
                             state = $.GAME.PLAYER.TURN.DEFUSED;
@@ -644,12 +645,10 @@ module.exports = function(io, EK) {
                                     return;
                                 }
                                 
-                                var other = EK.connectedUsers[data.to];
-                                var otherPlayer = game.getPlayer(other);
-                                //Only steal if they have cards in their hands
-                                if (otherPlayer.hand.length <= 0) {
+                                //Check if the other player has any cards
+                                if (otherPlayer && otherPlayer.hand.length < 1) {
                                     socket.emit($.GAME.PLAYER.PLAY, {
-                                        error: 'User has no cards!'
+                                        error: 'User has no cards in their hand!'
                                     });
                                     return;
                                 }
@@ -905,22 +904,24 @@ module.exports = function(io, EK) {
                     if (otherPlayerExists(data)) {
                         var other = EK.connectedUsers[data.to];
                         var otherPlayer = game.getPlayer(other);
+                        
+                        if (otherPlayer.hand.length > 0) {
+                            //Remove a random card from the other players hand and add it to the current player
+                            var card = otherPlayer.getRandomCard();
+                            otherPlayer.removeCard(card);
+                            player.addCard(card);
 
-                        //Remove a random card from the other players hand and add it to the current player
-                        var card = otherPlayer.getRandomCard();
-                        otherPlayer.removeCard(card);
-                        player.addCard(card);
+                            //Tell players that a steal occurred
+                            io.in(game.id).emit($.GAME.PLAYER.STEAL, {
+                                to: other.id,
+                                from: socket.id,
+                                card: card,
+                                type: steal
+                            });
 
-                        //Tell players that a steal occurred
-                        io.in(game.id).emit($.GAME.PLAYER.STEAL, {
-                            to: other.id,
-                            from: socket.id,
-                            card: card,
-                            type: steal
-                        });
-
-                        //Set effect played
-                        playedSet.effectPlayed = true;
+                            //Set effect played
+                            playedSet.effectPlayed = true;
+                        }
                     }
 
                     break;
