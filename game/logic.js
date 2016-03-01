@@ -508,23 +508,7 @@ module.exports = function(io, EK) {
                     }
 
                     //Check for a winner
-                    if (game.playerAliveCount() < 2) {
-                        var winner = null;
-                        for (var key in game.players) {
-                            var player = game.players[key];
-                            if (player.alive) winner = player;
-                        }
-
-                        //Tell everyone user won
-                        if (winner) {
-                            io.in(game.id).emit($.GAME.WIN, {
-                                user: winner.user
-                            });
-                        }
-
-                        //Stop the game
-                        stopGame(io, data)
-                    } else {
+                    if (!checkGameWin(game)) {
                         
                         //Check if player defused or exploded, if so then they have to end their turn no matter the amount of draws remaining
                         if (!(state === $.GAME.PLAYER.TURN.SURVIVED)) player.drawAmount = 1; 
@@ -1273,23 +1257,7 @@ module.exports = function(io, EK) {
                 player.hand = [];
                 
                 //Check for a winner
-                if (game.playerAliveCount() < 2) {
-                    var winner = null;
-                    for (var key in game.players) {
-                        var player = game.players[key];
-                        if (player.alive) winner = player;
-                    }
-
-                    //Tell everyone user won
-                    if (winner) {
-                        io.in(game.id).emit($.GAME.WIN, {
-                            user: winner.user
-                        });
-                    }
-
-                    //Stop the game
-                    stopGame(io, { gameId: game.id })
-                } else {
+                if (!checkGameWin(game)) {
                     
                     //Check if the player is the current one drawing, if so determine winner or force next turn
                     if (player === currentPlayer) {
@@ -1352,5 +1320,35 @@ module.exports = function(io, EK) {
             
             console.log('Stopped game: ' + game.id);
         }
+    }
+    
+    /**
+     * Check if there is a winner in a game.
+     * If there is a winner then a message is emitted and the game is stopped.
+     * @param   {Object}  game The game
+     * @returns {Boolean} Whether the game has a winner
+     */
+    var checkGameWin = function(game) {
+        if (game.playerAliveCount() < 2) {
+            var winner = null;
+            for (var key in game.players) {
+                var player = game.players[key];
+                if (player.alive) winner = player;
+            }
+
+            //Tell everyone user won
+            if (winner) {
+                io.in(game.id).emit($.GAME.WIN, {
+                    user: winner.user
+                });
+            }
+
+            //Stop the game
+            stopGame(io, { gameId: game.id })
+            
+            return true;
+        }
+        
+        return false;
     }
 }
