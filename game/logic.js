@@ -21,8 +21,6 @@ var CardSet = require('./cardset');
 
 /*
 TODO: Add reverse card
-BUG: When stealing a card from discard pile, the other cards of the same type disappear
-or when noped the card still disappears
 */
 
 /**
