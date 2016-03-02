@@ -49,6 +49,9 @@ var Game = function(id, title) {
 
     //Min players to start the game
     this.minPlayers = 2;
+    
+    //The turn direction (1 = top to bottom, -1 = bottom to top)
+    this.direction = 1;
 
     //*************** Settings *******************
 
@@ -251,10 +254,12 @@ Game.prototype.playerAliveCount = function() {
  * @returns {Number} The next index
  */
 Game.prototype.increment = function(index) {
-    if (index + 1 >= this.players.length) {
+    if (index + this.direction < 0) {
+        index = this.players.length - 1;
+    } else if (index + this.direction >= this.players.length) {
         index = 0;
     } else {
-        index += 1;
+        index += this.direction;
     }
     
     return index;
@@ -374,6 +379,11 @@ Game.prototype.resetDeck = function() {
             this.drawPile.push(new Card(this.generateRandomID(), 'Skip', $.CARD.SKIP, 1));
             this.drawPile.push(new Card(this.generateRandomID(), 'Favor', $.CARD.FAVOR, 2));
             this.drawPile.push(new Card(this.generateRandomID(), 'Shuffle', $.CARD.SHUFFLE, 3));
+            
+            //Only add the reverse if we have more than 2 players since with 2 people order doesn't matter
+            if (this.players.length > 2) {
+                this.drawPile.push(new Card(this.generateRandomID(), 'Reverse', $.CARD.REVERSE, 3));
+            }
             
             //Regular
             this.drawPile.push(new Card(this.generateRandomID(), 'Pyro', $.CARD.REGULAR, 4));

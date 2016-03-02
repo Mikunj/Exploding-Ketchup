@@ -881,6 +881,9 @@ module.exports = function(io, EK) {
             //Make sure we have a person 'to' do action on and that we're not doing the action to ourself and that the player is alive
             return data.hasOwnProperty('to') && user && EK.connectedUsers[socket.id] != user && player && player.alive;
         }
+        
+        //Set the effect to played by default
+        playedSet.effectPlayed = true;
 
         //Check for combos
         if (playedSet.cards.length > 1) {
@@ -910,10 +913,6 @@ module.exports = function(io, EK) {
                             });
                         }
                     }
-                    
-                    //Set effect played
-                    playedSet.effectPlayed = true;
-
                     break;
                 case $.CARDSET.STEAL.NAMED:
                     if (otherPlayerExists(data)) {
@@ -946,10 +945,6 @@ module.exports = function(io, EK) {
                             });
                         }
                     }
-
-                    //Set effect played
-                    playedSet.effectPlayed = true;
-                    
                     break;
 
                 case $.CARDSET.STEAL.DISCARD:
@@ -991,9 +986,6 @@ module.exports = function(io, EK) {
                         });
                     }
 
-                    //Set effect played
-                    playedSet.effectPlayed = true;
-
                     //Remove the set from the discard pile if it's empty
                     var currentSet = game.discardPile[currentKey];
                     if (currentSet && currentSet.isEmpty()) {
@@ -1021,9 +1013,6 @@ module.exports = function(io, EK) {
 
                     //Force player to end turn
                     endTurn = true;
-
-                    //Set the sets effect to played
-                    playedSet.effectPlayed = true;
 
                     break;
 
@@ -1065,9 +1054,6 @@ module.exports = function(io, EK) {
                         }
                     }
 
-                    //Set the effect to played
-                    playedSet.effectPlayed = true;
-
                     //Send the cards to the player
                     socket.emit($.GAME.PLAYER.FUTURE, {
                         cards: futureCards
@@ -1083,17 +1069,16 @@ module.exports = function(io, EK) {
                     if (player.drawAmount < 1) {
                         endTurn = true;
                     }
-
-                    //Set the sets effect to played
-                    playedSet.effectPlayed = true;
+                    
                     break;
 
                 case $.CARD.SHUFFLE:
                     //Shuffle the deck
                     game.shuffleDeck();
-
-                    //Set the sets effect to played
-                    playedSet.effectPlayed = true;
+                    break;
+                case $.CARD.REVERSE:
+                    //Switch direction
+                    game.direction *= -1;
                     break;
             }
         }

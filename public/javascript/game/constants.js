@@ -81,7 +81,8 @@ var $C = {
         FUTURE: 'Future',
         FAVOR: 'Favor',
         SHUFFLE: 'Shuffle',
-        REGULAR: 'Regular'
+        REGULAR: 'Regular',
+        REVERSE: 'Reverse'
     },
     
     CARDSET: {
