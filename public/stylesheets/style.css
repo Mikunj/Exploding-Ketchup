@@ -1,6 +1,6 @@
 html, body {
-    min-width: 100%;
     width:100%;
+    min-width: 100%;
     height: 100%;
     overflow-y: scroll;
 }
@@ -13,6 +13,7 @@ html, body {
     height: 100%;
     top: 0;
     left: 0;
+    overflow: hidden;
 }
 
 @media (max-width:641px) { /* small devices */ 

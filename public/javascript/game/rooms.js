@@ -45,7 +45,7 @@ var Login = {
     },
     
     show: function() {
-        $('#login').show();
+        $('#login').show();        
     },
     
     hide: function() {
