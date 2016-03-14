@@ -58,6 +58,9 @@ var Game = function(id, title) {
     //Amount of players allowed in game
     this.maxPlayers = 8;
     
+    //The amount of time before nopes stop in milliseconds
+    this.nopeTime = 5000;
+    
 };
 
 /**
@@ -71,7 +74,8 @@ Game.prototype.sanitize = function() {
         status: this.status,
         players: this.getPlayers(),
         currentPlayerIndex: this.cUserIndex,
-        drawPileLength: this.drawPile.length
+        drawPileLength: this.drawPile.length,
+        nopeTime: this.nopeTime
     }
 }
 

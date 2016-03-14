@@ -1104,7 +1104,7 @@ module.exports = function(io, EK) {
     
     /**
      * Check if any nopes were played.
-     * If a nope was played then extend timer by 3 seconds.
+     * If a nope was played then extend timer by game nope time.
      * If no nopes were played then process the played set
      * @param {Object} playedSet The played set
      * @param {Object} data The data
@@ -1130,7 +1130,7 @@ module.exports = function(io, EK) {
             EK.pendingSets[playedSet.id].set.nopePlayed = false;
             setTimeout(function() {
                 checkNopes(pending.set, data, socket, game);
-            }, 3000);
+            }, game.nopeTime);
         } else {
             
             //If there is an even amount of nopes played then we can process
@@ -1163,8 +1163,8 @@ module.exports = function(io, EK) {
      */
     var playersHaveNope = function(game) {
         //Check if any players have a nope
-        for (var key in game.players) {
-            var player = game.players[key];
+        for (var i = 0; i < game.players.length; i++) {
+            var player = game.players[i];
             if (player.hasCardType($.CARD.NOPE)) {
                 return true;
             }

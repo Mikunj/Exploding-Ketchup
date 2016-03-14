@@ -189,7 +189,7 @@ var User = function(id, nickname) {
 };
 
 //class for current game
-var Game = function(id, title, status, players, index, drawPileLength) {
+var Game = function(id, title, status, players, index, drawPileLength, nopeTime) {
     //Game id
     this.id = id;
 
@@ -207,6 +207,9 @@ var Game = function(id, title, status, players, index, drawPileLength) {
     
     //The amount of cards left in the draw pile
     this.drawPileLength = drawPileLength;
+    
+    //The amount of time to nope a card in milliseconds
+    this.nopeTime = nopeTime;
     
     //Get a player in the game
     this.getPlayer = function(user) {

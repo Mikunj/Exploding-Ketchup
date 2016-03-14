@@ -639,14 +639,6 @@ jQuery(document).ready(function($) {
                 GameRoom.logSystemGreen(user.name + playString + cardString + " card(s)" + suffix);
             }
             
-            //Set the new set
-            if (data.set) {
-                main.gameData.currentPlayedSet = data.set;
-                //GameRoom.update(main);
-                GameRoom.logSystem("A player can play a nope card!");
-                startNopeTimer();
-            }
-            
             //Update game
             main.addGame(gameFromData(data.game));
             GameRoom.update(main);
@@ -654,6 +646,16 @@ jQuery(document).ready(function($) {
             //Get hand again once playing
             var cUser = main.getCurrentUser();
             var game = main.getCurrentUserGame();
+            
+            //Set the new set
+            if (data.set) {
+                main.gameData.currentPlayedSet = data.set;
+                //GameRoom.update(main);
+                GameRoom.logSystem("A player can play a nope card!");
+                startNopeTimer(game.nopeTime);
+            }
+            
+            //Get hand
             if (cUser && cUser.id === user.id) {
                 io.emit($C.GAME.PLAYER.HAND, { gameId: game.id });
             }
@@ -693,15 +695,15 @@ jQuery(document).ready(function($) {
             main.addGame(gameFromData(data.game));
             GameRoom.update(main);
             
-            //Start the timer again
-            startNopeTimer();
-            
             //Get hand again once someone played a nope
             var cUser = main.getCurrentUser();
             var game = main.getCurrentUserGame();
             if (cUser && cUser.id === user.id) {
                 io.emit($C.GAME.PLAYER.HAND, { gameId: game.id });
             }
+            
+            //Start the timer again
+            startNopeTimer(game.nopeTime);
             
             //Get the discard pile
             io.emit($C.GAME.DISCARDPILE, { gameId: game.id }); 
@@ -820,11 +822,12 @@ jQuery(document).ready(function($) {
     });
     
     /**
-     * Dtart a 3 second timer on the nope button
+     * Start an x second timer on the nope button
+     * @param {Number} time The time in milliseconds
      */
-    var startNopeTimer = function() {
+    var startNopeTimer = function(time) {
         //Add a timer to the nope
-        $('#nopeGameButton').attr('data-count', 3);
+        $('#nopeGameButton').attr('data-count', Math.floor(time / 1000));
         updateNopeButton();
         if ($('#nopeGameButton').attr('data-timer-started') == 1) return;
         
@@ -924,7 +927,7 @@ jQuery(document).ready(function($) {
             }
         });
         
-        return new Game(data.id, data.title, data.status, players, data.currentPlayerIndex, data.drawPileLength);
+        return new Game(data.id, data.title, data.status, players, data.currentPlayerIndex, data.drawPileLength, data.nopeTime);
     }
 
 });
