@@ -390,11 +390,11 @@ Game.prototype.resetDeck = function() {
             }
             
             //Regular
-            this.drawPile.push(new Card(this.generateRandomID(), 'Pyro', $.CARD.REGULAR, 4));
-            this.drawPile.push(new Card(this.generateRandomID(), 'Engineer', $.CARD.REGULAR, 5));
-            this.drawPile.push(new Card(this.generateRandomID(), 'Soldier', $.CARD.REGULAR, 6));
-            this.drawPile.push(new Card(this.generateRandomID(), 'Heavy', $.CARD.REGULAR, 7));
-            this.drawPile.push(new Card(this.generateRandomID(), 'Spy', $.CARD.REGULAR, 8));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Tomato', $.CARD.REGULAR, 4));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Barbecue', $.CARD.REGULAR, 5));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Mustard', $.CARD.REGULAR, 6));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Chilli', $.CARD.REGULAR, 7));
+            this.drawPile.push(new Card(this.generateRandomID(), 'Guacamole', $.CARD.REGULAR, 8));
         }
         
         this.drawPile.push(new Card(this.generateRandomID(), 'Future', $.CARD.FUTURE, 9));
